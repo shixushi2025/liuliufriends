@@ -12,7 +12,20 @@
 		1A0000010000000000000003 /* GameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000013 /* GameViewModel.swift */; };
 		1A0000010000000000000004 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000014 /* ContentView.swift */; };
 		1A0000010000000000000005 /* CharacterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000015 /* CharacterViews.swift */; };
+		1A0000010000000000000006 /* GameContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000016 /* GameContent.swift */; };
+		1A0000010000000000000007 /* FeedbackPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000017 /* FeedbackPlayer.swift */; };
+		1A0000020000000000000001 /* GameViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000020000000000000011 /* GameViewModelTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1A0000020000000000000080 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A0000010000000000000050 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A0000010000000000000040;
+			remoteInfo = LiuliuFriends;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1A0000010000000000000010 /* LiuliuFriends.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LiuliuFriends.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -21,10 +34,21 @@
 		1A0000010000000000000013 /* GameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
 		1A0000010000000000000014 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1A0000010000000000000015 /* CharacterViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterViews.swift; sourceTree = "<group>"; };
+		1A0000010000000000000016 /* GameContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameContent.swift; sourceTree = "<group>"; };
+		1A0000010000000000000017 /* FeedbackPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackPlayer.swift; sourceTree = "<group>"; };
+		1A0000020000000000000010 /* LiuliuFriendsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LiuliuFriendsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A0000020000000000000011 /* GameViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1A0000010000000000000020 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A0000020000000000000020 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -38,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				1A0000010000000000000031 /* LiuliuFriends */,
+				1A0000020000000000000031 /* LiuliuFriendsTests */,
 				1A0000010000000000000032 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -47,7 +72,9 @@
 			children = (
 				1A0000010000000000000011 /* LiuliuFriendsApp.swift */,
 				1A0000010000000000000012 /* GameModels.swift */,
+				1A0000010000000000000016 /* GameContent.swift */,
 				1A0000010000000000000013 /* GameViewModel.swift */,
+				1A0000010000000000000017 /* FeedbackPlayer.swift */,
 				1A0000010000000000000014 /* ContentView.swift */,
 				1A0000010000000000000033 /* Views */,
 			);
@@ -58,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				1A0000010000000000000010 /* LiuliuFriends.app */,
+				1A0000020000000000000010 /* LiuliuFriendsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,6 +96,14 @@
 				1A0000010000000000000015 /* CharacterViews.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		1A0000020000000000000031 /* LiuliuFriendsTests */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000020000000000000011 /* GameViewModelTests.swift */,
+			);
+			path = LiuliuFriendsTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -90,6 +126,24 @@
 			productReference = 1A0000010000000000000010 /* LiuliuFriends.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1A0000020000000000000040 /* LiuliuFriendsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A0000020000000000000045 /* Build configuration list for PBXNativeTarget "LiuliuFriendsTests" */;
+			buildPhases = (
+				1A0000020000000000000041 /* Sources */,
+				1A0000020000000000000020 /* Frameworks */,
+				1A0000020000000000000042 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A0000020000000000000081 /* PBXTargetDependency */,
+			);
+			name = LiuliuFriendsTests;
+			productName = LiuliuFriendsTests;
+			productReference = 1A0000020000000000000010 /* LiuliuFriendsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -102,6 +156,10 @@
 				TargetAttributes = {
 					1A0000010000000000000040 = {
 						CreatedOnToolsVersion = 15.4;
+					};
+					1A0000020000000000000040 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 1A0000010000000000000040;
 					};
 				};
 			};
@@ -120,12 +178,20 @@
 			projectRoot = "";
 			targets = (
 				1A0000010000000000000040 /* LiuliuFriends */,
+				1A0000020000000000000040 /* LiuliuFriendsTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1A0000010000000000000042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A0000020000000000000042 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -141,13 +207,31 @@
 			files = (
 				1A0000010000000000000001 /* LiuliuFriendsApp.swift in Sources */,
 				1A0000010000000000000002 /* GameModels.swift in Sources */,
+				1A0000010000000000000006 /* GameContent.swift in Sources */,
 				1A0000010000000000000003 /* GameViewModel.swift in Sources */,
+				1A0000010000000000000007 /* FeedbackPlayer.swift in Sources */,
 				1A0000010000000000000004 /* ContentView.swift in Sources */,
 				1A0000010000000000000005 /* CharacterViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A0000020000000000000041 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A0000020000000000000001 /* GameViewModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1A0000020000000000000081 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1A0000010000000000000040 /* LiuliuFriends */;
+			targetProxy = 1A0000020000000000000080 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1A0000010000000000000060 /* Debug */ = {
@@ -325,6 +409,50 @@
 			};
 			name = Release;
 		};
+		1A0000020000000000000070 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dudougames.liuliufriends.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LiuliuFriends.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LiuliuFriends";
+			};
+			name = Debug;
+		};
+		1A0000020000000000000071 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dudougames.liuliufriends.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LiuliuFriends.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LiuliuFriends";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -333,6 +461,15 @@
 			buildConfigurations = (
 				1A0000010000000000000070 /* Debug */,
 				1A0000010000000000000071 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A0000020000000000000045 /* Build configuration list for PBXNativeTarget "LiuliuFriendsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A0000020000000000000070 /* Debug */,
+				1A0000020000000000000071 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

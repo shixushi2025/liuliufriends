@@ -1,4 +1,3 @@
-import AudioToolbox
 import Foundation
 import SwiftUI
 
@@ -7,77 +6,53 @@ final class GameViewModel: ObservableObject {
     @Published var completedCandidateID: UUID?
     @Published var wrongCandidateID: UUID?
     @Published var celebrationSeed = 0
+    @Published var completedRounds = 0
+    @Published var screen: AppScreen = .play
+    @Published var settings = GameSettings()
 
     private var roundIndex = 0
+    private let rounds: [GameRound]
+    private let feedbackPlayer: FeedbackPlaying
+    private let autoAdvanceDelay: TimeInterval
 
-    private let rounds: [GameRound] = [
-        GameRound(
-            mode: .color,
-            targetKind: .balloon,
-            targetColor: .red,
-            candidates: [
-                FriendCandidate(kind: .balloon, color: .red, isCorrect: true),
-                FriendCandidate(kind: .balloon, color: .blue, isCorrect: false)
-            ]
-        ),
-        GameRound(
-            mode: .shadow,
-            targetKind: .cat,
-            targetColor: .orange,
-            candidates: [
-                FriendCandidate(kind: .cat, color: .orange, isCorrect: true),
-                FriendCandidate(kind: .dog, color: .mint, isCorrect: false)
-            ]
-        ),
-        GameRound(
-            mode: .sound,
-            targetKind: .duck,
-            targetColor: .yellow,
-            candidates: [
-                FriendCandidate(kind: .duck, color: .yellow, isCorrect: true),
-                FriendCandidate(kind: .cat, color: .pink, isCorrect: false)
-            ]
-        ),
-        GameRound(
-            mode: .color,
-            targetKind: .apple,
-            targetColor: .green,
-            candidates: [
-                FriendCandidate(kind: .apple, color: .purple, isCorrect: false),
-                FriendCandidate(kind: .apple, color: .green, isCorrect: true)
-            ]
-        ),
-        GameRound(
-            mode: .shadow,
-            targetKind: .bear,
-            targetColor: .brown,
-            candidates: [
-                FriendCandidate(kind: .duck, color: .yellow, isCorrect: false),
-                FriendCandidate(kind: .bear, color: .brown, isCorrect: true)
-            ]
-        )
-    ]
-
-    init() {
+    init(
+        rounds: [GameRound] = GameContent.rounds,
+        feedbackPlayer: FeedbackPlaying = SystemFeedbackPlayer(),
+        autoAdvanceDelay: TimeInterval = 1.15
+    ) {
+        precondition(!rounds.isEmpty, "Game requires at least one round.")
+        self.rounds = rounds
+        self.feedbackPlayer = feedbackPlayer
+        self.autoAdvanceDelay = autoAdvanceDelay
         round = rounds[0]
     }
 
-    func choose(_ candidate: FriendCandidate) {
+    @discardableResult
+    func choose(_ candidate: FriendCandidate) -> SelectionResult {
+        guard completedCandidateID == nil else {
+            return .ignored
+        }
+
         if candidate.isCorrect {
             completedCandidateID = candidate.id
             celebrationSeed += 1
-            AudioServicesPlaySystemSound(1057)
+            completedRounds += 1
+            feedbackPlayer.playCorrect(settings: settings)
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.15) {
-                self.nextRound()
+            if settings.autoAdvanceEnabled {
+                DispatchQueue.main.asyncAfter(deadline: .now() + autoAdvanceDelay) {
+                    self.nextRound()
+                }
             }
+            return .correct
         } else {
             wrongCandidateID = candidate.id
-            AudioServicesPlaySystemSound(1104)
+            feedbackPlayer.playRetry(settings: settings)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
                 self.wrongCandidateID = nil
             }
+            return .retry
         }
     }
 
@@ -88,6 +63,23 @@ final class GameViewModel: ObservableObject {
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
             round = rounds[roundIndex]
+        }
+        feedbackPlayer.playPrompt(for: round, settings: settings)
+    }
+
+    func replayPrompt() {
+        feedbackPlayer.playPrompt(for: round, settings: settings)
+    }
+
+    func resetProgress() {
+        roundIndex = 0
+        completedRounds = 0
+        completedCandidateID = nil
+        wrongCandidateID = nil
+        celebrationSeed = 0
+
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+            round = rounds[0]
         }
     }
 }

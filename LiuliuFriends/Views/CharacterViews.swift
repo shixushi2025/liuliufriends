@@ -24,12 +24,13 @@ struct MascotPanel: View {
     let round: GameRound
     let celebrationSeed: Int
     let isCelebrating: Bool
+    let reducedMotion: Bool
 
     var body: some View {
         VStack(spacing: 18) {
             LiuliuMascot(mood: isCelebrating ? .happy : .waiting)
                 .frame(width: 220, height: 260)
-                .scaleEffect(celebrationSeed == 0 ? 1 : 1.03)
+                .scaleEffect(reducedMotion ? 1 : (celebrationSeed == 0 ? 1 : 1.03))
                 .animation(.spring(response: 0.35, dampingFraction: 0.42), value: celebrationSeed)
 
             Text("六六")
@@ -306,6 +307,10 @@ struct FriendShape: View {
                 AnimalFace(color: color, ear: .round, isShadow: isShadow)
             case .apple:
                 AppleShape(color: color, isShadow: isShadow)
+            case .fish:
+                FishShape(color: color, isShadow: isShadow)
+            case .star:
+                StarShape(color: color, isShadow: isShadow)
             }
         }
         .saturation(isShadow ? 0 : 1)
@@ -449,6 +454,44 @@ private struct AppleShape: View {
                 .rotationEffect(.degrees(16))
                 .offset(y: -64)
         }
+    }
+}
+
+private struct FishShape: View {
+    let color: Color
+    let isShadow: Bool
+
+    var body: some View {
+        ZStack {
+            Ellipse()
+                .fill(color)
+                .frame(width: 122, height: 78)
+
+            Triangle()
+                .fill(color)
+                .frame(width: 52, height: 58)
+                .rotationEffect(.degrees(90))
+                .offset(x: 72)
+
+            if !isShadow {
+                Circle()
+                    .fill(.black.opacity(0.75))
+                    .frame(width: 10, height: 10)
+                    .offset(x: -36, y: -10)
+            }
+        }
+    }
+}
+
+private struct StarShape: View {
+    let color: Color
+    let isShadow: Bool
+
+    var body: some View {
+        Image(systemName: "star.fill")
+            .font(.system(size: 118, weight: .heavy))
+            .foregroundStyle(color)
+            .shadow(color: isShadow ? .clear : .yellow.opacity(0.2), radius: 8)
     }
 }
 

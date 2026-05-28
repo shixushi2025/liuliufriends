@@ -16,6 +16,17 @@
 1. 颜色朋友：帮六六找到同颜色的朋友。
 2. 影子朋友：把小动物放到自己的影子上。
 3. 声音朋友：听声音，点出对应动物。
+4. 大小朋友：帮小伙伴找到同样大小的家。
+
+## 当前功能完整性
+
+- 首页游戏循环：已完成
+- 设置页：已完成，支持音效、提示音、自动下一题、减少动画
+- 家长区：已完成，包含隐私、网络、广告和内容说明
+- 角色系统：已完成六六普通状态、开心状态和图标概念
+- 测试：已加入 `LiuliuFriendsTests`
+- 正式素材：待替换，目前为 SwiftUI 矢量占位插画
+- 真人语音：待录制，目前为系统提示音占位
 
 ## 角色设定
 
@@ -29,6 +40,12 @@
 ## 运行
 
 用 Xcode 打开 `LiuliuFriends.xcodeproj`，选择 iPad 或 iPhone 模拟器运行。
+
+推荐验证命令：
+
+```bash
+xcodebuild test -project LiuliuFriends.xcodeproj -scheme LiuliuFriends -destination 'platform=iOS Simulator,name=iPad (10th generation)'
+```
 
 在 `LiuliuFriends/Views/CharacterViews.swift` 里有两个 Xcode Preview：
 
