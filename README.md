@@ -54,6 +54,7 @@ xcodebuild test -project LiuliuFriends.xcodeproj -scheme LiuliuFriends -destinat
 
 ## 后续适合补充
 
+- 按 `DESIGN_BRIEF.md` 重新设计正式 UI、角色和多玩法视觉系统
 - 替换 SwiftUI 矢量插画为正式 PNG/SVG 资源
 - 增加真人录制中文语音提示
 - 增加更多动物、水果、形状和大小匹配

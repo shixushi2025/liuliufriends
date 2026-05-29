@@ -14,6 +14,8 @@ final class GameViewModel: ObservableObject {
     private let rounds: [GameRound]
     private let feedbackPlayer: FeedbackPlaying
     private let autoAdvanceDelay: TimeInterval
+    private var pendingAutoAdvanceWorkItem: DispatchWorkItem?
+    private var pendingRetryClearWorkItem: DispatchWorkItem?
 
     init(
         rounds: [GameRound] = GameContent.rounds,
@@ -34,29 +36,35 @@ final class GameViewModel: ObservableObject {
         }
 
         if candidate.isCorrect {
+            cancelPendingRetryClear()
+            wrongCandidateID = nil
             completedCandidateID = candidate.id
             celebrationSeed += 1
             completedRounds += 1
             feedbackPlayer.playCorrect(settings: settings)
 
             if settings.autoAdvanceEnabled {
-                DispatchQueue.main.asyncAfter(deadline: .now() + autoAdvanceDelay) {
-                    self.nextRound()
-                }
+                scheduleAutoAdvance()
             }
             return .correct
         } else {
             wrongCandidateID = candidate.id
             feedbackPlayer.playRetry(settings: settings)
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
-                self.wrongCandidateID = nil
+            cancelPendingRetryClear()
+            let workItem = DispatchWorkItem { [weak self] in
+                self?.pendingRetryClearWorkItem = nil
+                self?.wrongCandidateID = nil
             }
+            pendingRetryClearWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45, execute: workItem)
             return .retry
         }
     }
 
     func nextRound() {
+        cancelPendingAutoAdvance()
+        cancelPendingRetryClear()
         roundIndex = (roundIndex + 1) % rounds.count
         completedCandidateID = nil
         wrongCandidateID = nil
@@ -72,6 +80,8 @@ final class GameViewModel: ObservableObject {
     }
 
     func resetProgress() {
+        cancelPendingAutoAdvance()
+        cancelPendingRetryClear()
         roundIndex = 0
         completedRounds = 0
         completedCandidateID = nil
@@ -81,5 +91,25 @@ final class GameViewModel: ObservableObject {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             round = rounds[0]
         }
+    }
+
+    private func scheduleAutoAdvance() {
+        cancelPendingAutoAdvance()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.pendingAutoAdvanceWorkItem = nil
+            self?.nextRound()
+        }
+        pendingAutoAdvanceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + autoAdvanceDelay, execute: workItem)
+    }
+
+    private func cancelPendingAutoAdvance() {
+        pendingAutoAdvanceWorkItem?.cancel()
+        pendingAutoAdvanceWorkItem = nil
+    }
+
+    private func cancelPendingRetryClear() {
+        pendingRetryClearWorkItem?.cancel()
+        pendingRetryClearWorkItem = nil
     }
 }

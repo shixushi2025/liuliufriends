@@ -3,14 +3,29 @@ import SwiftUI
 
 struct BackgroundView: View {
     var body: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 1.0, green: 0.96, blue: 0.88),
-                Color(red: 0.88, green: 0.96, blue: 1.0)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 1.0, green: 0.91, blue: 0.66),
+                    Color(red: 0.78, green: 0.94, blue: 1.0),
+                    Color(red: 0.93, green: 0.84, blue: 1.0)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            Circle()
+                .fill(Color(red: 1.0, green: 0.34, blue: 0.25).opacity(0.18))
+                .frame(width: 420, height: 420)
+                .blur(radius: 42)
+                .offset(x: -180, y: -260)
+
+            Circle()
+                .fill(Color(red: 0.18, green: 0.50, blue: 1.0).opacity(0.16))
+                .frame(width: 520, height: 520)
+                .blur(radius: 54)
+                .offset(x: 210, y: 260)
+        }
         .ignoresSafeArea()
     }
 }
@@ -60,69 +75,89 @@ struct LiuliuMascot: View {
     }
 
     var body: some View {
+        LiuliuPendant(mood: mood)
+    }
+}
+
+struct LiuliuPendant: View {
+    let mood: LiuliuMood
+
+    init(mood: LiuliuMood = .waiting) {
+        self.mood = mood
+    }
+
+    var body: some View {
         ZStack {
-            Ellipse()
-                .fill(.black.opacity(0.08))
-                .frame(width: 160, height: 28)
-                .offset(y: 122)
+            PendantCord()
+                .stroke(Color(red: 0.24, green: 0.17, blue: 0.12), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                .frame(width: 56, height: 46)
+                .offset(y: -82)
 
-            HStack(spacing: 96) {
-                Capsule()
-                    .fill(Color(red: 1.0, green: 0.82, blue: 0.54))
-                    .frame(width: 36, height: 86)
-                    .rotationEffect(.degrees(mood == .happy ? -34 : -20))
-                Capsule()
-                    .fill(Color(red: 1.0, green: 0.82, blue: 0.54))
-                    .frame(width: 36, height: 86)
-                    .rotationEffect(.degrees(mood == .happy ? 34 : 20))
-            }
-            .offset(y: 28)
+            RoundedRectangle(cornerRadius: 34)
+                .fill(.white.opacity(0.72))
+                .frame(width: 132, height: 156)
+                .rotationEffect(.degrees(-4))
+                .shadow(color: Color(red: 0.62, green: 0.25, blue: 0.08).opacity(0.18), radius: 22, y: 12)
 
-            Ellipse()
-                .fill(Color(red: 1.0, green: 0.82, blue: 0.54))
-                .frame(width: 170, height: 190)
-                .offset(y: 22)
-
-            Circle()
-                .fill(Color(red: 1.0, green: 0.88, blue: 0.68))
-                .frame(width: 150, height: 150)
-                .offset(y: -42)
-
-            HStack(spacing: 54) {
-                EarView()
-                EarView()
-            }
-            .frame(width: 180, height: 46)
-            .offset(y: -78)
-
-            HairTuft()
-                .stroke(Color(red: 0.35, green: 0.22, blue: 0.14), style: StrokeStyle(lineWidth: 5, lineCap: .round))
-                .frame(width: 44, height: 28)
-                .offset(y: -120)
-
-            HStack(spacing: 30) {
-                EyeView(isHappy: mood == .happy)
-                EyeView(isHappy: mood == .happy)
-            }
-            .offset(y: -48)
-
-            DudouView()
-                .offset(y: 46)
-
-            MouthView(isHappy: mood == .happy)
-                .stroke(.black.opacity(0.55), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                .frame(width: 40, height: 22)
+            BeanFace(isHappy: mood == .happy)
+                .frame(width: 118, height: 118)
                 .offset(y: -18)
 
-            HStack(spacing: 112) {
-                Circle()
-                    .fill(Color(red: 1.0, green: 0.74, blue: 0.62))
-                    .frame(width: 18, height: 18)
-                Circle()
-                    .fill(Color(red: 1.0, green: 0.74, blue: 0.62))
-                    .frame(width: 18, height: 18)
+            DudouView()
+                .scaleEffect(0.54)
+                .offset(y: 55)
+
+            Text("六六")
+                .font(.system(size: 18, weight: .black, design: .rounded))
+                .foregroundStyle(.white)
+                .offset(y: 66)
+        }
+        .frame(width: 150, height: 190)
+    }
+}
+
+private struct BeanFace: View {
+    let isHappy: Bool
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 44)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 1.0, green: 0.86, blue: 0.42),
+                            Color(red: 1.0, green: 0.64, blue: 0.28)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 44)
+                        .stroke(.white.opacity(0.78), lineWidth: 4)
+                )
+
+            HStack(spacing: 28) {
+                EyeView(isHappy: isHappy)
+                EyeView(isHappy: isHappy)
             }
-            .offset(y: -28)
+            .offset(y: -8)
+
+            MouthView(isHappy: isHappy)
+                .stroke(Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.74), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .frame(width: 34, height: 20)
+                .offset(y: 22)
+
+            HStack(spacing: 60) {
+                BlushView()
+                BlushView()
+            }
+            .offset(y: 14)
+
+            HairTuft()
+                .stroke(Color(red: 0.30, green: 0.16, blue: 0.10), style: StrokeStyle(lineWidth: 4.5, lineCap: .round, lineJoin: .round))
+                .frame(width: 38, height: 28)
+                .offset(y: -64)
         }
     }
 }
@@ -130,12 +165,13 @@ struct LiuliuMascot: View {
 struct LiuliuAppIconConcept: View {
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 44)
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(red: 1.0, green: 0.93, blue: 0.78),
-                            Color(red: 0.76, green: 0.91, blue: 1.0)
+                            Color(red: 1.0, green: 0.70, blue: 0.23),
+                            Color(red: 0.98, green: 0.20, blue: 0.20),
+                            Color(red: 0.20, green: 0.53, blue: 1.0)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -143,13 +179,12 @@ struct LiuliuAppIconConcept: View {
                 )
 
             Circle()
-                .fill(.white.opacity(0.58))
-                .frame(width: 156, height: 156)
-                .offset(y: 2)
+                .fill(.white.opacity(0.34))
+                .frame(width: 178, height: 178)
 
-            LiuliuMascot(mood: .happy)
-                .frame(width: 156, height: 184)
-                .offset(y: 20)
+            LiuliuPendant(mood: .happy)
+                .frame(width: 170, height: 210)
+                .offset(y: 10)
         }
         .aspectRatio(1, contentMode: .fit)
     }
@@ -157,14 +192,72 @@ struct LiuliuAppIconConcept: View {
 
 private struct EarView: View {
     var body: some View {
-        Circle()
-            .fill(Color(red: 1.0, green: 0.88, blue: 0.68))
-            .frame(width: 46, height: 46)
+        ZStack {
+            Circle()
+                .fill(Color(red: 1.0, green: 0.83, blue: 0.58))
+                .frame(width: 44, height: 44)
+                .overlay(
+                    Circle()
+                        .stroke(.white.opacity(0.65), lineWidth: 2)
+                )
+
+            Circle()
+                .fill(Color(red: 1.0, green: 0.70, blue: 0.55).opacity(0.72))
+                .frame(width: 22, height: 22)
+        }
+    }
+}
+
+private struct BodyView: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 64)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 1.0, green: 0.84, blue: 0.58),
+                            Color(red: 0.98, green: 0.73, blue: 0.40)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 142, height: 156)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 64)
+                        .stroke(.white.opacity(0.38), lineWidth: 3)
+                )
+        }
+    }
+}
+
+private struct ArmView: View {
+    var body: some View {
+        Capsule()
+            .fill(Color(red: 1.0, green: 0.80, blue: 0.52))
+            .frame(width: 30, height: 86)
             .overlay(
                 Circle()
-                    .fill(Color(red: 1.0, green: 0.77, blue: 0.58))
-                    .frame(width: 25, height: 25)
+                    .fill(Color(red: 1.0, green: 0.75, blue: 0.58))
+                    .frame(width: 32, height: 32)
+                    .offset(y: 30)
             )
+    }
+}
+
+private struct FootView: View {
+    var body: some View {
+        Capsule()
+            .fill(Color(red: 1.0, green: 0.78, blue: 0.52))
+            .frame(width: 44, height: 24)
+    }
+}
+
+private struct BlushView: View {
+    var body: some View {
+        Ellipse()
+            .fill(Color(red: 1.0, green: 0.58, blue: 0.50).opacity(0.55))
+            .frame(width: 24, height: 18)
     }
 }
 
@@ -174,20 +267,20 @@ private struct EyeView: View {
     var body: some View {
         if isHappy {
             Path { path in
-                path.move(to: CGPoint(x: 0, y: 8))
-                path.addQuadCurve(to: CGPoint(x: 20, y: 8), control: CGPoint(x: 10, y: 20))
+                path.move(to: CGPoint(x: 0, y: 10))
+                path.addQuadCurve(to: CGPoint(x: 24, y: 10), control: CGPoint(x: 12, y: 22))
             }
-            .stroke(.black.opacity(0.75), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-            .frame(width: 20, height: 20)
+            .stroke(Color(red: 0.18, green: 0.15, blue: 0.12).opacity(0.8), style: StrokeStyle(lineWidth: 4.5, lineCap: .round))
+            .frame(width: 24, height: 22)
         } else {
             Circle()
-                .fill(.black.opacity(0.75))
-                .frame(width: 14, height: 14)
+                .fill(Color(red: 0.18, green: 0.15, blue: 0.12).opacity(0.86))
+                .frame(width: 17, height: 17)
                 .overlay(
                     Circle()
-                        .fill(.white.opacity(0.8))
-                        .frame(width: 4, height: 4)
-                        .offset(x: -3, y: -3)
+                        .fill(.white.opacity(0.9))
+                        .frame(width: 5, height: 5)
+                        .offset(x: -4, y: -4)
                 )
         }
     }
@@ -196,31 +289,56 @@ private struct EyeView: View {
 private struct DudouView: View {
     var body: some View {
         ZStack {
-            Capsule()
-                .fill(Color(red: 0.95, green: 0.26, blue: 0.24))
-                .frame(width: 86, height: 112)
+            DudouShape()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 1.0, green: 0.24, blue: 0.22),
+                            Color(red: 0.88, green: 0.08, blue: 0.08)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 88, height: 108)
+                .shadow(color: Color(red: 0.80, green: 0.05, blue: 0.04).opacity(0.2), radius: 8, y: 4)
 
             Circle()
                 .stroke(.white.opacity(0.86), lineWidth: 4)
                 .frame(width: 34, height: 34)
-                .offset(y: 14)
+                .offset(y: 8)
 
             HStack(spacing: 70) {
                 Path { path in
                     path.move(to: CGPoint(x: 0, y: 0))
                     path.addLine(to: CGPoint(x: 28, y: 40))
                 }
-                .stroke(Color(red: 0.85, green: 0.16, blue: 0.16), style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                .stroke(Color(red: 0.78, green: 0.05, blue: 0.05), style: StrokeStyle(lineWidth: 7, lineCap: .round))
 
                 Path { path in
                     path.move(to: CGPoint(x: 28, y: 0))
                     path.addLine(to: CGPoint(x: 0, y: 40))
                 }
-                .stroke(Color(red: 0.85, green: 0.16, blue: 0.16), style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                .stroke(Color(red: 0.78, green: 0.05, blue: 0.05), style: StrokeStyle(lineWidth: 7, lineCap: .round))
             }
             .frame(width: 116, height: 42)
-            .offset(y: -58)
+            .offset(y: -55)
         }
+    }
+}
+
+private struct DudouShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addQuadCurve(to: CGPoint(x: rect.maxX - 12, y: rect.minY + 22), control: CGPoint(x: rect.maxX - 6, y: rect.minY + 2))
+        path.addLine(to: CGPoint(x: rect.maxX - 5, y: rect.maxY - 18))
+        path.addQuadCurve(to: CGPoint(x: rect.midX, y: rect.maxY), control: CGPoint(x: rect.maxX - 18, y: rect.maxY + 4))
+        path.addQuadCurve(to: CGPoint(x: rect.minX + 5, y: rect.maxY - 18), control: CGPoint(x: rect.minX + 18, y: rect.maxY + 4))
+        path.addLine(to: CGPoint(x: rect.minX + 12, y: rect.minY + 22))
+        path.addQuadCurve(to: CGPoint(x: rect.midX, y: rect.minY), control: CGPoint(x: rect.minX + 6, y: rect.minY + 2))
+        path.closeSubpath()
+        return path
     }
 }
 
@@ -244,6 +362,15 @@ private struct HairTuft: Shape {
         path.move(to: CGPoint(x: rect.minX + 4, y: rect.maxY))
         path.addQuadCurve(to: CGPoint(x: rect.midX, y: rect.minY + 2), control: CGPoint(x: rect.minX + 8, y: rect.minY + 4))
         path.addQuadCurve(to: CGPoint(x: rect.maxX - 4, y: rect.maxY), control: CGPoint(x: rect.maxX - 6, y: rect.minY + 2))
+        return path
+    }
+}
+
+private struct PendantCord: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX + 8, y: rect.maxY))
+        path.addQuadCurve(to: CGPoint(x: rect.maxX - 8, y: rect.maxY), control: CGPoint(x: rect.midX, y: rect.minY))
         return path
     }
 }

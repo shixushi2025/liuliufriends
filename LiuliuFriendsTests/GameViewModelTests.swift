@@ -59,6 +59,33 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.completedCandidateID)
         XCTAssertNil(viewModel.wrongCandidateID)
     }
+
+    func testResetProgressCancelsPendingAutoAdvance() async throws {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), autoAdvanceDelay: 0.05)
+        let firstRoundID = viewModel.round.id
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+
+        viewModel.choose(correct)
+        viewModel.resetProgress()
+
+        try await Task.sleep(nanoseconds: 120_000_000)
+
+        XCTAssertEqual(viewModel.round.id, firstRoundID)
+        XCTAssertEqual(viewModel.completedRounds, 0)
+        XCTAssertNil(viewModel.completedCandidateID)
+    }
+
+    func testCorrectSelectionClearsPendingWrongFeedback() {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+        let wrong = viewModel.round.candidates.first { !$0.isCorrect }!
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+
+        viewModel.choose(wrong)
+        viewModel.choose(correct)
+
+        XCTAssertNil(viewModel.wrongCandidateID)
+        XCTAssertEqual(viewModel.completedCandidateID, correct.id)
+    }
 }
 
 private final class TestFeedbackPlayer: FeedbackPlaying {
