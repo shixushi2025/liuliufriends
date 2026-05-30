@@ -182,6 +182,9 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.soundPrompt(for: .grape), "葡萄")
 
         viewModel.setCustomPromptName("串串", for: VoicePromptTarget(kind: .grape))
+        XCTAssertEqual(viewModel.soundPrompt(for: .grape), "葡萄")
+
+        viewModel.settings.customPromptAliasEnabled = true
 
         XCTAssertEqual(FriendKind.grape.name, "葡萄")
         XCTAssertEqual(viewModel.soundPrompt(for: .grape), "串串")

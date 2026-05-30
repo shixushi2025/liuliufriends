@@ -205,15 +205,20 @@ final class GameViewModel: ObservableObject {
     }
 
     func displayName(for target: VoicePromptTarget) -> String {
-        promptAliasStore.displayName(for: target)
+        guard settings.customPromptAliasEnabled else { return target.name }
+        return promptAliasStore.displayName(for: target)
     }
 
     func displayName(for kind: FriendKind) -> String {
-        promptAliasStore.displayName(for: kind)
+        guard settings.customPromptAliasEnabled else { return kind.name }
+        return promptAliasStore.displayName(for: kind)
     }
 
     func soundPrompt(for kind: FriendKind) -> String {
-        promptAliasStore.soundPrompt(for: kind)
+        guard settings.customPromptAliasEnabled else {
+            return LearningPromptTextCatalog.soundPrompt(for: kind)
+        }
+        return promptAliasStore.soundPrompt(for: kind)
     }
 
     func customPromptName(for target: VoicePromptTarget) -> String {

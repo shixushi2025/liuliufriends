@@ -22,10 +22,10 @@
 - `https://dudou.baby/privacy.html` 已部署并公网可访问。
 - `hello@dudou.baby` 可以真实收信。
 - App Store Connect 中 Bundle ID、Team、证书和 Provisioning Profile 正确。
-- App Store Connect 隐私问卷填写“未收集数据”，并注明麦克风仅用于家长本地录音、不上传。
+- App Store Connect 隐私问卷填写“未收集数据”；0.30 版本未开放麦克风录音入口。
 - 年龄分级问卷按无暴力、无成人内容、无 UGC、无网页访问、无定位共享填写。
 - iPhone 6.7、iPhone 6.5、iPad 13、iPad 12.9 所需截图全部生成并人工检查无遮挡。
-- 真机上验证声音开关、语音提示、家长录音、休息提醒、护眼模式、自动下一题、减少动画、iPad 横屏和 iPhone 竖屏。
+- 真机上验证声音开关、语音提示、休息提醒、护眼模式、自动下一题、减少动画、iPad 横屏和 iPhone 竖屏。
 
 ## 后续变更红线
 

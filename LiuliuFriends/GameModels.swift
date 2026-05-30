@@ -867,7 +867,8 @@ struct GameRound: Identifiable {
 struct GameSettings: Equatable {
     var soundEnabled: Bool = true
     var voicePromptEnabled: Bool = true
-    var customVoiceEnabled: Bool = true
+    var customVoiceEnabled: Bool = false
+    var customPromptAliasEnabled: Bool = false
     var autoAdvanceEnabled: Bool = true
     var restReminderEnabled: Bool = true
     var eyeComfortEnabled: Bool = false

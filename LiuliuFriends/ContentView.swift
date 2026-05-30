@@ -741,7 +741,6 @@ private struct SettingsScreen: View {
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                             SettingsTile(title: "音效", systemName: "speaker.wave.2.fill", isOn: $viewModel.settings.soundEnabled)
                             SettingsTile(title: "语音", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
-                            SettingsTile(title: "录音", systemName: "mic.fill", isOn: $viewModel.settings.customVoiceEnabled)
                             SettingsTile(title: "休息", systemName: "timer", isOn: $viewModel.settings.restReminderEnabled)
                             SettingsTile(title: "护眼", systemName: "eye.fill", isOn: $viewModel.settings.eyeComfortEnabled)
                             SettingsTile(title: "自动", systemName: "arrow.right.circle.fill", isOn: $viewModel.settings.autoAdvanceEnabled)
@@ -762,12 +761,6 @@ private struct SettingsScreen: View {
                                 title: "语音提示",
                                 systemName: "bubble.left.and.soundwave.right.fill",
                                 isOn: $viewModel.settings.voicePromptEnabled,
-                                isCompact: false
-                            )
-                            SettingsToggle(
-                                title: "优先使用家长录音",
-                                systemName: "mic.fill",
-                                isOn: $viewModel.settings.customVoiceEnabled,
                                 isCompact: false
                             )
                             SettingsToggle(
@@ -800,8 +793,6 @@ private struct SettingsScreen: View {
                         .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                         .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
                     }
-
-                    VoiceRecordingSection(viewModel: viewModel, isCompact: isCompact)
 
                     ParentSummarySection(isCompact: isCompact)
 
