@@ -15,6 +15,21 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(modes, Set(GameMode.allCases))
     }
 
+    func testEachGameModeHasEnoughRounds() {
+        for mode in GameMode.allCases {
+            let count = GameContent.rounds.filter { $0.mode == mode }.count
+            XCTAssertGreaterThanOrEqual(count, 6, "\(mode.title) should have enough variety.")
+        }
+    }
+
+    func testContentUsesAllFriendKinds() {
+        let usedKinds = Set(GameContent.rounds.flatMap { round in
+            [round.targetKind] + round.candidates.map(\.kind)
+        })
+
+        XCTAssertEqual(usedKinds, Set(FriendKind.allCases))
+    }
+
     func testCorrectSelectionCompletesRoundWithoutAutoAdvanceWhenDisabled() {
         let feedback = TestFeedbackPlayer()
         let viewModel = GameViewModel(feedbackPlayer: feedback)

@@ -173,7 +173,7 @@ enum FriendKind: String, CaseIterable, Identifiable {
 
     var isAnimal: Bool {
         switch self {
-        case .cat, .dog, .duck, .bear, .rabbit, .frog:
+        case .cat, .dog, .duck, .bear, .rabbit, .frog, .fish:
             return true
         default:
             return false
