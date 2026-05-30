@@ -1,78 +1,133 @@
 import SwiftUI
 
 enum GameContent {
-    static let rounds: [GameRound] = [
-        animal(.cat, .catOrange, .dog, .dogTan),
-        sound(.duck, .duckYellow, .cat, .catOrange),
-        color(.balloon, .coral, .skyBlue),
-        shape(.heart, .skyBlue, .star),
-        size(.circle, .purple, correctScale: 1.05, wrongScale: 0.62, correctFirst: false),
-        shadow(.rabbit, .rabbitCream, .frog, .frogGreen),
+    static let rounds: [GameRound] = makeRounds()
 
-        color(.apple, .mintGreen, .sunYellow, correctFirst: false),
-        animal(.frog, .frogGreen, .bear, .bearBrown, correctFirst: false),
-        shape(.star, .skyBlue, .triangle, correctFirst: false),
-        sound(.dog, .dogTan, .frog, .frogGreen),
-        shadow(.bear, .bearBrown, .duck, .duckYellow, correctFirst: false),
-        size(.square, .mintGreen, correctScale: 0.68, wrongScale: 1.08),
-
-        animal(.rabbit, .rabbitCream, .duck, .duckYellow),
-        sound(.cat, .catOrange, .dog, .dogTan, correctFirst: false),
-        color(.fish, .skyBlue, .coral),
-        shape(.circle, .purple, .square),
-        size(.triangle, .coral, correctScale: 1.10, wrongScale: 0.66, correctFirst: false),
-        shadow(.cat, .catOrange, .dog, .dogTan),
-
-        animal(.duck, .duckYellow, .frog, .frogGreen, correctFirst: false),
-        sound(.frog, .frogGreen, .rabbit, .rabbitCream),
-        color(.balloon, .sunYellow, .purple, correctFirst: false),
-        shape(.square, .mintGreen, .circle, correctFirst: false),
-        size(.star, .sunYellow, correctScale: 0.72, wrongScale: 1.12),
-        shadow(.fish, .skyBlue, .apple, .mintGreen, correctFirst: false),
-
-        animal(.bear, .bearBrown, .cat, .catOrange),
-        sound(.bear, .bearBrown, .duck, .duckYellow, correctFirst: false),
-        color(.apple, .coral, .mintGreen),
-        shape(.triangle, .coral, .heart),
-        size(.heart, .coral, correctScale: 1.08, wrongScale: 0.64, correctFirst: false),
-        shadow(.balloon, .sunYellow, .star, .sunYellow),
-
-        animal(.fish, .skyBlue, .rabbit, .rabbitCream, correctFirst: false),
-        sound(.fish, .skyBlue, .bear, .bearBrown),
-        color(.duck, .purple, .duckYellow, correctFirst: false),
-        shape(.balloon, .coral, .apple, correctFirst: false),
-        size(.balloon, .skyBlue, correctScale: 0.66, wrongScale: 1.10),
-        shadow(.square, .mintGreen, .circle, .mintGreen, correctFirst: false)
+    private static let palette: [Color] = [
+        .coral,
+        .skyBlue,
+        .mintGreen,
+        .sunYellow,
+        .purple,
+        .rosePink,
+        .leafGreen,
+        .orange,
+        .milkBrown,
+        .berryRed,
+        .aqua,
+        .softGray
     ]
 
-    private static func animal(
-        _ target: FriendKind,
-        _ targetColor: Color,
-        _ distractor: FriendKind,
-        _ distractorColor: Color,
-        correctFirst: Bool = true
-    ) -> GameRound {
-        matchingRound(.animal, target, targetColor, distractor, distractorColor, correctFirst: correctFirst)
+    private static let baseColors: [FriendKind: Color] = [
+        .balloon: .coral,
+        .cat: .catOrange,
+        .dog: .dogTan,
+        .duck: .duckYellow,
+        .bear: .bearBrown,
+        .rabbit: .rabbitCream,
+        .frog: .frogGreen,
+        .apple: .berryRed,
+        .fish: .skyBlue,
+        .circle: .purple,
+        .square: .mintGreen,
+        .triangle: .coral,
+        .star: .sunYellow,
+        .heart: .rosePink,
+        .bird: .skyBlue,
+        .cow: .softGray,
+        .sheep: .rabbitCream,
+        .horse: .milkBrown,
+        .pig: .rosePink,
+        .monkey: .milkBrown,
+        .panda: .softGray,
+        .tiger: .orange,
+        .lion: .sunYellow,
+        .elephant: .softGray,
+        .turtle: .leafGreen,
+        .bee: .sunYellow,
+        .butterfly: .purple,
+        .car: .coral,
+        .bus: .sunYellow,
+        .train: .skyBlue,
+        .truck: .mintGreen,
+        .airplane: .aqua,
+        .boat: .skyBlue,
+        .bicycle: .orange,
+        .fireTruck: .berryRed,
+        .ambulance: .softGray,
+        .tractor: .leafGreen,
+        .rocket: .purple,
+        .banana: .sunYellow,
+        .orange: .orange,
+        .pear: .leafGreen,
+        .strawberry: .berryRed,
+        .watermelon: .leafGreen,
+        .grape: .purple,
+        .peach: .rosePink,
+        .pineapple: .sunYellow,
+        .cherry: .berryRed,
+        .lemon: .sunYellow,
+        .rectangle: .skyBlue,
+        .oval: .mintGreen,
+        .diamond: .purple,
+        .moon: .sunYellow,
+        .flower: .rosePink,
+        .tree: .leafGreen,
+        .sun: .sunYellow,
+        .cloud: .softGray,
+        .umbrella: .purple,
+        .ball: .coral,
+        .book: .skyBlue,
+        .cup: .aqua
+    ]
+
+    private static var animals: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .animal }
     }
 
-    private static func sound(
-        _ target: FriendKind,
-        _ targetColor: Color,
-        _ distractor: FriendKind,
-        _ distractorColor: Color,
-        correctFirst: Bool = true
-    ) -> GameRound {
-        matchingRound(.sound, target, targetColor, distractor, distractorColor, correctFirst: correctFirst)
+    private static var shapes: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .shape }
     }
 
-    private static func shadow(
-        _ target: FriendKind,
-        _ targetColor: Color,
-        _ distractor: FriendKind,
-        _ distractorColor: Color,
-        correctFirst: Bool = true
-    ) -> GameRound {
-        matchingRound(.shadow, target, targetColor, distractor, distractorColor, correctFirst: correctFirst)
+    private static var visibleKinds: [FriendKind] {
+        FriendKind.allCases
+    }
+
+    private static func makeRounds() -> [GameRound] {
+        var result: [GameRound] = []
+
+        result += animals.enumerated().map { index, kind in
+            matchingRound(.animal, kind, color(for: kind), distractor(for: kind, in: animals, offset: 5), color(for: distractor(for: kind, in: animals, offset: 5)), correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += visibleKinds.enumerated().map { index, kind in
+            matchingRound(.sound, kind, color(for: kind), distractor(for: kind, in: visibleKinds, offset: 9), color(for: distractor(for: kind, in: visibleKinds, offset: 9)), correctFirst: !index.isMultiple(of: 3))
+        }
+
+        result += visibleKinds.enumerated().flatMap { kindIndex, kind in
+            palette.enumerated().map { colorIndex, targetColor in
+                color(kind, targetColor, palette[(colorIndex + kindIndex + 3) % palette.count], correctFirst: (kindIndex + colorIndex).isMultiple(of: 2))
+            }
+        }
+
+        result += shapes.enumerated().flatMap { kindIndex, kind in
+            palette.prefix(4).enumerated().map { colorIndex, color in
+                shape(kind, color, distractor(for: kind, in: shapes, offset: colorIndex + 1), correctFirst: (kindIndex + colorIndex).isMultiple(of: 2))
+            }
+        }
+
+        result += visibleKinds.enumerated().flatMap { index, kind in
+            [
+                size(kind, color(for: kind), correctScale: 1.10, wrongScale: 0.66, correctFirst: index.isMultiple(of: 2)),
+                size(kind, palette[(index + 4) % palette.count], correctScale: 0.68, wrongScale: 1.12, correctFirst: !index.isMultiple(of: 2))
+            ]
+        }
+
+        result += visibleKinds.enumerated().map { index, kind in
+            matchingRound(.shadow, kind, color(for: kind), distractor(for: kind, in: visibleKinds, offset: 7), color(for: distractor(for: kind, in: visibleKinds, offset: 7)), correctFirst: !index.isMultiple(of: 2))
+        }
+
+        return result
     }
 
     private static func color(
@@ -139,6 +194,17 @@ enum GameContent {
     private static func ordered(correct: FriendCandidate, wrong: FriendCandidate, correctFirst: Bool) -> [FriendCandidate] {
         correctFirst ? [correct, wrong] : [wrong, correct]
     }
+
+    private static func color(for kind: FriendKind) -> Color {
+        baseColors[kind] ?? .coral
+    }
+
+    private static func distractor(for kind: FriendKind, in kinds: [FriendKind], offset: Int) -> FriendKind {
+        guard let index = kinds.firstIndex(of: kind), kinds.count > 1 else {
+            return kind
+        }
+        return kinds[(index + offset) % kinds.count]
+    }
 }
 
 private extension Color {
@@ -153,4 +219,11 @@ private extension Color {
     static let mintGreen = Color(red: 0.14, green: 0.76, blue: 0.54)
     static let sunYellow = Color(red: 1.0, green: 0.75, blue: 0.18)
     static let purple = Color(red: 0.61, green: 0.45, blue: 0.91)
+    static let rosePink = Color(red: 1.0, green: 0.55, blue: 0.70)
+    static let leafGreen = Color(red: 0.38, green: 0.68, blue: 0.32)
+    static let orange = Color(red: 0.98, green: 0.50, blue: 0.18)
+    static let milkBrown = Color(red: 0.70, green: 0.48, blue: 0.30)
+    static let berryRed = Color(red: 0.92, green: 0.18, blue: 0.24)
+    static let aqua = Color(red: 0.20, green: 0.72, blue: 0.78)
+    static let softGray = Color(red: 0.72, green: 0.75, blue: 0.78)
 }

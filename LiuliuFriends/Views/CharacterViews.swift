@@ -603,6 +603,16 @@ struct FriendShape: View {
                 StarShape(color: color, isShadow: isShadow)
             case .heart:
                 ShapeSymbol(kind: .heart, color: color, isShadow: isShadow)
+            case .rectangle:
+                ShapeSymbol(kind: .rectangle, color: color, isShadow: isShadow)
+            case .oval:
+                ShapeSymbol(kind: .oval, color: color, isShadow: isShadow)
+            case .diamond:
+                ShapeSymbol(kind: .diamond, color: color, isShadow: isShadow)
+            case .moon:
+                SymbolFriendShape(kind: kind, color: color, isShadow: isShadow)
+            default:
+                SymbolFriendShape(kind: kind, color: color, isShadow: isShadow)
             }
         }
         .saturation(isShadow ? 0 : 1)
@@ -844,6 +854,9 @@ private enum ShapeSymbolKind {
     case square
     case triangle
     case heart
+    case rectangle
+    case oval
+    case diamond
 }
 
 private struct ShapeSymbol: View {
@@ -863,11 +876,72 @@ private struct ShapeSymbol: View {
             case .heart:
                 Image(systemName: "heart.fill")
                     .font(.system(size: 118, weight: .heavy))
+            case .rectangle:
+                RoundedRectangle(cornerRadius: 18)
+                    .frame(width: 128, height: 82)
+            case .oval:
+                Ellipse()
+                    .frame(width: 130, height: 92)
+            case .diamond:
+                Rectangle()
+                    .rotationEffect(.degrees(45))
+                    .frame(width: 88, height: 88)
             }
         }
         .foregroundStyle(color)
         .frame(width: 118, height: 118)
         .shadow(color: isShadow ? .clear : color.opacity(0.18), radius: 8, y: 5)
+    }
+}
+
+private struct SymbolFriendShape: View {
+    let kind: FriendKind
+    let color: Color
+    let isShadow: Bool
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 34)
+                .fill(color.opacity(isShadow ? 1 : 0.16))
+                .frame(width: 132, height: 132)
+
+            Image(systemName: kind.symbolName)
+                .font(.system(size: symbolSize, weight: .heavy, design: .rounded))
+                .foregroundStyle(color)
+                .symbolRenderingMode(.hierarchical)
+                .scaleEffect(x: kind == .airplane ? -1 : 1, y: 1)
+
+            if !isShadow {
+                Text(kind.name)
+                    .font(.system(size: 18, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.35, green: 0.27, blue: 0.20).opacity(0.82))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(.white.opacity(0.70), in: Capsule())
+                    .offset(y: 50)
+
+                Circle()
+                    .fill(.white.opacity(0.45))
+                    .frame(width: 24, height: 24)
+                    .offset(x: -38, y: -38)
+            }
+        }
+        .shadow(color: isShadow ? .clear : color.opacity(0.18), radius: 12, y: 6)
+    }
+
+    private var symbolSize: CGFloat {
+        switch kind.category {
+        case .vehicle:
+            return 74
+        case .fruit, .object:
+            return 78
+        case .animal:
+            return 76
+        case .shape:
+            return 86
+        }
     }
 }
 

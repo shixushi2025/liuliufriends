@@ -87,6 +87,14 @@ enum GameMode: String, CaseIterable {
     }
 }
 
+enum FriendCategory: String {
+    case animal
+    case vehicle
+    case fruit
+    case shape
+    case object
+}
+
 enum FriendKind: String, CaseIterable, Identifiable {
     case balloon
     case cat
@@ -102,6 +110,52 @@ enum FriendKind: String, CaseIterable, Identifiable {
     case triangle
     case star
     case heart
+    case bird
+    case cow
+    case sheep
+    case horse
+    case pig
+    case monkey
+    case panda
+    case tiger
+    case lion
+    case elephant
+    case turtle
+    case bee
+    case butterfly
+    case car
+    case bus
+    case train
+    case truck
+    case airplane
+    case boat
+    case bicycle
+    case fireTruck
+    case ambulance
+    case tractor
+    case rocket
+    case banana
+    case orange
+    case pear
+    case strawberry
+    case watermelon
+    case grape
+    case peach
+    case pineapple
+    case cherry
+    case lemon
+    case rectangle
+    case oval
+    case diamond
+    case moon
+    case flower
+    case tree
+    case sun
+    case cloud
+    case umbrella
+    case ball
+    case book
+    case cup
 
     var id: String { rawValue }
 
@@ -135,6 +189,98 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "星星"
         case .heart:
             return "爱心"
+        case .bird:
+            return "小鸟"
+        case .cow:
+            return "奶牛"
+        case .sheep:
+            return "绵羊"
+        case .horse:
+            return "小马"
+        case .pig:
+            return "小猪"
+        case .monkey:
+            return "猴子"
+        case .panda:
+            return "熊猫"
+        case .tiger:
+            return "老虎"
+        case .lion:
+            return "狮子"
+        case .elephant:
+            return "大象"
+        case .turtle:
+            return "乌龟"
+        case .bee:
+            return "蜜蜂"
+        case .butterfly:
+            return "蝴蝶"
+        case .car:
+            return "小车"
+        case .bus:
+            return "巴士"
+        case .train:
+            return "火车"
+        case .truck:
+            return "卡车"
+        case .airplane:
+            return "飞机"
+        case .boat:
+            return "小船"
+        case .bicycle:
+            return "自行车"
+        case .fireTruck:
+            return "消防车"
+        case .ambulance:
+            return "救护车"
+        case .tractor:
+            return "拖拉机"
+        case .rocket:
+            return "火箭"
+        case .banana:
+            return "香蕉"
+        case .orange:
+            return "橙子"
+        case .pear:
+            return "梨子"
+        case .strawberry:
+            return "草莓"
+        case .watermelon:
+            return "西瓜"
+        case .grape:
+            return "葡萄"
+        case .peach:
+            return "桃子"
+        case .pineapple:
+            return "菠萝"
+        case .cherry:
+            return "樱桃"
+        case .lemon:
+            return "柠檬"
+        case .rectangle:
+            return "长方形"
+        case .oval:
+            return "椭圆形"
+        case .diamond:
+            return "菱形"
+        case .moon:
+            return "月亮"
+        case .flower:
+            return "花朵"
+        case .tree:
+            return "小树"
+        case .sun:
+            return "太阳"
+        case .cloud:
+            return "云朵"
+        case .umbrella:
+            return "雨伞"
+        case .ball:
+            return "皮球"
+        case .book:
+            return "图书"
+        case .cup:
+            return "杯子"
         }
     }
 
@@ -168,25 +314,221 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "亮亮"
         case .heart:
             return "爱心"
+        case .bird:
+            return "啾啾"
+        case .cow:
+            return "哞哞"
+        case .sheep:
+            return "咩咩"
+        case .horse:
+            return "哒哒"
+        case .pig:
+            return "哼哼"
+        case .monkey:
+            return "吱吱"
+        case .panda:
+            return "慢慢"
+        case .tiger:
+            return "嗷呜"
+        case .lion:
+            return "吼吼"
+        case .elephant:
+            return "嘟嘟"
+        case .turtle:
+            return "爬爬"
+        case .bee:
+            return "嗡嗡"
+        case .butterfly:
+            return "飞飞"
+        case .car:
+            return "嘀嘀"
+        case .bus:
+            return "巴巴"
+        case .train:
+            return "呜呜"
+        case .truck:
+            return "轰轰"
+        case .airplane:
+            return "呼呼"
+        case .boat:
+            return "哗哗"
+        case .bicycle:
+            return "叮叮"
+        case .fireTruck:
+            return "呜啦"
+        case .ambulance:
+            return "滴嘟"
+        case .tractor:
+            return "突突"
+        case .rocket:
+            return "咻咻"
+        case .banana:
+            return "弯弯"
+        case .orange:
+            return "圆圆"
+        case .pear:
+            return "甜甜"
+        case .strawberry:
+            return "红红"
+        case .watermelon:
+            return "大大"
+        case .grape:
+            return "串串"
+        case .peach:
+            return "软软"
+        case .pineapple:
+            return "刺刺"
+        case .cherry:
+            return "小小"
+        case .lemon:
+            return "酸酸"
+        case .rectangle:
+            return "长长"
+        case .oval:
+            return "扁扁"
+        case .diamond:
+            return "闪闪"
+        case .moon:
+            return "弯月"
+        case .flower:
+            return "花花"
+        case .tree:
+            return "树树"
+        case .sun:
+            return "暖暖"
+        case .cloud:
+            return "飘飘"
+        case .umbrella:
+            return "哒哒"
+        case .ball:
+            return "拍拍"
+        case .book:
+            return "翻翻"
+        case .cup:
+            return "喝水"
+        }
+    }
+
+    var category: FriendCategory {
+        switch self {
+        case .cat, .dog, .duck, .bear, .rabbit, .frog, .fish, .bird, .cow, .sheep, .horse, .pig, .monkey, .panda, .tiger, .lion, .elephant, .turtle, .bee, .butterfly:
+            return .animal
+        case .car, .bus, .train, .truck, .airplane, .boat, .bicycle, .fireTruck, .ambulance, .tractor, .rocket:
+            return .vehicle
+        case .apple, .banana, .orange, .pear, .strawberry, .watermelon, .grape, .peach, .pineapple, .cherry, .lemon:
+            return .fruit
+        case .circle, .square, .triangle, .star, .heart, .rectangle, .oval, .diamond, .moon:
+            return .shape
+        case .balloon, .flower, .tree, .sun, .cloud, .umbrella, .ball, .book, .cup:
+            return .object
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .bird:
+            return "bird.fill"
+        case .cow:
+            return "cow.fill"
+        case .sheep:
+            return "cloud.fill"
+        case .horse:
+            return "hare.fill"
+        case .pig:
+            return "circle.fill"
+        case .monkey:
+            return "figure.play"
+        case .panda:
+            return "circle.grid.cross.fill"
+        case .tiger:
+            return "pawprint.fill"
+        case .lion:
+            return "sun.max.fill"
+        case .elephant:
+            return "tortoise.fill"
+        case .turtle:
+            return "tortoise.fill"
+        case .bee:
+            return "ladybug.fill"
+        case .butterfly:
+            return "camera.macro"
+        case .car:
+            return "car.fill"
+        case .bus:
+            return "bus.fill"
+        case .train:
+            return "tram.fill"
+        case .truck:
+            return "truck.box.fill"
+        case .airplane:
+            return "airplane"
+        case .boat:
+            return "sailboat.fill"
+        case .bicycle:
+            return "bicycle"
+        case .fireTruck:
+            return "firetruck.fill"
+        case .ambulance:
+            return "cross.case.fill"
+        case .tractor:
+            return "tractor.fill"
+        case .rocket:
+            return "rocket.fill"
+        case .banana:
+            return "moon.fill"
+        case .orange:
+            return "circle.fill"
+        case .pear:
+            return "drop.fill"
+        case .strawberry:
+            return "heart.fill"
+        case .watermelon:
+            return "circle.lefthalf.filled"
+        case .grape:
+            return "circle.grid.3x3.fill"
+        case .peach:
+            return "heart.circle.fill"
+        case .pineapple:
+            return "oval.portrait.fill"
+        case .cherry:
+            return "circle.grid.2x2.fill"
+        case .lemon:
+            return "oval.fill"
+        case .rectangle:
+            return "rectangle.fill"
+        case .oval:
+            return "oval.fill"
+        case .diamond:
+            return "diamond.fill"
+        case .moon:
+            return "moon.fill"
+        case .flower:
+            return "camera.macro"
+        case .tree:
+            return "tree.fill"
+        case .sun:
+            return "sun.max.fill"
+        case .cloud:
+            return "cloud.fill"
+        case .umbrella:
+            return "umbrella.fill"
+        case .ball:
+            return "circle.grid.cross.fill"
+        case .book:
+            return "book.fill"
+        case .cup:
+            return "cup.and.saucer.fill"
+        default:
+            return "circle.fill"
         }
     }
 
     var isAnimal: Bool {
-        switch self {
-        case .cat, .dog, .duck, .bear, .rabbit, .frog, .fish:
-            return true
-        default:
-            return false
-        }
+        category == .animal
     }
 
     var isShapeSymbol: Bool {
-        switch self {
-        case .circle, .square, .triangle, .star, .heart:
-            return true
-        default:
-            return false
-        }
+        category == .shape
     }
 }
 

@@ -22,6 +22,16 @@ final class GameViewModelTests: XCTestCase {
         }
     }
 
+    func testContentHasHundredsOfRounds() {
+        XCTAssertGreaterThanOrEqual(GameContent.rounds.count, 300)
+    }
+
+    func testContentCoversCoreFriendCategories() {
+        let categories = Set(FriendKind.allCases.map(\.category))
+
+        XCTAssertEqual(categories, [.animal, .vehicle, .fruit, .shape, .object])
+    }
+
     func testContentUsesAllFriendKinds() {
         let usedKinds = Set(GameContent.rounds.flatMap { round in
             [round.targetKind] + round.candidates.map(\.kind)
