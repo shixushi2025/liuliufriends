@@ -1,7 +1,7 @@
 # App Store 上架元数据草稿
 
 > 适用应用：肚兜启蒙 / Dudou Baby  
-> Bundle ID：`com.dudougames.liuliufriends`  
+> Bundle ID：`baby.dudou.liuliufriends`  
 > 官网域名：`https://dudou.baby/`  
 > 隐私政策：`https://dudou.baby/privacy.html`  
 > 当前版本：`0.1`  
@@ -13,7 +13,7 @@
 | --- | --- |
 | App 名称 | 肚兜启蒙 |
 | 副标题 | 和六六一起认颜色形状动物 |
-| Bundle ID | `com.dudougames.liuliufriends` |
+| Bundle ID | `baby.dudou.liuliufriends` |
 | SKU | `dudou-liuliu-friends-ios` |
 | 主要语言 | 简体中文 |
 | 类别 | 教育 |
