@@ -1382,7 +1382,8 @@ private struct RecordingShapeArtwork: View {
                 .frame(width: side * 0.82, height: side * 0.76)
         case .star:
             Image(systemName: "star.fill")
-                .font(.system(size: side * 0.78, weight: .heavy))
+                .font(.system(size: side * 0.66, weight: .heavy))
+                .frame(width: side, height: side)
         case .heart:
             Image(systemName: "heart.fill")
                 .font(.system(size: side * 0.74, weight: .heavy))

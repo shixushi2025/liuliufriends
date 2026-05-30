@@ -863,9 +863,10 @@ private struct StarShape: View {
 
     var body: some View {
         Image(systemName: "star.fill")
-            .font(.system(size: 118, weight: .heavy))
+            .font(.system(size: 96, weight: .heavy))
             .foregroundStyle(color)
             .shadow(color: isShadow ? .clear : .yellow.opacity(0.2), radius: 8)
+            .frame(width: 118, height: 118)
     }
 }
 

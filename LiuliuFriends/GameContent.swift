@@ -3,6 +3,10 @@ import SwiftUI
 enum GameContent {
     static let rounds: [GameRound] = makeRounds()
 
+    static func sessionRounds() -> [GameRound] {
+        balancedShuffled(rounds)
+    }
+
     private static let palette: [Color] = [
         .coral,
         .skyBlue,
@@ -17,6 +21,15 @@ enum GameContent {
         .aqua,
         .softGray
     ]
+
+    private static let colorPracticeKinds: [FriendKind] = [
+        .balloon,
+        .ball,
+        .book,
+        .cup
+    ]
+
+    private static let shapePracticeColor = Color(red: 0.24, green: 0.65, blue: 0.94)
 
     private static let baseColors: [FriendKind: Color] = [
         .balloon: .coral,
@@ -104,16 +117,14 @@ enum GameContent {
             matchingRound(.sound, kind, color(for: kind), distractor(for: kind, in: visibleKinds, offset: 9), color(for: distractor(for: kind, in: visibleKinds, offset: 9)), correctFirst: !index.isMultiple(of: 3))
         }
 
-        result += visibleKinds.enumerated().flatMap { kindIndex, kind in
+        result += colorPracticeKinds.enumerated().flatMap { kindIndex, kind in
             palette.enumerated().map { colorIndex, targetColor in
                 color(kind, targetColor, palette[(colorIndex + kindIndex + 3) % palette.count], correctFirst: (kindIndex + colorIndex).isMultiple(of: 2))
             }
         }
 
-        result += shapes.enumerated().flatMap { kindIndex, kind in
-            palette.prefix(4).enumerated().map { colorIndex, color in
-                shape(kind, color, distractor(for: kind, in: shapes, offset: colorIndex + 1), correctFirst: (kindIndex + colorIndex).isMultiple(of: 2))
-            }
+        result += shapes.enumerated().map { kindIndex, kind in
+            shape(kind, shapePracticeColor, distractor(for: kind, in: shapes, offset: 1), correctFirst: kindIndex.isMultiple(of: 2))
         }
 
         result += visibleKinds.enumerated().flatMap { index, kind in
@@ -205,6 +216,24 @@ enum GameContent {
         }
         return kinds[(index + offset) % kinds.count]
     }
+
+    private static func balancedShuffled(_ sourceRounds: [GameRound]) -> [GameRound] {
+        var buckets = Dictionary(grouping: sourceRounds, by: \.mode)
+            .mapValues { $0.shuffled() }
+        var result: [GameRound] = []
+
+        while buckets.values.contains(where: { !$0.isEmpty }) {
+            for mode in GameMode.allCases.shuffled() {
+                guard var bucket = buckets[mode], !bucket.isEmpty else {
+                    continue
+                }
+                result.append(bucket.removeLast())
+                buckets[mode] = bucket
+            }
+        }
+
+        return result
+    }
 }
 
 private extension Color {
@@ -221,7 +250,7 @@ private extension Color {
     static let purple = Color(red: 0.61, green: 0.45, blue: 0.91)
     static let rosePink = Color(red: 1.0, green: 0.55, blue: 0.70)
     static let leafGreen = Color(red: 0.38, green: 0.68, blue: 0.32)
-    static let orange = Color(red: 0.98, green: 0.50, blue: 0.18)
+    static let orange = Color(red: 1.0, green: 0.60, blue: 0.02)
     static let milkBrown = Color(red: 0.70, green: 0.48, blue: 0.30)
     static let berryRed = Color(red: 0.92, green: 0.18, blue: 0.24)
     static let aqua = Color(red: 0.20, green: 0.72, blue: 0.78)

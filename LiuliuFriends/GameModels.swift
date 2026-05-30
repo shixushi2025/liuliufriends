@@ -258,7 +258,7 @@ struct VoicePromptTarget: Identifiable, Equatable {
             VoicePromptTarget(id: "color.yellow", name: "黄色", group: .color, kind: nil, color: Color(red: 1.0, green: 0.75, blue: 0.18)),
             VoicePromptTarget(id: "color.purple", name: "紫色", group: .color, kind: nil, color: Color(red: 0.61, green: 0.45, blue: 0.91)),
             VoicePromptTarget(id: "color.pink", name: "粉色", group: .color, kind: nil, color: Color(red: 1.0, green: 0.55, blue: 0.70)),
-            VoicePromptTarget(id: "color.orange", name: "橙色", group: .color, kind: nil, color: Color(red: 0.98, green: 0.50, blue: 0.18)),
+            VoicePromptTarget(id: "color.orange", name: "橙色", group: .color, kind: nil, color: Color(red: 1.0, green: 0.60, blue: 0.02)),
             VoicePromptTarget(id: "color.brown", name: "棕色", group: .color, kind: nil, color: Color(red: 0.70, green: 0.48, blue: 0.30)),
             VoicePromptTarget(id: "color.aqua", name: "蓝绿色", group: .color, kind: nil, color: Color(red: 0.20, green: 0.72, blue: 0.78)),
             VoicePromptTarget(id: "color.gray", name: "灰色", group: .color, kind: nil, color: Color(red: 0.72, green: 0.75, blue: 0.78))

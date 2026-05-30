@@ -35,7 +35,7 @@ final class GameViewModel: ObservableObject {
     private var pendingPromptWorkItem: DispatchWorkItem?
 
     init(
-        rounds: [GameRound] = GameContent.rounds,
+        rounds: [GameRound] = GameContent.sessionRounds(),
         voiceStore: VoicePromptStore = .shared,
         promptAliasStore: PromptAliasStore = .shared,
         feedbackPlayer: FeedbackPlaying? = nil,
