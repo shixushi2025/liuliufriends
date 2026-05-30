@@ -28,6 +28,7 @@ Bundle ID：`baby.dudou.liuliufriends`
 - 未发现仓库内 GitHub token、OpenAI key、AWS key、私钥等明显密钥模式。
 - 官网源码无第三方分析、广告、Cookie 脚本；包含中英文首页、中英文隐私政策、`robots.txt`、`sitemap.xml` 和 Cloudflare Pages `_headers`。
 - 线上 `https://dudou.baby/`、`https://dudou.baby/privacy.html`、`https://dudou.baby/en/`、`https://dudou.baby/en/privacy.html` 可访问。
+- 线上隐私政策页已确认不含 Cloudflare Email Obfuscation 注入脚本。
 
 ## 验证命令
 
@@ -52,7 +53,6 @@ xcodebuild build -project LiuliuFriends.xcodeproj -scheme LiuliuFriends -configu
 - 上传 iPhone 和 iPad 截图并人工确认无文字遮挡、无安全区问题。
 - 真机检查：声音开关、语音提示、休息提醒、护眼模式、自动下一题、减少动画、玩法开关、iPhone 竖屏、iPad 横屏。
 - 确认 `hello@dudou.baby` 可以真实收信。
-- 官网改动推送后等待 Cloudflare Pages 部署完成，再复查线上 HTML 不含自动注入脚本。
 
 ## 后续变更红线
 
