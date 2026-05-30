@@ -36,9 +36,10 @@ Bundle ID：`baby.dudou.liuliufriends`
 ```bash
 xcodebuild test -project LiuliuFriends.xcodeproj -scheme LiuliuFriends -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2'
 xcodebuild build -project LiuliuFriends.xcodeproj -scheme LiuliuFriends -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
+xcodebuild archive -project LiuliuFriends.xcodeproj -scheme LiuliuFriends -configuration Release -destination 'generic/platform=iOS' -archivePath /tmp/LiuliuFriends-AppStoreCheck.xcarchive CODE_SIGNING_ALLOWED=NO SKIP_INSTALL=NO
 ```
 
-结果：测试通过，Release 构建通过，`Validate ... -validate-for-store` 通过。
+结果：测试通过，Release 构建通过，无签名 archive 通过，`Validate ... -validate-for-store` 通过。
 
 ## App Store Connect 建议填写
 
