@@ -65,6 +65,7 @@ private struct HeaderView: View {
             HStack(spacing: 10) {
                 headerActions(spacing: 10, buttonSize: 44)
                 Spacer(minLength: 0)
+                ProgressBadge(completedRounds: viewModel.completedRounds, isCompact: true)
             }
             .padding(.leading, 72)
             .frame(maxWidth: .infinity, alignment: .leading)
