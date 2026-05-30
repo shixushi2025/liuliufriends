@@ -24,8 +24,16 @@ final class GameViewModelTests: XCTestCase {
         }
     }
 
-    func testContentHasHundredsOfRounds() {
-        XCTAssertGreaterThanOrEqual(GameContent.rounds.count, 300)
+    func testContentHasBroadRoundCoverage() {
+        XCTAssertGreaterThanOrEqual(GameContent.rounds.count, 250)
+    }
+
+    func testColorRoundsUseEachSpokenColorOnce() {
+        let colorRounds = GameContent.rounds.filter { $0.mode == .color }
+        let colorPromptIDs = colorRounds.map(\.voicePromptID)
+
+        XCTAssertEqual(colorRounds.count, VoicePromptTarget.colorTargets.count)
+        XCTAssertEqual(Set(colorPromptIDs), Set(VoicePromptTarget.colorTargets.map(\.id)))
     }
 
     func testContentCoversCoreFriendCategories() {
@@ -125,7 +133,7 @@ final class GameViewModelTests: XCTestCase {
 
     func testInitialPromptPlaysOnlyOnce() {
         let feedback = TestFeedbackPlayer()
-        let viewModel = GameViewModel(feedbackPlayer: feedback)
+        let viewModel = GameViewModel(feedbackPlayer: feedback, initialPromptDelay: 0)
 
         viewModel.playInitialPromptIfNeeded()
         viewModel.playInitialPromptIfNeeded()
@@ -177,7 +185,7 @@ final class GameViewModelTests: XCTestCase {
                 ]
             )
         ]
-        let viewModel = GameViewModel(rounds: rounds, promptAliasStore: aliasStore, feedbackPlayer: feedback)
+        let viewModel = GameViewModel(rounds: rounds, promptAliasStore: aliasStore, feedbackPlayer: feedback, initialPromptDelay: 0)
 
         XCTAssertEqual(viewModel.soundPrompt(for: .grape), "葡萄")
 

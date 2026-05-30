@@ -20,6 +20,7 @@ final class GameViewModel: ObservableObject {
     private let feedbackPlayer: FeedbackPlaying
     private let autoAdvanceDelay: TimeInterval
     private let nextPromptDelayAfterAutoAdvance: TimeInterval
+    private let initialPromptDelay: TimeInterval
     private let sessionLimit: TimeInterval
     private let dailyLimit: TimeInterval
     private let defaults: UserDefaults
@@ -41,6 +42,7 @@ final class GameViewModel: ObservableObject {
         feedbackPlayer: FeedbackPlaying? = nil,
         autoAdvanceDelay: TimeInterval = 1.15,
         nextPromptDelayAfterAutoAdvance: TimeInterval = 0.75,
+        initialPromptDelay: TimeInterval = 0.9,
         sessionLimit: TimeInterval = 10 * 60,
         dailyLimit: TimeInterval = 20 * 60,
         defaults: UserDefaults = .standard
@@ -52,6 +54,7 @@ final class GameViewModel: ObservableObject {
         self.feedbackPlayer = feedbackPlayer ?? SystemFeedbackPlayer(voiceStore: voiceStore)
         self.autoAdvanceDelay = autoAdvanceDelay
         self.nextPromptDelayAfterAutoAdvance = nextPromptDelayAfterAutoAdvance
+        self.initialPromptDelay = initialPromptDelay
         self.sessionLimit = sessionLimit
         self.dailyLimit = dailyLimit
         self.defaults = defaults
@@ -72,7 +75,7 @@ final class GameViewModel: ObservableObject {
     func playInitialPromptIfNeeded() {
         guard !hasPlayedInitialPrompt else { return }
         hasPlayedInitialPrompt = true
-        playPrompt(for: round)
+        scheduleInitialPrompt()
     }
 
     func recordActiveUsageTick(_ seconds: TimeInterval = 1) {
@@ -282,6 +285,22 @@ final class GameViewModel: ObservableObject {
         }
         pendingPromptWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+    }
+
+    private func scheduleInitialPrompt() {
+        guard initialPromptDelay > 0 else {
+            playPrompt(for: round)
+            return
+        }
+
+        let roundID = round.id
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self, self.round.id == roundID, self.screen == .play, self.breakReminder == nil else { return }
+            self.pendingPromptWorkItem = nil
+            self.playPrompt(for: self.round)
+        }
+        pendingPromptWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + initialPromptDelay, execute: workItem)
     }
 
     private func playPrompt(for round: GameRound) {

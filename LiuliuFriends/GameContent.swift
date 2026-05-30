@@ -22,12 +22,8 @@ enum GameContent {
         .softGray
     ]
 
-    private static let colorPracticeKinds: [FriendKind] = [
-        .balloon,
-        .ball,
-        .book,
-        .cup
-    ]
+    private static let colorPracticeKind = FriendKind.balloon
+    private static let colorLearningPalette = VoicePromptTarget.colorTargets.compactMap(\.color)
 
     private static let shapePracticeColor = Color(red: 0.24, green: 0.65, blue: 0.94)
 
@@ -117,10 +113,8 @@ enum GameContent {
             matchingRound(.sound, kind, color(for: kind), distractor(for: kind, in: visibleKinds, offset: 9), color(for: distractor(for: kind, in: visibleKinds, offset: 9)), correctFirst: !index.isMultiple(of: 3))
         }
 
-        result += colorPracticeKinds.enumerated().flatMap { kindIndex, kind in
-            palette.enumerated().map { colorIndex, targetColor in
-                color(kind, targetColor, palette[(colorIndex + kindIndex + 3) % palette.count], correctFirst: (kindIndex + colorIndex).isMultiple(of: 2))
-            }
+        result += colorLearningPalette.enumerated().map { colorIndex, targetColor in
+            color(colorPracticeKind, targetColor, colorLearningPalette[(colorIndex + 3) % colorLearningPalette.count], correctFirst: colorIndex.isMultiple(of: 2))
         }
 
         result += shapes.enumerated().map { kindIndex, kind in
