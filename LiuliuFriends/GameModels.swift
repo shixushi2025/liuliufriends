@@ -523,6 +523,123 @@ enum FriendKind: String, CaseIterable, Identifiable {
         }
     }
 
+    var imageAssetName: String? {
+        switch self {
+        case .balloon:
+            return "ObjectBalloonArt"
+        case .cat:
+            return "AnimalCatArt"
+        case .dog:
+            return "AnimalDogArt"
+        case .duck:
+            return "AnimalDuckArt"
+        case .bear:
+            return "AnimalBearArt"
+        case .rabbit:
+            return "AnimalRabbitArt"
+        case .frog:
+            return "AnimalFrogArt"
+        case .apple:
+            return "ObjectAppleArt"
+        case .fish:
+            return "AnimalFishArt"
+        case .circle, .square, .triangle, .star, .heart:
+            return nil
+        case .bird:
+            return "AnimalBirdArt"
+        case .cow:
+            return "AnimalCowArt"
+        case .sheep:
+            return "AnimalSheepArt"
+        case .horse:
+            return "AnimalHorseArt"
+        case .pig:
+            return "AnimalPigArt"
+        case .monkey:
+            return "AnimalMonkeyArt"
+        case .panda:
+            return "AnimalPandaArt"
+        case .tiger:
+            return "AnimalTigerArt"
+        case .lion:
+            return "AnimalLionArt"
+        case .elephant:
+            return "AnimalElephantArt"
+        case .turtle:
+            return "AnimalTurtleArt"
+        case .bee:
+            return "AnimalBeeArt"
+        case .butterfly:
+            return "AnimalButterflyArt"
+        case .car:
+            return "VehicleCarArt"
+        case .bus:
+            return "VehicleBusArt"
+        case .train:
+            return "VehicleTrainArt"
+        case .truck:
+            return "VehicleTruckArt"
+        case .airplane:
+            return "VehicleAirplaneArt"
+        case .boat:
+            return "VehicleBoatArt"
+        case .bicycle:
+            return "VehicleBicycleArt"
+        case .fireTruck:
+            return "VehicleFireTruckArt"
+        case .ambulance:
+            return "VehicleAmbulanceArt"
+        case .tractor:
+            return "VehicleTractorArt"
+        case .rocket:
+            return "VehicleRocketArt"
+        case .banana:
+            return "FruitBananaArt"
+        case .orange:
+            return "FruitOrangeArt"
+        case .pear:
+            return "FruitPearArt"
+        case .strawberry:
+            return "FruitStrawberryArt"
+        case .watermelon:
+            return "FruitWatermelonArt"
+        case .grape:
+            return "FruitGrapeArt"
+        case .peach:
+            return "FruitPeachArt"
+        case .pineapple:
+            return "FruitPineappleArt"
+        case .cherry:
+            return "FruitCherryArt"
+        case .lemon:
+            return "FruitLemonArt"
+        case .rectangle:
+            return "ShapeRectangleArt"
+        case .oval:
+            return "ShapeOvalArt"
+        case .diamond:
+            return "ShapeDiamondArt"
+        case .moon:
+            return "ShapeMoonArt"
+        case .flower:
+            return "ObjectFlowerArt"
+        case .tree:
+            return "ObjectTreeArt"
+        case .sun:
+            return "ObjectSunArt"
+        case .cloud:
+            return "ObjectCloudArt"
+        case .umbrella:
+            return "ObjectUmbrellaArt"
+        case .ball:
+            return "ObjectBallArt"
+        case .book:
+            return "ObjectBookArt"
+        case .cup:
+            return "ObjectCupArt"
+        }
+    }
+
     var isAnimal: Bool {
         category == .animal
     }

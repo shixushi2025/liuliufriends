@@ -520,7 +520,12 @@ struct FriendShape: View {
 
     var body: some View {
         ZStack {
-            switch kind {
+            if !isShadow, let imageAssetName = kind.imageAssetName {
+                Image(imageAssetName)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                switch kind {
             case .balloon:
                 if isShadow {
                     BalloonShape(color: color, isShadow: true)
@@ -613,6 +618,7 @@ struct FriendShape: View {
                 SymbolFriendShape(kind: kind, color: color, isShadow: isShadow)
             default:
                 SymbolFriendShape(kind: kind, color: color, isShadow: isShadow)
+                }
             }
         }
         .saturation(isShadow ? 0 : 1)

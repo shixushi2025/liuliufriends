@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 @testable import LiuliuFriends
 
 final class GameViewModelTests: XCTestCase {
@@ -38,6 +39,16 @@ final class GameViewModelTests: XCTestCase {
         })
 
         XCTAssertEqual(usedKinds, Set(FriendKind.allCases))
+    }
+
+    func testDeclaredImageAssetsCanLoad() {
+        for kind in FriendKind.allCases {
+            guard let imageAssetName = kind.imageAssetName else {
+                continue
+            }
+
+            XCTAssertNotNil(UIImage(named: imageAssetName), "\(kind.name) image asset should load: \(imageAssetName)")
+        }
     }
 
     func testCorrectSelectionCompletesRoundWithoutAutoAdvanceWhenDisabled() {
