@@ -38,6 +38,10 @@ final class GameViewModel: ObservableObject {
             return .ignored
         }
 
+        guard wrongCandidateID == nil else {
+            return .ignored
+        }
+
         if candidate.isCorrect {
             cancelPendingRetryClear()
             cancelPendingHint()
@@ -72,7 +76,7 @@ final class GameViewModel: ObservableObject {
                 self?.wrongCandidateID = nil
             }
             pendingRetryClearWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.15, execute: workItem)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: workItem)
             return .retry
         }
     }

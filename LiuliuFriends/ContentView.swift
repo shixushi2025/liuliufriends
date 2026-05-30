@@ -63,12 +63,11 @@ private struct HeaderView: View {
 
     var body: some View {
         if isCompact {
-            HStack(spacing: 7) {
-                Spacer(minLength: 0)
-                compactHeaderActions(spacing: 7, buttonSize: 42)
+            ZStack {
+                compactHeaderActions(spacing: 7, buttonSize: 42, showsProgress: true)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.trailing, sidePadding + 54)
             }
-            .padding(.leading, sidePadding)
-            .padding(.trailing, sidePadding + 54)
             .frame(height: 44)
         } else {
             HStack {
@@ -124,8 +123,12 @@ private struct HeaderView: View {
         }
     }
 
-    private func compactHeaderActions(spacing: CGFloat, buttonSize: CGFloat) -> some View {
+    private func compactHeaderActions(spacing: CGFloat, buttonSize: CGFloat, showsProgress: Bool = false) -> some View {
         HStack(spacing: spacing) {
+            if showsProgress {
+                ProgressBadge(completedRounds: viewModel.completedRounds, isCompact: true)
+            }
+
             IconButton(systemName: "gearshape.fill", size: buttonSize) {
                 viewModel.screen = .settings
             }
@@ -222,7 +225,7 @@ private struct PlayPanel: View {
     private var panelContent: some View {
         if metrics.usesWidePanel {
             HStack(alignment: .center, spacing: metrics.panelSpacing) {
-                TargetArea(round: viewModel.round, completedRounds: viewModel.completedRounds, metrics: metrics)
+                TargetArea(round: viewModel.round, metrics: metrics)
                     .frame(width: metrics.wideTargetWidth, height: metrics.targetHeight)
 
                 VStack(spacing: metrics.candidateSpacing) {
@@ -231,7 +234,7 @@ private struct PlayPanel: View {
             }
         } else {
             VStack(spacing: metrics.panelSpacing) {
-                TargetArea(round: viewModel.round, completedRounds: viewModel.completedRounds, metrics: metrics)
+                TargetArea(round: viewModel.round, metrics: metrics)
                     .frame(height: metrics.targetHeight)
 
                 if metrics.stacksCandidates {
@@ -272,6 +275,7 @@ private struct PlayPanel: View {
                 isCompleted: viewModel.completedCandidateID == candidate.id,
                 isWrong: viewModel.wrongCandidateID == candidate.id,
                 isHinted: viewModel.hintCandidateID == candidate.id,
+                isLocked: viewModel.wrongCandidateID != nil,
                 reducedMotion: viewModel.settings.reducedMotion
             ) {
                 viewModel.choose(candidate)
@@ -282,7 +286,6 @@ private struct PlayPanel: View {
 
 private struct TargetArea: View {
     let round: GameRound
-    let completedRounds: Int
     let metrics: GameLayoutMetrics
 
     var body: some View {
@@ -350,12 +353,6 @@ private struct TargetArea: View {
                 .padding(.vertical, metrics.targetVerticalInset)
             }
 
-            if metrics.isCompact {
-                ProgressBadge(completedRounds: completedRounds, isCompact: true)
-                    .scaleEffect(0.86)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .padding(.top, 10)
-            }
         }
     }
 }
@@ -390,6 +387,7 @@ private struct CandidateButton: View {
     let isCompleted: Bool
     let isWrong: Bool
     let isHinted: Bool
+    let isLocked: Bool
     let reducedMotion: Bool
     let action: () -> Void
 
@@ -412,8 +410,8 @@ private struct CandidateButton: View {
                     .shadow(color: Color(red: 1.0, green: 0.78, blue: 0.28).opacity(isCompleted || isHinted ? 0.38 : 0), radius: isCompleted ? 24 : 16)
 
                 GameObjectView(round: round, kind: candidate.kind, color: candidate.color, isTarget: false)
-                    .scaleEffect(candidate.sizeScale)
-                    .padding(max(14, size * 0.13))
+                    .scaleEffect(displayScale)
+                    .padding(objectPadding)
 
                 if isCompleted {
                     SparkleBurst()
@@ -427,8 +425,23 @@ private struct CandidateButton: View {
             .animation(.easeInOut(duration: 0.65), value: isHinted)
         }
         .buttonStyle(.plain)
-        .disabled(isCompleted)
+        .disabled(isCompleted || isLocked)
         .accessibilityLabel(candidate.kind.name)
+    }
+
+    private var displayScale: CGFloat {
+        round.mode == .size ? candidate.sizeScale : 1
+    }
+
+    private var objectPadding: CGFloat {
+        switch round.mode {
+        case .shape:
+            max(30, size * 0.22)
+        case .size:
+            max(14, size * 0.13)
+        default:
+            max(14, size * 0.13)
+        }
     }
 }
 

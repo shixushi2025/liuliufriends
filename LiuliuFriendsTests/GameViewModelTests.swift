@@ -43,6 +43,17 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(feedback.retryCount, 1)
     }
 
+    func testSelectionIsIgnoredWhileWrongFeedbackIsVisible() {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+        let wrong = viewModel.round.candidates.first { !$0.isCorrect }!
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+
+        XCTAssertEqual(viewModel.choose(wrong), .retry)
+        XCTAssertEqual(viewModel.choose(correct), .ignored)
+        XCTAssertNil(viewModel.completedCandidateID)
+        XCTAssertEqual(viewModel.completedRounds, 0)
+    }
+
     func testWrongSelectionShowsCorrectHint() async throws {
         let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
         let wrong = viewModel.round.candidates.first { !$0.isCorrect }!
@@ -92,12 +103,13 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.hintCandidateID)
     }
 
-    func testCorrectSelectionClearsPendingWrongFeedback() {
+    func testCorrectSelectionClearsPendingWrongFeedbackAfterRetryDelay() async throws {
         let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
         let wrong = viewModel.round.candidates.first { !$0.isCorrect }!
         let correct = viewModel.round.candidates.first { $0.isCorrect }!
 
         viewModel.choose(wrong)
+        try await Task.sleep(nanoseconds: 900_000_000)
         viewModel.choose(correct)
 
         XCTAssertNil(viewModel.wrongCandidateID)
