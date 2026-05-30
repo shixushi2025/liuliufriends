@@ -1,13 +1,21 @@
 {
-  "images": [
+  "images" : [
     {
-      "idiom": "universal",
-      "filename": "AnimalBearArt.png",
-      "scale": "1x"
+      "filename" : "AnimalBearArt.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
-  "info": {
-    "author": "xcode",
-    "version": 1
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
   }
 }
