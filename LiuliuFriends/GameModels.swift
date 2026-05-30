@@ -183,6 +183,14 @@ struct VoicePromptTarget: Identifiable, Equatable {
         all.first { $0.id == id } ?? defaultTarget
     }
 
+    static func targets(in group: VoicePromptGroup) -> [VoicePromptTarget] {
+        all.filter { $0.group == group }
+    }
+
+    static func firstTarget(in group: VoicePromptGroup) -> VoicePromptTarget? {
+        targets(in: group).first
+    }
+
     static func target(for color: Color) -> VoicePromptTarget {
         let targetComponents = color.rgbaComponents
         return colorTargets.min { first, second in

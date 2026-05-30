@@ -18,6 +18,7 @@ final class GameViewModel: ObservableObject {
     private let rounds: [GameRound]
     private let feedbackPlayer: FeedbackPlaying
     private let autoAdvanceDelay: TimeInterval
+    private let nextPromptDelayAfterAutoAdvance: TimeInterval
     private let sessionLimit: TimeInterval
     private let dailyLimit: TimeInterval
     private let defaults: UserDefaults
@@ -30,12 +31,14 @@ final class GameViewModel: ObservableObject {
     private var pendingRetryClearWorkItem: DispatchWorkItem?
     private var pendingHintWorkItem: DispatchWorkItem?
     private var pendingHintClearWorkItem: DispatchWorkItem?
+    private var pendingPromptWorkItem: DispatchWorkItem?
 
     init(
         rounds: [GameRound] = GameContent.rounds,
         voiceStore: VoicePromptStore = .shared,
         feedbackPlayer: FeedbackPlaying? = nil,
         autoAdvanceDelay: TimeInterval = 1.15,
+        nextPromptDelayAfterAutoAdvance: TimeInterval = 0.75,
         sessionLimit: TimeInterval = 10 * 60,
         dailyLimit: TimeInterval = 20 * 60,
         defaults: UserDefaults = .standard
@@ -45,6 +48,7 @@ final class GameViewModel: ObservableObject {
         self.voiceStore = voiceStore
         self.feedbackPlayer = feedbackPlayer ?? SystemFeedbackPlayer(voiceStore: voiceStore)
         self.autoAdvanceDelay = autoAdvanceDelay
+        self.nextPromptDelayAfterAutoAdvance = nextPromptDelayAfterAutoAdvance
         self.sessionLimit = sessionLimit
         self.dailyLimit = dailyLimit
         self.defaults = defaults
@@ -148,9 +152,14 @@ final class GameViewModel: ObservableObject {
     }
 
     func nextRound() {
+        advanceToNextRound(promptDelay: 0)
+    }
+
+    private func advanceToNextRound(promptDelay: TimeInterval) {
         cancelPendingAutoAdvance()
         cancelPendingRetryClear()
         cancelPendingHint()
+        cancelPendingPrompt()
         roundIndex = (roundIndex + 1) % rounds.count
         completedCandidateID = nil
         wrongCandidateID = nil
@@ -159,7 +168,7 @@ final class GameViewModel: ObservableObject {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
             round = rounds[roundIndex]
         }
-        feedbackPlayer.playPrompt(for: round, settings: settings)
+        playPromptAfterDelay(promptDelay)
     }
 
     func replayPrompt() {
@@ -196,6 +205,7 @@ final class GameViewModel: ObservableObject {
         cancelPendingAutoAdvance()
         cancelPendingRetryClear()
         cancelPendingHint()
+        cancelPendingPrompt()
         roundIndex = 0
         completedRounds = 0
         completedCandidateID = nil
@@ -215,7 +225,7 @@ final class GameViewModel: ObservableObject {
         cancelPendingAutoAdvance()
         let workItem = DispatchWorkItem { [weak self] in
             self?.pendingAutoAdvanceWorkItem = nil
-            self?.nextRound()
+            self?.advanceToNextRound(promptDelay: self?.nextPromptDelayAfterAutoAdvance ?? 0)
         }
         pendingAutoAdvanceWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + autoAdvanceDelay, execute: workItem)
@@ -224,6 +234,27 @@ final class GameViewModel: ObservableObject {
     private func cancelPendingAutoAdvance() {
         pendingAutoAdvanceWorkItem?.cancel()
         pendingAutoAdvanceWorkItem = nil
+    }
+
+    private func playPromptAfterDelay(_ delay: TimeInterval) {
+        guard delay > 0 else {
+            feedbackPlayer.playPrompt(for: round, settings: settings)
+            return
+        }
+
+        let roundID = round.id
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self, self.round.id == roundID else { return }
+            self.pendingPromptWorkItem = nil
+            self.feedbackPlayer.playPrompt(for: self.round, settings: self.settings)
+        }
+        pendingPromptWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+    }
+
+    private func cancelPendingPrompt() {
+        pendingPromptWorkItem?.cancel()
+        pendingPromptWorkItem = nil
     }
 
     private func cancelPendingRetryClear() {
@@ -253,6 +284,7 @@ final class GameViewModel: ObservableObject {
         cancelPendingAutoAdvance()
         cancelPendingRetryClear()
         cancelPendingHint()
+        cancelPendingPrompt()
         breakReminder = reminder
     }
 

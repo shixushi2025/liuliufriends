@@ -877,11 +877,13 @@ private struct ParentSummarySection: View {
 private struct VoiceRecordingSection: View {
     @ObservedObject var viewModel: GameViewModel
     @ObservedObject private var voiceStore: VoicePromptStore
+    @State private var selectedRecordingGroup: VoicePromptGroup
     let isCompact: Bool
 
     init(viewModel: GameViewModel, isCompact: Bool) {
         self.viewModel = viewModel
         self.voiceStore = viewModel.voiceStore
+        _selectedRecordingGroup = State(initialValue: viewModel.selectedRecordingTarget.group)
         self.isCompact = isCompact
     }
 
@@ -910,18 +912,26 @@ private struct VoiceRecordingSection: View {
 
             SelectedRecordingCard(target: selectedTarget, isRecording: isRecording, hasRecording: hasRecording, isCompact: isCompact)
 
-            VStack(alignment: .leading, spacing: isCompact ? 12 : 14) {
-                ForEach(VoicePromptGroup.allCases, id: \.self) { group in
-                    RecordingTargetSection(
-                        group: group,
-                        selectedTargetID: selectedTarget.id,
-                        voiceStore: voiceStore,
-                        isCompact: isCompact,
-                        isSelectionLocked: voiceStore.recordingID != nil
-                    ) { target in
-                        viewModel.selectRecordingTarget(target)
-                    }
+            RecordingGroupPicker(
+                selectedGroup: selectedRecordingGroup,
+                voiceStore: voiceStore,
+                isCompact: isCompact,
+                isDisabled: voiceStore.recordingID != nil
+            ) { group in
+                selectedRecordingGroup = group
+                if selectedTarget.group != group, let firstTarget = VoicePromptTarget.firstTarget(in: group) {
+                    viewModel.selectRecordingTarget(firstTarget)
                 }
+            }
+
+            RecordingTargetSection(
+                group: selectedRecordingGroup,
+                selectedTargetID: selectedTarget.id,
+                voiceStore: voiceStore,
+                isCompact: isCompact,
+                isSelectionLocked: voiceStore.recordingID != nil
+            ) { target in
+                viewModel.selectRecordingTarget(target)
             }
 
             if voiceStore.authorizationDenied {
@@ -966,6 +976,95 @@ private struct VoiceRecordingSection: View {
         .padding(isCompact ? 16 : 22)
         .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: isCompact ? 20 : 22, style: .continuous))
         .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
+        .onChange(of: selectedTarget.id) { _, _ in
+            selectedRecordingGroup = selectedTarget.group
+        }
+    }
+}
+
+private struct RecordingGroupPicker: View {
+    let selectedGroup: VoicePromptGroup
+    @ObservedObject var voiceStore: VoicePromptStore
+    let isCompact: Bool
+    let isDisabled: Bool
+    let select: (VoicePromptGroup) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: isCompact ? 8 : 10) {
+                ForEach(VoicePromptGroup.allCases, id: \.self) { group in
+                    RecordingGroupButton(
+                        group: group,
+                        isSelected: group == selectedGroup,
+                        recordingCount: VoicePromptTarget.targets(in: group).filter { voiceStore.hasRecording(for: $0.id) }.count,
+                        isCompact: isCompact
+                    ) {
+                        select(group)
+                    }
+                    .disabled(isDisabled)
+                    .opacity(isDisabled && group != selectedGroup ? 0.48 : 1)
+                }
+            }
+            .padding(.vertical, 2)
+        }
+    }
+}
+
+private struct RecordingGroupButton: View {
+    let group: VoicePromptGroup
+    let isSelected: Bool
+    let recordingCount: Int
+    let isCompact: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: iconName)
+                    .font(.system(size: isCompact ? 14 : 16, weight: .heavy))
+
+                Text(group.title)
+                    .font(.system(size: isCompact ? 14 : 16, weight: .heavy, design: .rounded))
+
+                if recordingCount > 0 {
+                    Text("\(recordingCount)")
+                        .font(.system(size: isCompact ? 11 : 12, weight: .heavy, design: .rounded))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.white.opacity(isSelected ? 0.46 : 0.74), in: Capsule())
+                }
+            }
+            .foregroundStyle(isSelected ? .white : Color(red: 0.43, green: 0.34, blue: 0.26))
+            .padding(.horizontal, isCompact ? 12 : 14)
+            .padding(.vertical, isCompact ? 8 : 10)
+            .background(backgroundColor, in: Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(Color.white.opacity(isSelected ? 0.58 : 0.36), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var backgroundColor: Color {
+        isSelected ? Color(red: 0.95, green: 0.38, blue: 0.28) : .white.opacity(0.76)
+    }
+
+    private var iconName: String {
+        switch group {
+        case .color:
+            return "paintpalette.fill"
+        case .animal:
+            return "pawprint.fill"
+        case .vehicle:
+            return "car.fill"
+        case .fruit:
+            return "apple.logo"
+        case .shape:
+            return "square.on.circle.fill"
+        case .object:
+            return "house.fill"
+        }
     }
 }
 

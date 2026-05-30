@@ -205,6 +205,23 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.hintCandidateID)
     }
 
+    func testAutoAdvanceDelaysNextPrompt() async throws {
+        let feedback = TestFeedbackPlayer()
+        let viewModel = GameViewModel(feedbackPlayer: feedback, autoAdvanceDelay: 0.05, nextPromptDelayAfterAutoAdvance: 0.2)
+        let firstRoundID = viewModel.round.id
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+
+        viewModel.choose(correct)
+        try await Task.sleep(nanoseconds: 90_000_000)
+
+        XCTAssertNotEqual(viewModel.round.id, firstRoundID)
+        XCTAssertEqual(feedback.promptCount, 0)
+
+        try await Task.sleep(nanoseconds: 180_000_000)
+
+        XCTAssertEqual(feedback.promptCount, 1)
+    }
+
     func testCorrectSelectionClearsPendingWrongFeedbackAfterRetryDelay() async throws {
         let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
         let wrong = viewModel.round.candidates.first { !$0.isCorrect }!
