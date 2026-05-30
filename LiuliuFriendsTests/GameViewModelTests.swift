@@ -131,6 +131,75 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertNotEqual(viewModel.round.id, firstRoundID)
     }
 
+    func testDisabledGameModeIsSkippedWhenAdvancing() {
+        let rounds = [
+            GameRound(
+                mode: .animal,
+                targetKind: .cat,
+                targetColor: .red,
+                candidates: [
+                    FriendCandidate(kind: .cat, color: .red, isCorrect: true),
+                    FriendCandidate(kind: .dog, color: .red, isCorrect: false)
+                ]
+            ),
+            GameRound(
+                mode: .shadow,
+                targetKind: .truck,
+                targetColor: .gray,
+                candidates: [
+                    FriendCandidate(kind: .truck, color: .gray, isCorrect: true),
+                    FriendCandidate(kind: .bus, color: .gray, isCorrect: false)
+                ]
+            )
+        ]
+        let viewModel = GameViewModel(rounds: rounds, feedbackPlayer: TestFeedbackPlayer())
+
+        viewModel.setGameMode(.shadow, enabled: false)
+        viewModel.nextRound()
+
+        XCTAssertEqual(viewModel.round.mode, .animal)
+    }
+
+    func testDisablingCurrentModeMovesToEnabledRound() {
+        let rounds = [
+            GameRound(
+                mode: .shadow,
+                targetKind: .truck,
+                targetColor: .gray,
+                candidates: [
+                    FriendCandidate(kind: .truck, color: .gray, isCorrect: true),
+                    FriendCandidate(kind: .bus, color: .gray, isCorrect: false)
+                ]
+            ),
+            GameRound(
+                mode: .animal,
+                targetKind: .cat,
+                targetColor: .red,
+                candidates: [
+                    FriendCandidate(kind: .cat, color: .red, isCorrect: true),
+                    FriendCandidate(kind: .dog, color: .red, isCorrect: false)
+                ]
+            )
+        ]
+        let viewModel = GameViewModel(rounds: rounds, feedbackPlayer: TestFeedbackPlayer())
+
+        XCTAssertEqual(viewModel.round.mode, .shadow)
+        viewModel.setGameMode(.shadow, enabled: false)
+
+        XCTAssertEqual(viewModel.round.mode, .animal)
+    }
+
+    func testCannotDisableLastEnabledGameMode() {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+
+        for mode in GameMode.allCases where mode != .animal {
+            viewModel.setGameMode(mode, enabled: false)
+        }
+        viewModel.setGameMode(.animal, enabled: false)
+
+        XCTAssertEqual(viewModel.settings.enabledGameModes, [.animal])
+    }
+
     func testInitialPromptPlaysOnlyOnce() {
         let feedback = TestFeedbackPlayer()
         let viewModel = GameViewModel(feedbackPlayer: feedback, initialPromptDelay: 0)

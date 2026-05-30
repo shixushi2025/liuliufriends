@@ -873,6 +873,7 @@ struct GameSettings: Equatable {
     var restReminderEnabled: Bool = true
     var eyeComfortEnabled: Bool = false
     var reducedMotion: Bool = false
+    var enabledGameModes: Set<GameMode> = Set(GameMode.allCases)
 }
 
 enum SelectionResult: Equatable {

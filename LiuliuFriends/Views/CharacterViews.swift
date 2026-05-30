@@ -534,10 +534,12 @@ struct FriendShape: View {
 
     var body: some View {
         ZStack {
-            if !isShadow, let imageAssetName = kind.imageAssetName {
+            if let imageAssetName = kind.imageAssetName {
                 Image(imageAssetName)
                     .resizable()
+                    .renderingMode(isShadow ? .template : .original)
                     .scaledToFit()
+                    .foregroundStyle(color)
             } else {
                 switch kind {
             case .balloon:

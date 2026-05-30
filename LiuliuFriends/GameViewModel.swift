@@ -36,6 +36,11 @@ final class GameViewModel: ObservableObject {
     private var pendingHintClearWorkItem: DispatchWorkItem?
     private var pendingPromptWorkItem: DispatchWorkItem?
 
+    private var activeRounds: [GameRound] {
+        let filteredRounds = rounds.filter { settings.enabledGameModes.contains($0.mode) }
+        return filteredRounds.isEmpty ? rounds : filteredRounds
+    }
+
     init(
         rounds: [GameRound] = GameContent.sessionRounds(),
         voiceStore: VoicePromptStore = .shared,
@@ -174,13 +179,15 @@ final class GameViewModel: ObservableObject {
         cancelPendingRetryClear()
         cancelPendingHint()
         cancelPendingPrompt()
-        roundIndex = (roundIndex + 1) % rounds.count
+        let availableRounds = activeRounds
+        let currentIndex = availableRounds.firstIndex { $0.id == round.id } ?? -1
+        roundIndex = (currentIndex + 1) % availableRounds.count
         completedCandidateID = nil
         wrongCandidateID = nil
         hintCandidateID = nil
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-            round = rounds[roundIndex]
+            round = availableRounds[roundIndex]
         }
         playPromptAfterDelay(promptDelay)
     }
@@ -188,6 +195,20 @@ final class GameViewModel: ObservableObject {
     func replayPrompt() {
         playPrompt(for: round)
         showCorrectHint(duration: 1.5)
+    }
+
+    func setGameMode(_ mode: GameMode, enabled: Bool) {
+        var enabledModes = settings.enabledGameModes
+        if enabled {
+            enabledModes.insert(mode)
+        } else {
+            guard enabledModes.count > 1 else { return }
+            enabledModes.remove(mode)
+        }
+        settings.enabledGameModes = enabledModes
+
+        guard !enabledModes.contains(round.mode) else { return }
+        moveToFirstActiveRound()
     }
 
     var selectedRecordingTarget: VoicePromptTarget {
@@ -259,9 +280,27 @@ final class GameViewModel: ObservableObject {
         breakReminder = nil
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-            round = rounds[0]
+            round = activeRounds[0]
         }
         playPrompt(for: round)
+    }
+
+    private func moveToFirstActiveRound() {
+        cancelPendingAutoAdvance()
+        cancelPendingRetryClear()
+        cancelPendingHint()
+        cancelPendingPrompt()
+        roundIndex = 0
+        completedCandidateID = nil
+        wrongCandidateID = nil
+        hintCandidateID = nil
+
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+            round = activeRounds[0]
+        }
+        if hasStartedPlaying {
+            playPrompt(for: round)
+        }
     }
 
     private func scheduleAutoAdvance() {

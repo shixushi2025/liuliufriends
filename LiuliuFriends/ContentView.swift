@@ -431,6 +431,12 @@ private struct TargetArea: View {
             }
 
         }
+        .contentShape(RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous))
+        .onTapGesture {
+            viewModel.replayPrompt()
+        }
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("重新播放本轮提示")
     }
 }
 
@@ -830,16 +836,25 @@ private struct SettingsScreen: View {
                     .frame(maxWidth: .infinity)
 
                     if isCompact {
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                            SettingsTile(title: "音效", systemName: "speaker.wave.2.fill", isOn: $viewModel.settings.soundEnabled)
-                            SettingsTile(title: "语音", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
-                            SettingsTile(title: "休息", systemName: "timer", isOn: $viewModel.settings.restReminderEnabled)
-                            SettingsTile(title: "护眼", systemName: "eye.fill", isOn: $viewModel.settings.eyeComfortEnabled)
-                            SettingsTile(title: "自动", systemName: "arrow.right.circle.fill", isOn: $viewModel.settings.autoAdvanceEnabled)
-                            SettingsTile(title: "动画", systemName: "sparkles", isOn: Binding(
-                                get: { !viewModel.settings.reducedMotion },
-                                set: { viewModel.settings.reducedMotion = !$0 }
-                            ))
+                        VStack(spacing: 12) {
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                SettingsTile(title: "音效", systemName: "speaker.wave.2.fill", isOn: $viewModel.settings.soundEnabled)
+                                SettingsTile(title: "语音", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
+                                SettingsTile(title: "休息", systemName: "timer", isOn: $viewModel.settings.restReminderEnabled)
+                                SettingsTile(title: "护眼", systemName: "eye.fill", isOn: $viewModel.settings.eyeComfortEnabled)
+                                SettingsTile(title: "自动", systemName: "arrow.right.circle.fill", isOn: $viewModel.settings.autoAdvanceEnabled)
+                                SettingsTile(title: "动画", systemName: "sparkles", isOn: Binding(
+                                    get: { !viewModel.settings.reducedMotion },
+                                    set: { viewModel.settings.reducedMotion = !$0 }
+                                ))
+                            }
+
+                            SettingsGroupTitle(text: "开启玩法", isCompact: true)
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                ForEach(GameMode.allCases, id: \.self) { mode in
+                                    SettingsTile(title: shortModeTitle(for: mode), systemName: modeIcon(for: mode), isOn: gameModeBinding(for: mode))
+                                }
+                            }
                         }
                     } else {
                         VStack(spacing: 16) {
@@ -879,6 +894,21 @@ private struct SettingsScreen: View {
                                 isOn: $viewModel.settings.reducedMotion,
                                 isCompact: false
                             )
+
+                            Divider()
+                                .padding(.vertical, 4)
+
+                            SettingsGroupTitle(text: "开启玩法", isCompact: false)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            ForEach(GameMode.allCases, id: \.self) { mode in
+                                SettingsToggle(
+                                    title: mode.title,
+                                    systemName: modeIcon(for: mode),
+                                    isOn: gameModeBinding(for: mode),
+                                    isCompact: false
+                                )
+                            }
                         }
                         .frame(maxWidth: 640, alignment: .leading)
                         .padding(24)
@@ -909,6 +939,47 @@ private struct SettingsScreen: View {
                 .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+    }
+
+    private func gameModeBinding(for mode: GameMode) -> Binding<Bool> {
+        Binding(
+            get: { viewModel.settings.enabledGameModes.contains(mode) },
+            set: { viewModel.setGameMode(mode, enabled: $0) }
+        )
+    }
+
+    private func shortModeTitle(for mode: GameMode) -> String {
+        switch mode {
+        case .animal:
+            return "动物"
+        case .sound:
+            return "声音"
+        case .color:
+            return "颜色"
+        case .shape:
+            return "形状"
+        case .size:
+            return "大小"
+        case .shadow:
+            return "影子"
+        }
+    }
+
+    private func modeIcon(for mode: GameMode) -> String {
+        switch mode {
+        case .animal:
+            return "pawprint.fill"
+        case .sound:
+            return "ear.fill"
+        case .color:
+            return "paintpalette.fill"
+        case .shape:
+            return "triangle.fill"
+        case .size:
+            return "arrow.up.left.and.arrow.down.right"
+        case .shadow:
+            return "moon.fill"
         }
     }
 }
@@ -1611,6 +1682,18 @@ private struct SettingsTile: View {
             .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct SettingsGroupTitle: View {
+    let text: String
+    let isCompact: Bool
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: isCompact ? 15 : 17, weight: .heavy, design: .rounded))
+            .foregroundStyle(Color(red: 0.55, green: 0.43, blue: 0.32))
+            .padding(.top, isCompact ? 2 : 0)
     }
 }
 
