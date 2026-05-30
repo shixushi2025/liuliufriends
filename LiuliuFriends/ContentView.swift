@@ -649,6 +649,7 @@ private struct SettingsScreen: View {
     var body: some View {
         GeometryReader { geometry in
             let isCompact = geometry.size.width < 700
+            let compactContentWidth = min(geometry.size.width - 48, 330)
 
             ScrollView {
                 VStack(spacing: isCompact ? 18 : 22) {
@@ -658,7 +659,7 @@ private struct SettingsScreen: View {
                     .frame(maxWidth: .infinity)
 
                     if isCompact {
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                             SettingsTile(title: "音效", systemName: "speaker.wave.2.fill", isOn: $viewModel.settings.soundEnabled)
                             SettingsTile(title: "提示", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
                             SettingsTile(title: "自动", systemName: "arrow.right.circle.fill", isOn: $viewModel.settings.autoAdvanceEnabled)
@@ -708,7 +709,7 @@ private struct SettingsScreen: View {
                     } label: {
                         Label("重新开始", systemImage: "arrow.counterclockwise")
                             .font(.system(size: isCompact ? 19 : 22, weight: .heavy, design: .rounded))
-                            .frame(maxWidth: 360, minHeight: isCompact ? 56 : 64)
+                            .frame(maxWidth: isCompact ? 300 : 360, minHeight: isCompact ? 54 : 64)
                             .background(Color(red: 0.95, green: 0.26, blue: 0.24), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                             .foregroundStyle(.white)
                     }
@@ -716,8 +717,9 @@ private struct SettingsScreen: View {
 
                     Spacer(minLength: 0)
                 }
-                .frame(maxWidth: isCompact ? .infinity : 720)
-                .padding(.horizontal, isCompact ? 16 : 28)
+                .frame(maxWidth: isCompact ? compactContentWidth : 720)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, isCompact ? 24 : 28)
                 .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 10 : 28))
                 .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
@@ -765,8 +767,8 @@ private struct ParentSummarySection: View {
             }
         }
         .frame(maxWidth: isCompact ? .infinity : 640, alignment: .leading)
-        .padding(isCompact ? 18 : 24)
-        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .padding(isCompact ? 16 : 24)
+        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: isCompact ? 20 : 22, style: .continuous))
         .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
     }
 }
@@ -838,9 +840,9 @@ private struct SettingsTile: View {
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundStyle(isOn ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.55, green: 0.50, blue: 0.46))
             }
-            .frame(maxWidth: .infinity, minHeight: 126)
-            .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .shadow(color: .black.opacity(0.07), radius: 14, y: 7)
+            .frame(maxWidth: .infinity, minHeight: 112)
+            .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
         }
         .buttonStyle(.plain)
     }
@@ -895,24 +897,24 @@ private struct ParentInfoTile: View {
     let value: String
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 7) {
             Image(systemName: icon)
-                .font(.system(size: 21, weight: .heavy))
+                .font(.system(size: 19, weight: .heavy))
                 .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
-                .frame(width: 42, height: 42)
+                .frame(width: 38, height: 38)
                 .background(Color(red: 1.0, green: 0.88, blue: 0.78).opacity(0.72), in: Circle())
 
             Text(title)
-                .font(.system(size: 15, weight: .heavy, design: .rounded))
+                .font(.system(size: 14, weight: .heavy, design: .rounded))
                 .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
 
             Text(value)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(.system(size: 13, weight: .bold, design: .rounded))
                 .foregroundStyle(Color(red: 0.45, green: 0.38, blue: 0.32))
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
         }
-        .frame(maxWidth: .infinity, minHeight: 112)
-        .background(.white.opacity(0.74), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .frame(maxWidth: .infinity, minHeight: 100)
+        .background(.white.opacity(0.74), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }
