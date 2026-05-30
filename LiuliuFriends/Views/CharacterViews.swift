@@ -864,11 +864,16 @@ private struct StarShape: View {
     let isShadow: Bool
 
     var body: some View {
-        Image(systemName: "star.fill")
-            .font(.system(size: 96, weight: .heavy))
-            .foregroundStyle(color)
-            .shadow(color: isShadow ? .clear : .yellow.opacity(0.2), radius: 8)
-            .frame(width: 118, height: 118)
+        GeometryReader { proxy in
+            let length = min(proxy.size.width, proxy.size.height)
+
+            Image(systemName: "star.fill")
+                .font(.system(size: length * 0.78, weight: .heavy))
+                .foregroundStyle(color)
+                .shadow(color: isShadow ? .clear : .yellow.opacity(0.2), radius: length * 0.07)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+        .aspectRatio(1, contentMode: .fit)
     }
 }
 
@@ -888,32 +893,37 @@ private struct ShapeSymbol: View {
     let isShadow: Bool
 
     var body: some View {
-        Group {
-            switch kind {
-            case .circle:
-                Circle()
-            case .square:
-                RoundedRectangle(cornerRadius: 26)
-            case .triangle:
-                Triangle()
-            case .heart:
-                Image(systemName: "heart.fill")
-                    .font(.system(size: 118, weight: .heavy))
-            case .rectangle:
-                RoundedRectangle(cornerRadius: 18)
-                    .frame(width: 128, height: 82)
-            case .oval:
-                Ellipse()
-                    .frame(width: 130, height: 92)
-            case .diamond:
-                Rectangle()
-                    .rotationEffect(.degrees(45))
-                    .frame(width: 88, height: 88)
+        GeometryReader { proxy in
+            let length = min(proxy.size.width, proxy.size.height)
+
+            Group {
+                switch kind {
+                case .circle:
+                    Circle()
+                case .square:
+                    RoundedRectangle(cornerRadius: length * 0.22)
+                case .triangle:
+                    Triangle()
+                case .heart:
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: length * 0.86, weight: .heavy))
+                case .rectangle:
+                    RoundedRectangle(cornerRadius: length * 0.15)
+                        .frame(width: length * 0.96, height: length * 0.62)
+                case .oval:
+                    Ellipse()
+                        .frame(width: length * 0.98, height: length * 0.70)
+                case .diamond:
+                    Rectangle()
+                        .rotationEffect(.degrees(45))
+                        .frame(width: length * 0.62, height: length * 0.62)
+                }
             }
+            .foregroundStyle(color)
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .shadow(color: isShadow ? .clear : color.opacity(0.18), radius: length * 0.07, y: length * 0.04)
         }
-        .foregroundStyle(color)
-        .frame(width: 118, height: 118)
-        .shadow(color: isShadow ? .clear : color.opacity(0.18), radius: 8, y: 5)
+        .aspectRatio(1, contentMode: .fit)
     }
 }
 

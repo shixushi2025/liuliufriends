@@ -839,7 +839,7 @@ private struct SettingsScreen: View {
                         VStack(spacing: 12) {
                             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                                 SettingsTile(title: "音效", systemName: "speaker.wave.2.fill", isOn: $viewModel.settings.soundEnabled)
-                                SettingsTile(title: "语音", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
+                                SettingsTile(title: "语音", systemName: "bubble.left.fill", isOn: $viewModel.settings.voicePromptEnabled)
                                 SettingsTile(title: "休息", systemName: "timer", isOn: $viewModel.settings.restReminderEnabled)
                                 SettingsTile(title: "护眼", systemName: "eye.fill", isOn: $viewModel.settings.eyeComfortEnabled)
                                 SettingsTile(title: "自动", systemName: "arrow.right.circle.fill", isOn: $viewModel.settings.autoAdvanceEnabled)
@@ -866,7 +866,7 @@ private struct SettingsScreen: View {
                             )
                             SettingsToggle(
                                 title: "语音提示",
-                                systemName: "bubble.left.and.soundwave.right.fill",
+                                systemName: "bubble.left.fill",
                                 isOn: $viewModel.settings.voicePromptEnabled,
                                 isCompact: false
                             )
