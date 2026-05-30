@@ -669,7 +669,7 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "ObjectAppleArt"
         case .fish:
             return "AnimalFishArt"
-        case .circle, .square, .triangle, .star, .heart:
+        case .circle, .square, .triangle, .star, .heart, .rectangle, .oval, .diamond:
             return nil
         case .bird:
             return "AnimalBirdArt"
@@ -739,12 +739,6 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "FruitCherryArt"
         case .lemon:
             return "FruitLemonArt"
-        case .rectangle:
-            return "ShapeRectangleArt"
-        case .oval:
-            return "ShapeOvalArt"
-        case .diamond:
-            return "ShapeDiamondArt"
         case .moon:
             return "ShapeMoonArt"
         case .flower:
