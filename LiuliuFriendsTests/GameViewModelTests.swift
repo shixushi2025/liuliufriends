@@ -132,6 +132,23 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(soundRound.voicePromptID, soundRound.targetKind.rawValue)
     }
 
+    func testSoundPromptsUseOnlyRecognizedSoundsOrCanonicalNames() {
+        XCTAssertEqual(FriendKind.sheep.soundText, "咩咩")
+        XCTAssertEqual(FriendKind.cat.soundText, "喵喵")
+        XCTAssertEqual(FriendKind.dog.soundText, "汪汪")
+        XCTAssertEqual(FriendKind.grape.soundText, "葡萄")
+        XCTAssertEqual(FriendKind.circle.soundText, "圆形")
+        XCTAssertEqual(FriendKind.watermelon.soundText, "西瓜")
+        XCTAssertEqual(FriendKind.butterfly.soundText, "蝴蝶")
+    }
+
+    func testRecognizedSoundPromptCatalogDoesNotOverrideShapesOrFruit() {
+        for kind in FriendKind.allCases where kind.category == .shape || kind.category == .fruit {
+            XCTAssertFalse(LearningPromptTextCatalog.usesRecognizedSoundPrompt(kind), "\(kind.name) should default to canonical name unless parents customize it.")
+            XCTAssertEqual(kind.soundText, kind.name)
+        }
+    }
+
     func testUsageTickShowsSessionBreakReminder() {
         let defaults = UserDefaults(suiteName: "liuliufriends.tests.session")!
         defaults.removePersistentDomain(forName: "liuliufriends.tests.session")

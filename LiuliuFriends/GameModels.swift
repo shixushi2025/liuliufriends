@@ -214,6 +214,40 @@ struct VoicePromptTarget: Identifiable, Equatable {
     }
 }
 
+enum LearningPromptTextCatalog {
+    static func soundPrompt(for kind: FriendKind) -> String {
+        recognizedSoundPrompts[kind] ?? kind.name
+    }
+
+    static func usesRecognizedSoundPrompt(_ kind: FriendKind) -> Bool {
+        recognizedSoundPrompts[kind] != nil
+    }
+
+    static let configurablePromptGroups: [VoicePromptGroup] = VoicePromptGroup.allCases
+
+    private static let recognizedSoundPrompts: [FriendKind: String] = [
+        .cat: "喵喵",
+        .dog: "汪汪",
+        .duck: "嘎嘎",
+        .frog: "呱呱",
+        .bird: "啾啾",
+        .cow: "哞哞",
+        .sheep: "咩咩",
+        .pig: "哼哼",
+        .monkey: "吱吱",
+        .tiger: "嗷呜",
+        .lion: "吼吼",
+        .bee: "嗡嗡",
+        .car: "嘀嘀",
+        .train: "呜呜",
+        .truck: "轰轰",
+        .bicycle: "叮叮",
+        .fireTruck: "呜啦",
+        .ambulance: "滴嘟",
+        .tractor: "突突"
+    ]
+}
+
 enum FriendKind: String, CaseIterable, Identifiable {
     case balloon
     case cat
@@ -404,128 +438,7 @@ enum FriendKind: String, CaseIterable, Identifiable {
     }
 
     var soundText: String {
-        switch self {
-        case .cat:
-            return "喵喵"
-        case .dog:
-            return "汪汪"
-        case .duck:
-            return "嘎嘎"
-        case .bear:
-            return "抱抱"
-        case .rabbit:
-            return "跳跳"
-        case .frog:
-            return "呱呱"
-        case .balloon:
-            return "啵啵"
-        case .apple:
-            return "咚咚"
-        case .fish:
-            return "咕噜"
-        case .circle:
-            return "圆圆"
-        case .square:
-            return "方方"
-        case .triangle:
-            return "尖尖"
-        case .star:
-            return "亮亮"
-        case .heart:
-            return "爱心"
-        case .bird:
-            return "啾啾"
-        case .cow:
-            return "哞哞"
-        case .sheep:
-            return "咩咩"
-        case .horse:
-            return "哒哒"
-        case .pig:
-            return "哼哼"
-        case .monkey:
-            return "吱吱"
-        case .panda:
-            return "慢慢"
-        case .tiger:
-            return "嗷呜"
-        case .lion:
-            return "吼吼"
-        case .elephant:
-            return "嘟嘟"
-        case .turtle:
-            return "爬爬"
-        case .bee:
-            return "嗡嗡"
-        case .butterfly:
-            return "飞飞"
-        case .car:
-            return "嘀嘀"
-        case .bus:
-            return "巴巴"
-        case .train:
-            return "呜呜"
-        case .truck:
-            return "轰轰"
-        case .airplane:
-            return "呼呼"
-        case .boat:
-            return "哗哗"
-        case .bicycle:
-            return "叮叮"
-        case .fireTruck:
-            return "呜啦"
-        case .ambulance:
-            return "滴嘟"
-        case .tractor:
-            return "突突"
-        case .rocket:
-            return "咻咻"
-        case .banana:
-            return "弯弯"
-        case .orange:
-            return "圆圆"
-        case .pear:
-            return "甜甜"
-        case .strawberry:
-            return "红红"
-        case .watermelon:
-            return "大大"
-        case .grape:
-            return "串串"
-        case .peach:
-            return "软软"
-        case .pineapple:
-            return "刺刺"
-        case .cherry:
-            return "小小"
-        case .lemon:
-            return "酸酸"
-        case .rectangle:
-            return "长长"
-        case .oval:
-            return "扁扁"
-        case .diamond:
-            return "闪闪"
-        case .moon:
-            return "弯月"
-        case .flower:
-            return "花花"
-        case .tree:
-            return "树树"
-        case .sun:
-            return "暖暖"
-        case .cloud:
-            return "飘飘"
-        case .umbrella:
-            return "哒哒"
-        case .ball:
-            return "拍拍"
-        case .book:
-            return "翻翻"
-        case .cup:
-            return "喝水"
-        }
+        LearningPromptTextCatalog.soundPrompt(for: self)
     }
 
     var category: FriendCategory {
