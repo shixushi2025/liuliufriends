@@ -10,7 +10,7 @@ Bundle ID：`baby.dudou.liuliufriends`
 
 ## 本次已修复
 
-- 移除 0.30 版本未开放功能对应的 `NSMicrophoneUsageDescription`，避免“未使用麦克风”和权限声明不一致。
+- 移除 0.30 版本未开放功能对应的 `NSMicrophoneUsageDescription`，并从本版二进制移除 `AVAudioRecorder` / `requestRecordPermission` 录音实现，避免“未使用麦克风”和静态扫描结果不一致。
 - 官网源码将邮箱从 `mailto:hello@dudou.baby` 改为文本 `hello [at] dudou.baby`，避免 Cloudflare Email Obfuscation 自动注入脚本，保持官网静态、无分析脚本。
 
 ## 已验证
@@ -24,6 +24,7 @@ Bundle ID：`baby.dudou.liuliufriends`
 - App Icon：1024×1024，`hasAlpha: no`。
 - 隐私清单：`NSPrivacyTracking = false`，`NSPrivacyCollectedDataTypes = []`，仅声明 `UserDefaults` required reason API。
 - 最终 Release App `Info.plist` 未包含 `NSMicrophoneUsageDescription`、`NSUserTrackingUsageDescription` 等敏感权限说明。
+- 最终 Release 二进制未发现 `AVAudioRecorder`、`requestRecordPermission`、`playAndRecord`、`NSMicrophoneUsageDescription` 字符串。
 - 未发现 `URLSession`、`WKWebView`、`StoreKit`、`AdSupport`、`AppTrackingTransparency`、定位、相机、照片、通知、通讯录、剪贴板等敏感能力使用。
 - 未发现仓库内 GitHub token、OpenAI key、AWS key、私钥等明显密钥模式。
 - 官网源码无第三方分析、广告、Cookie 脚本；包含中英文首页、中英文隐私政策、`robots.txt`、`sitemap.xml` 和 Cloudflare Pages `_headers`。

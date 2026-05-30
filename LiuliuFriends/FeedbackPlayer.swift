@@ -60,18 +60,14 @@ final class SystemFeedbackPlayer: FeedbackPlaying {
     }
 }
 
-final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegate {
+final class VoicePromptStore: ObservableObject {
     static let shared = VoicePromptStore()
 
-    @Published private(set) var recordingID: String?
     @Published private(set) var availableRecordingIDs: Set<String> = []
-    @Published private(set) var authorizationDenied = false
 
-    private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
 
-    override init() {
-        super.init()
+    init() {
         refreshAvailableRecordings()
     }
 
@@ -85,44 +81,6 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
 
     var recordingCount: Int {
         availableRecordingIDs.count
-    }
-
-    func startRecording(for kind: FriendKind) {
-        startRecording(for: kind.rawValue)
-    }
-
-    func startRecording(for id: String) {
-        stopRecording()
-
-        let permissionHandler: (Bool) -> Void = { [weak self] granted in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                guard granted else {
-                    self.authorizationDenied = true
-                    return
-                }
-                self.authorizationDenied = false
-                self.beginRecording(for: id)
-            }
-        }
-
-        if #available(iOS 17.0, *) {
-            AVAudioApplication.requestRecordPermission(completionHandler: permissionHandler)
-        } else {
-            AVAudioSession.sharedInstance().requestRecordPermission(permissionHandler)
-        }
-    }
-
-    var recordingKind: FriendKind? {
-        guard let recordingID else { return nil }
-        return FriendKind(rawValue: recordingID)
-    }
-
-    func stopRecording() {
-        recorder?.stop()
-        recorder = nil
-        recordingID = nil
-        refreshAvailableRecordings()
     }
 
     @discardableResult
@@ -145,37 +103,6 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
             return player?.play() == true
         } catch {
             return false
-        }
-    }
-
-    func deleteRecording(for kind: FriendKind) {
-        deleteRecording(for: kind.rawValue)
-    }
-
-    func deleteRecording(for id: String) {
-        try? FileManager.default.removeItem(at: recordingURL(for: id))
-        refreshAvailableRecordings()
-    }
-
-    private func beginRecording(for id: String) {
-        do {
-            try FileManager.default.createDirectory(at: recordingsDirectory, withIntermediateDirectories: true)
-            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .duckOthers])
-            try AVAudioSession.sharedInstance().setActive(true)
-
-            let settings: [String: Any] = [
-                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-                AVSampleRateKey: 44_100,
-                AVNumberOfChannelsKey: 1,
-                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-            ]
-            recorder = try AVAudioRecorder(url: recordingURL(for: id), settings: settings)
-            recorder?.delegate = self
-            recorder?.record()
-            recordingID = id
-        } catch {
-            recordingID = nil
-            recorder = nil
         }
     }
 

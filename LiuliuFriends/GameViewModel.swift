@@ -12,7 +12,6 @@ final class GameViewModel: ObservableObject {
     @Published var settings = GameSettings()
     @Published var breakReminder: BreakReminder?
     @Published var hasStartedPlaying = false
-    @Published var selectedRecordingTargetID = VoicePromptTarget.defaultTarget.id
 
     let voiceStore: VoicePromptStore
     let promptAliasStore: PromptAliasStore
@@ -209,31 +208,6 @@ final class GameViewModel: ObservableObject {
 
         guard !enabledModes.contains(round.mode) else { return }
         moveToFirstActiveRound()
-    }
-
-    var selectedRecordingTarget: VoicePromptTarget {
-        VoicePromptTarget.target(for: selectedRecordingTargetID)
-    }
-
-    func selectRecordingTarget(_ target: VoicePromptTarget) {
-        guard voiceStore.recordingID == nil else { return }
-        selectedRecordingTargetID = target.id
-    }
-
-    func toggleRecordingForSelectedKind() {
-        if voiceStore.recordingID == selectedRecordingTargetID {
-            voiceStore.stopRecording()
-        } else {
-            voiceStore.startRecording(for: selectedRecordingTargetID)
-        }
-    }
-
-    func playRecordingForSelectedKind() {
-        _ = voiceStore.playRecording(for: selectedRecordingTargetID)
-    }
-
-    func deleteRecordingForSelectedKind() {
-        voiceStore.deleteRecording(for: selectedRecordingTargetID)
     }
 
     func displayName(for target: VoicePromptTarget) -> String {
