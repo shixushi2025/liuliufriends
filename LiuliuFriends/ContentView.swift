@@ -37,6 +37,7 @@ private struct GameScreen: View {
                     isCompact: metrics.isCompact,
                     showsCompactPrompt: metrics.showsCompactPrompt
                 )
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, metrics.sidePadding)
                     .padding(.top, metrics.topPadding)
 
@@ -48,6 +49,7 @@ private struct GameScreen: View {
 
                 Spacer(minLength: 0)
             }
+            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
             .padding(.bottom, metrics.bottomPadding)
         }
     }
@@ -60,24 +62,12 @@ private struct HeaderView: View {
 
     var body: some View {
         if isCompact {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(alignment: .center, spacing: 12) {
-                    titleBlock(titleSize: 28, promptSize: 17, showsPrompt: false)
-
-                    Spacer()
-
-                    ProgressBadge(completedRounds: viewModel.completedRounds, isCompact: true)
-                }
-
-                if showsCompactPrompt {
-                    Text(viewModel.round.mode.prompt)
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-
-                headerActions(spacing: 10, buttonSize: 48)
+            HStack(spacing: 10) {
+                headerActions(spacing: 10, buttonSize: 44)
+                Spacer(minLength: 0)
             }
+            .padding(.leading, 72)
+            .frame(maxWidth: .infinity, alignment: .leading)
         } else {
             HStack {
                 titleBlock(titleSize: 34, promptSize: 20, showsPrompt: true)
@@ -96,23 +86,17 @@ private struct HeaderView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("六六找朋友")
                 .font(.system(size: titleSize, weight: .heavy, design: .rounded))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.08, green: 0.10, blue: 0.16),
-                            Color(red: 0.95, green: 0.18, blue: 0.16)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
+                .foregroundStyle(Color(red: 0.35, green: 0.27, blue: 0.20))
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
 
             if showsPrompt {
-                Text(viewModel.round.mode.prompt)
+                Text("\(viewModel.round.mode.prompt) · \(viewModel.round.mode.ageLabel)")
                     .font(.system(size: promptSize, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(viewModel.round.mode.accentColor)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 5)
+                    .background(viewModel.round.mode.accentColor.opacity(0.14), in: Capsule())
                     .lineLimit(2)
             }
         }
@@ -174,36 +158,14 @@ private struct PlayPanel: View {
     let metrics: GameLayoutMetrics
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            VStack(spacing: metrics.panelSpacing) {
-                TargetArea(round: viewModel.round, metrics: metrics)
-                    .frame(height: metrics.targetHeight)
-
-                HStack(spacing: metrics.candidateSpacing) {
-                    ForEach(viewModel.round.candidates) { candidate in
-                        CandidateButton(
-                            round: viewModel.round,
-                            candidate: candidate,
-                            size: metrics.candidateSize,
-                            isCompleted: viewModel.completedCandidateID == candidate.id,
-                            isWrong: viewModel.wrongCandidateID == candidate.id,
-                            reducedMotion: viewModel.settings.reducedMotion
-                        ) {
-                            viewModel.choose(candidate)
-                        }
-                    }
-                }
-            }
+        ZStack(alignment: .bottomTrailing) {
+            panelContent
             .padding(metrics.panelPadding)
             .background(
                 RoundedRectangle(cornerRadius: metrics.boardCornerRadius)
                     .fill(
                         LinearGradient(
-                            colors: [
-                                .white.opacity(0.82),
-                                Color(red: 1.0, green: 0.94, blue: 0.78).opacity(0.62),
-                                Color(red: 0.82, green: 0.93, blue: 1.0).opacity(0.70)
-                            ],
+                            colors: viewModel.round.mode.usesNeutralBackground ? neutralPanelColors : warmPanelColors,
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -211,18 +173,91 @@ private struct PlayPanel: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: metrics.boardCornerRadius)
-                    .stroke(.white.opacity(0.76), lineWidth: 3)
+                    .stroke(Color(red: 1.0, green: 0.86, blue: 0.62).opacity(metrics.isCompact ? 0.12 : 0.18), lineWidth: 1)
             )
-            .shadow(color: Color(red: 0.14, green: 0.22, blue: 0.34).opacity(0.14), radius: 26, y: 18)
+            .shadow(color: Color(red: 0.58, green: 0.40, blue: 0.22).opacity(metrics.isCompact ? 0.06 : 0.10), radius: 22, y: 14)
 
-            if metrics.showsPendant {
-                LiuliuPendant(mood: viewModel.completedCandidateID == nil ? .waiting : .happy)
+            if metrics.showsPendant && viewModel.completedCandidateID == nil {
+                LiuliuPendant(mood: viewModel.wrongCandidateID == nil ? .waiting : .encourage)
                     .scaleEffect(metrics.pendantScale)
                     .frame(width: 150 * metrics.pendantScale, height: 190 * metrics.pendantScale)
                     .offset(x: metrics.pendantOffsetX, y: metrics.pendantOffsetY)
-                    .rotationEffect(.degrees(viewModel.completedCandidateID == nil ? -7 : 5))
+                    .rotationEffect(.degrees(-7))
                     .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.36, dampingFraction: 0.62), value: viewModel.celebrationSeed)
                     .accessibilityHidden(true)
+            }
+
+            if viewModel.completedCandidateID != nil {
+                LiuliuPendant(mood: .happy)
+                    .frame(width: metrics.celebrationMascotSize, height: metrics.celebrationMascotSize * 1.22)
+                    .shadow(color: Color(red: 1.0, green: 0.82, blue: 0.35).opacity(0.55), radius: 26)
+                    .scaleEffect(viewModel.settings.reducedMotion ? 1 : 1.08)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, metrics.celebrationTopPadding)
+                    .allowsHitTesting(false)
+                    .transition(.scale(scale: 0.78).combined(with: .opacity))
+                    .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.62), value: viewModel.celebrationSeed)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var panelContent: some View {
+        if metrics.usesWidePanel {
+            HStack(alignment: .center, spacing: metrics.panelSpacing) {
+                TargetArea(round: viewModel.round, metrics: metrics)
+                    .frame(width: metrics.wideTargetWidth, height: metrics.targetHeight)
+
+                VStack(spacing: metrics.candidateSpacing) {
+                    candidateButtons
+                }
+            }
+        } else {
+            VStack(spacing: metrics.panelSpacing) {
+                TargetArea(round: viewModel.round, metrics: metrics)
+                    .frame(height: metrics.targetHeight)
+
+                if metrics.stacksCandidates {
+                    VStack(spacing: metrics.candidateSpacing) {
+                        candidateButtons
+                    }
+                } else {
+                    HStack(spacing: metrics.candidateSpacing) {
+                        candidateButtons
+                    }
+                }
+            }
+        }
+    }
+
+    private var neutralPanelColors: [Color] {
+        [
+            Color(red: 1.0, green: 0.98, blue: 0.92).opacity(0.88),
+            Color(red: 1.0, green: 0.94, blue: 0.86).opacity(0.78)
+        ]
+    }
+
+    private var warmPanelColors: [Color] {
+        [
+            Color(red: 1.0, green: 0.98, blue: 0.92).opacity(0.88),
+            Color(red: 1.0, green: 0.94, blue: 0.82).opacity(0.76),
+            Color(red: 1.0, green: 0.88, blue: 0.86).opacity(0.68)
+        ]
+    }
+
+    @ViewBuilder
+    private var candidateButtons: some View {
+        ForEach(viewModel.round.candidates) { candidate in
+            CandidateButton(
+                round: viewModel.round,
+                candidate: candidate,
+                size: metrics.candidateSize,
+                isCompleted: viewModel.completedCandidateID == candidate.id,
+                isWrong: viewModel.wrongCandidateID == candidate.id,
+                isHinted: viewModel.hintCandidateID == candidate.id,
+                reducedMotion: viewModel.settings.reducedMotion
+            ) {
+                viewModel.choose(candidate)
             }
         }
     }
@@ -247,36 +282,54 @@ private struct TargetArea: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: metrics.cardCornerRadius)
-                        .stroke(.white.opacity(0.86), lineWidth: 3)
+                        .stroke(Color(red: 1.0, green: 0.86, blue: 0.60).opacity(0.20), lineWidth: 1)
                 )
-                .shadow(color: Color(red: 0.95, green: 0.22, blue: 0.12).opacity(0.10), radius: 20, y: 10)
+                .shadow(color: Color(red: 0.95, green: 0.62, blue: 0.22).opacity(0.08), radius: 18, y: 8)
 
             switch round.mode {
+            case .animal:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找\(round.targetKind.name)", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .sound:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    SoundBubble(text: round.targetKind.soundText)
+                        .frame(width: metrics.targetIconSize * 1.08, height: metrics.targetIconSize * 0.78)
+                    TargetCaption(title: "听声音找朋友", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .color:
-                VStack(spacing: 12) {
+                VStack(spacing: metrics.targetContentSpacing) {
                     ColorFriendTarget(color: round.targetColor)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
                     TargetCaption(title: "找一样的颜色", mode: round.mode)
                 }
-            case .shadow:
-                VStack(spacing: 12) {
-                    FriendShape(kind: round.targetKind, color: .black.opacity(0.18), isShadow: true)
-                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize * 0.94)
-                    TargetCaption(title: "找这个影子", mode: round.mode)
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .shape:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找一样的形状", mode: round.mode)
                 }
-            case .sound:
-                VStack(spacing: 12) {
-                    SoundBubble(text: round.targetKind.soundText)
-                        .frame(width: metrics.targetIconSize * 1.08, height: metrics.targetIconSize * 0.94)
-                    TargetCaption(title: "听声音找朋友", mode: round.mode)
-                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .size:
-                VStack(spacing: 12) {
-                    FriendShape(kind: round.targetKind, color: round.targetColor.opacity(0.28), isShadow: true)
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .scaleEffect(round.targetSizeScale)
-                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize * 0.94)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
                     TargetCaption(title: "找一样大的朋友", mode: round.mode)
                 }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .shadow:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: Color(red: 0.28, green: 0.25, blue: 0.22), isShadow: true)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找这个影子", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             }
         }
     }
@@ -295,7 +348,7 @@ private struct TargetCaption: View {
                 .padding(.vertical, 7)
                 .background(
                     Capsule()
-                        .fill(Color(red: 0.95, green: 0.20, blue: 0.18))
+                        .fill(mode.accentColor)
                 )
 
             Text(title)
@@ -311,21 +364,29 @@ private struct CandidateButton: View {
     let size: CGFloat
     let isCompleted: Bool
     let isWrong: Bool
+    let isHinted: Bool
     let reducedMotion: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             ZStack {
-                RoundedRectangle(cornerRadius: min(36, size * 0.18))
-                    .fill(.white.opacity(0.92))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: min(36, size * 0.18))
-                            .stroke(isCompleted ? Color(red: 0.95, green: 0.20, blue: 0.18) : .white.opacity(0.88), lineWidth: isCompleted ? 6 : 3)
+                RoundedRectangle(cornerRadius: min(40, size * 0.22))
+                    .fill(
+                        LinearGradient(
+                            colors: isCompleted ? [.white, Color(red: 1.0, green: 0.97, blue: 0.88)] : [.white, Color(red: 1.0, green: 0.98, blue: 0.93)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
                     )
-                    .shadow(color: candidate.color.opacity(0.18), radius: 20, y: 14)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: min(40, size * 0.22))
+                            .stroke(isCompleted || isHinted ? Color(red: 1.0, green: 0.78, blue: 0.26) : Color(red: 1.0, green: 0.88, blue: 0.66).opacity(0.34), lineWidth: isCompleted || isHinted ? 4 : 1)
+                    )
+                    .shadow(color: Color(red: 0.72, green: 0.50, blue: 0.24).opacity(isCompleted ? 0.18 : 0.08), radius: isCompleted ? 22 : 12, y: isCompleted ? 14 : 8)
+                    .shadow(color: Color(red: 1.0, green: 0.78, blue: 0.28).opacity(isCompleted || isHinted ? 0.38 : 0), radius: isCompleted ? 24 : 16)
 
-                FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
+                GameObjectView(round: round, kind: candidate.kind, color: candidate.color, isTarget: false)
                     .scaleEffect(candidate.sizeScale)
                     .padding(max(14, size * 0.13))
 
@@ -334,14 +395,35 @@ private struct CandidateButton: View {
                 }
             }
             .frame(width: size, height: size)
-            .scaleEffect(!reducedMotion && isCompleted ? 1.08 : 1)
+            .scaleEffect(!reducedMotion ? (isCompleted ? 1.08 : (isHinted ? 1.03 : 1)) : 1)
             .rotationEffect(.degrees(!reducedMotion && isWrong ? -5 : 0))
             .animation(.spring(response: 0.3, dampingFraction: 0.45), value: isCompleted)
             .animation(.easeInOut(duration: 0.08).repeatCount(isWrong ? 4 : 0, autoreverses: true), value: isWrong)
+            .animation(.easeInOut(duration: 0.65), value: isHinted)
         }
         .buttonStyle(.plain)
         .disabled(isCompleted)
         .accessibilityLabel(candidate.kind.name)
+    }
+}
+
+private struct GameObjectView: View {
+    let round: GameRound
+    let kind: FriendKind
+    let color: Color
+    let isTarget: Bool
+
+    var body: some View {
+        switch round.mode {
+        case .color:
+            ColorFriendTarget(color: color)
+        case .shape, .size:
+            FriendShape(kind: kind, color: color, isShadow: false)
+        case .shadow:
+            FriendShape(kind: kind, color: color, isShadow: isTarget)
+        case .animal, .sound:
+            FriendShape(kind: kind, color: color, isShadow: false)
+        }
     }
 }
 
@@ -395,7 +477,7 @@ private struct GameLayoutMetrics {
     }
 
     var topPadding: CGFloat {
-        isCompact ? 14 : 20
+        isCompact ? 8 : 20
     }
 
     var bottomPadding: CGFloat {
@@ -411,26 +493,41 @@ private struct GameLayoutMetrics {
     }
 
     var panelPadding: CGFloat {
-        isCompact ? 16 : 34
+        if isCompact {
+            return 14
+        }
+        return usesWidePanel ? 28 : 34
     }
 
     var panelSpacing: CGFloat {
-        isCompact ? 18 : 30
+        if isCompact {
+            return 12
+        }
+        return usesWidePanel ? 24 : 30
     }
 
     var candidateSpacing: CGFloat {
-        isCompact ? 16 : 28
+        if isCompact {
+            return 12
+        }
+        return usesWidePanel ? 22 : 28
     }
 
     var targetHeight: CGFloat {
-        if isCompact && size.height < 700 {
-            return 178
+        if usesWidePanel {
+            return candidateSize * 2 + candidateSpacing
         }
-        return isCompact ? 210 : min(360, max(300, size.height * 0.34))
+        if isCompact && size.height < 700 {
+            return 158
+        }
+        return isCompact ? 184 : min(360, max(300, size.height * 0.34))
     }
 
     var maxBoardWidth: CGFloat {
-        isCompact ? .infinity : 1240
+        if isCompact {
+            return .infinity
+        }
+        return usesWidePanel ? min(1120, effectiveLandscapeWidth - sidePadding * 2) : 1240
     }
 
     var showsCompactPrompt: Bool {
@@ -438,17 +535,63 @@ private struct GameLayoutMetrics {
     }
 
     var showsPendant: Bool {
-        !isCompact
+        !usesWidePanel
     }
 
     var candidateSize: CGFloat {
+        if usesWidePanel {
+            let reservedHeaderHeight: CGFloat = 108
+            let availableHeight = effectiveLandscapeHeight - topPadding - bottomPadding - reservedHeaderHeight - minimumSpacer - panelPadding * 2
+            let heightBoundSize = floor((availableHeight - candidateSpacing) / 2)
+            let widthBoundSize = floor((effectiveLandscapeWidth - sidePadding * 2 - panelPadding * 2 - wideTargetWidth - panelSpacing) * 0.82)
+            return min(250, max(206, min(heightBoundSize, widthBoundSize)))
+        }
         let availableWidth = min(size.width - sidePadding * 2, maxBoardWidth) - panelPadding * 2 - candidateSpacing
         let compactSize = floor(availableWidth / 2)
-        return isCompact ? min(172, max(132, compactSize)) : min(260, max(210, compactSize * 0.42))
+        return isCompact ? min(154, max(124, compactSize)) : min(260, max(210, compactSize * 0.42))
     }
 
     var targetIconSize: CGFloat {
-        isCompact ? 160 : 190
+        if usesWidePanel {
+            return 178
+        }
+        return isCompact ? 112 : 190
+    }
+
+    var targetContentSpacing: CGFloat {
+        isCompact ? 8 : 12
+    }
+
+    var targetVerticalInset: CGFloat {
+        isCompact ? 10 : 12
+    }
+
+    var stacksCandidates: Bool {
+        isCompact && size.height >= 690
+    }
+
+    var usesWidePanel: Bool {
+        !isCompact && effectiveLandscapeWidth >= 900
+    }
+
+    var wideTargetWidth: CGFloat {
+        min(430, max(340, effectiveLandscapeWidth * 0.36))
+    }
+
+    private var effectiveLandscapeWidth: CGFloat {
+        max(size.width, size.height)
+    }
+
+    private var effectiveLandscapeHeight: CGFloat {
+        min(size.width, size.height)
+    }
+
+    var celebrationMascotSize: CGFloat {
+        isCompact ? 132 : 190
+    }
+
+    var celebrationTopPadding: CGFloat {
+        isCompact ? 8 : 24
     }
 
     var boardCornerRadius: CGFloat {
@@ -460,15 +603,18 @@ private struct GameLayoutMetrics {
     }
 
     var pendantScale: CGFloat {
-        size.width >= 1000 ? 0.52 : 0.46
+        if isCompact {
+            return 0.34
+        }
+        return size.width >= 1000 ? 0.52 : 0.46
     }
 
     var pendantOffsetX: CGFloat {
-        isCompact ? 0 : 24
+        isCompact ? -74 : 24
     }
 
     var pendantOffsetY: CGFloat {
-        isCompact ? 0 : 12
+        isCompact ? -24 : 12
     }
 }
 
@@ -476,52 +622,63 @@ private struct SettingsScreen: View {
     @ObservedObject var viewModel: GameViewModel
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 22) {
-                ScreenHeader(title: "设置", actionTitle: "返回") {
-                    viewModel.screen = .play
-                }
+        GeometryReader { geometry in
+            let isCompact = geometry.size.width < 700
 
-                VStack(spacing: 16) {
-                    SettingsToggle(
-                        title: "音效",
-                        systemName: "speaker.wave.2.fill",
-                        isOn: $viewModel.settings.soundEnabled
-                    )
-                    SettingsToggle(
-                        title: "提示音",
-                        systemName: "bubble.left.and.soundwave.right.fill",
-                        isOn: $viewModel.settings.voicePromptEnabled
-                    )
-                    SettingsToggle(
-                        title: "自动下一题",
-                        systemName: "arrow.right.circle.fill",
-                        isOn: $viewModel.settings.autoAdvanceEnabled
-                    )
-                    SettingsToggle(
-                        title: "减少动画",
-                        systemName: "slowmo",
-                        isOn: $viewModel.settings.reducedMotion
-                    )
-                }
-                .padding(24)
-                .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 8))
+            ScrollView {
+                VStack(spacing: isCompact ? 18 : 22) {
+                    ScreenHeader(title: "设置", actionTitle: "返回", isCompact: isCompact) {
+                        viewModel.screen = .play
+                    }
 
-                Button {
-                    viewModel.resetProgress()
-                    viewModel.screen = .play
-                } label: {
-                    Label("重新开始", systemImage: "arrow.counterclockwise")
-                        .font(.system(size: 22, weight: .heavy, design: .rounded))
-                        .frame(maxWidth: 360, minHeight: 64)
-                        .background(Color(red: 0.95, green: 0.26, blue: 0.24), in: RoundedRectangle(cornerRadius: 8))
-                        .foregroundStyle(.white)
-                }
-                .buttonStyle(.plain)
+                    VStack(spacing: isCompact ? 12 : 16) {
+                        SettingsToggle(
+                            title: "音效",
+                            systemName: "speaker.wave.2.fill",
+                            isOn: $viewModel.settings.soundEnabled,
+                            isCompact: isCompact
+                        )
+                        SettingsToggle(
+                            title: "提示音",
+                            systemName: "bubble.left.and.soundwave.right.fill",
+                            isOn: $viewModel.settings.voicePromptEnabled,
+                            isCompact: isCompact
+                        )
+                        SettingsToggle(
+                            title: "自动下一题",
+                            systemName: "arrow.right.circle.fill",
+                            isOn: $viewModel.settings.autoAdvanceEnabled,
+                            isCompact: isCompact
+                        )
+                        SettingsToggle(
+                            title: "减少动画",
+                            systemName: "slowmo",
+                            isOn: $viewModel.settings.reducedMotion,
+                            isCompact: isCompact
+                        )
+                    }
+                    .padding(isCompact ? 18 : 24)
+                    .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
 
-                Spacer(minLength: 0)
+                    Button {
+                        viewModel.resetProgress()
+                        viewModel.screen = .play
+                    } label: {
+                        Label("重新开始", systemImage: "arrow.counterclockwise")
+                            .font(.system(size: isCompact ? 19 : 22, weight: .heavy, design: .rounded))
+                            .frame(maxWidth: 360, minHeight: isCompact ? 56 : 64)
+                            .background(Color(red: 0.95, green: 0.26, blue: 0.24), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, isCompact ? 18 : 28)
+                .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 18 : 28))
+                .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
-            .padding(28)
         }
     }
 }
@@ -531,64 +688,73 @@ private struct ParentScreen: View {
     @State private var gateTaps = 0
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 22) {
-                ScreenHeader(title: "家长区", actionTitle: "返回") {
-                    viewModel.screen = .play
-                }
+        GeometryReader { geometry in
+            let isCompact = geometry.size.width < 700
 
-                VStack(alignment: .leading, spacing: 18) {
-                    HStack(spacing: 16) {
-                        LiuliuAppIconConcept()
-                            .frame(width: 96, height: 96)
+            ScrollView {
+                VStack(spacing: isCompact ? 18 : 22) {
+                    ScreenHeader(title: "家长区", actionTitle: "返回", isCompact: isCompact) {
+                        viewModel.screen = .play
+                    }
 
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("肚兜游戏")
-                                .font(.system(size: 26, weight: .heavy, design: .rounded))
-                            Text("六六找朋友")
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
-                                .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: isCompact ? 14 : 18) {
+                        HStack(spacing: 16) {
+                            LiuliuAppIconConcept()
+                                .frame(width: isCompact ? 76 : 96, height: isCompact ? 76 : 96)
+
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("肚兜游戏")
+                                    .font(.system(size: isCompact ? 24 : 26, weight: .heavy, design: .rounded))
+                                    .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
+                                Text("六六找朋友")
+                                    .font(.system(size: isCompact ? 18 : 20, weight: .bold, design: .rounded))
+                                    .foregroundStyle(Color(red: 0.45, green: 0.38, blue: 0.32))
+                            }
                         }
-                    }
 
-                    Divider().opacity(0.3)
+                        Divider().opacity(0.3)
 
-                    InfoRow(icon: "hand.tap.fill", title: "适龄", value: "1-2 岁，轻点为主")
-                    InfoRow(icon: "wifi.slash", title: "网络", value: "当前版本无网络请求")
-                    InfoRow(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集账号、位置或通讯录")
-                    InfoRow(icon: "megaphone.fill", title: "广告", value: "无广告、无内购入口")
-                    InfoRow(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮循环启蒙互动")
+                        InfoRow(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁，轻点为主", isCompact: isCompact)
+                        InfoRow(icon: "wifi.slash", title: "网络", value: "当前版本无网络请求", isCompact: isCompact)
+                        InfoRow(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集账号、位置或通讯录", isCompact: isCompact)
+                        InfoRow(icon: "megaphone.fill", title: "广告", value: "无广告、无内购入口", isCompact: isCompact)
+                        InfoRow(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮循环启蒙互动", isCompact: isCompact)
 
-                    Button {
-                        gateTaps += 1
-                    } label: {
-                        Label(gateTaps >= 3 ? "已解锁家长操作" : "连续点三下解锁", systemImage: gateTaps >= 3 ? "lock.open.fill" : "lock.fill")
-                            .font(.system(size: 20, weight: .heavy, design: .rounded))
-                            .frame(maxWidth: .infinity, minHeight: 58)
-                            .background(.white.opacity(0.78), in: RoundedRectangle(cornerRadius: 8))
-                    }
-                    .buttonStyle(.plain)
-
-                    if gateTaps >= 3 {
                         Button {
-                            viewModel.resetProgress()
+                            gateTaps += 1
                         } label: {
-                            Label("清除本次进度", systemImage: "trash.fill")
-                                .font(.system(size: 20, weight: .heavy, design: .rounded))
-                                .frame(maxWidth: .infinity, minHeight: 58)
-                                .background(Color(red: 0.95, green: 0.26, blue: 0.24), in: RoundedRectangle(cornerRadius: 8))
-                                .foregroundStyle(.white)
+                            Label(gateTaps >= 3 ? "已解锁家长操作" : "连续点三下解锁", systemImage: gateTaps >= 3 ? "lock.open.fill" : "lock.fill")
+                                .font(.system(size: isCompact ? 18 : 20, weight: .heavy, design: .rounded))
+                                .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+                                .frame(maxWidth: .infinity, minHeight: isCompact ? 54 : 58)
+                                .background(.white.opacity(0.86), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                         }
                         .buttonStyle(.plain)
-                    }
-                }
-                .padding(24)
-                .frame(maxWidth: 720)
-                .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 8))
 
-                Spacer(minLength: 0)
+                        if gateTaps >= 3 {
+                            Button {
+                                viewModel.resetProgress()
+                            } label: {
+                                Label("清除本次进度", systemImage: "trash.fill")
+                                    .font(.system(size: isCompact ? 18 : 20, weight: .heavy, design: .rounded))
+                                    .frame(maxWidth: .infinity, minHeight: isCompact ? 54 : 58)
+                                    .background(Color(red: 0.95, green: 0.26, blue: 0.24), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                                    .foregroundStyle(.white)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(isCompact ? 18 : 24)
+                    .frame(maxWidth: 720)
+                    .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
+
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, isCompact ? 18 : 28)
+                .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 18 : 28))
+                .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
-            .padding(28)
         }
     }
 }
@@ -596,18 +762,21 @@ private struct ParentScreen: View {
 private struct ScreenHeader: View {
     let title: String
     let actionTitle: String
+    let isCompact: Bool
     let action: () -> Void
 
     var body: some View {
         HStack {
             Text(title)
-                .font(.system(size: 34, weight: .heavy, design: .rounded))
+                .font(.system(size: isCompact ? 30 : 34, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
             Spacer()
             Button(action: action) {
                 Label(actionTitle, systemImage: "chevron.left")
-                    .font(.system(size: 20, weight: .heavy, design: .rounded))
-                    .frame(minWidth: 116, minHeight: 52)
-                    .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 8))
+                    .font(.system(size: isCompact ? 18 : 20, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+                    .frame(minWidth: isCompact ? 96 : 116, minHeight: isCompact ? 48 : 52)
+                    .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
             .buttonStyle(.plain)
         }
@@ -618,15 +787,17 @@ private struct SettingsToggle: View {
     let title: String
     let systemName: String
     @Binding var isOn: Bool
+    let isCompact: Bool
 
     var body: some View {
         Toggle(isOn: $isOn) {
             Label(title, systemImage: systemName)
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(.system(size: isCompact ? 19 : 22, weight: .bold, design: .rounded))
+                .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
         }
         .toggleStyle(.switch)
         .tint(Color(red: 0.95, green: 0.26, blue: 0.24))
-        .padding(.vertical, 8)
+        .padding(.vertical, isCompact ? 6 : 8)
     }
 }
 
@@ -634,19 +805,21 @@ private struct InfoRow: View {
     let icon: String
     let title: String
     let value: String
+    let isCompact: Bool
 
     var body: some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
-                .font(.system(size: 20, weight: .bold))
-                .frame(width: 36, height: 36)
+                .font(.system(size: isCompact ? 18 : 20, weight: .bold))
+                .frame(width: isCompact ? 32 : 36, height: isCompact ? 32 : 36)
                 .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
             Text(title)
-                .font(.system(size: 18, weight: .heavy, design: .rounded))
-                .frame(width: 72, alignment: .leading)
+                .font(.system(size: isCompact ? 16 : 18, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+                .frame(width: isCompact ? 58 : 72, alignment: .leading)
             Text(value)
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundStyle(.secondary)
+                .font(.system(size: isCompact ? 15 : 18, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color(red: 0.45, green: 0.38, blue: 0.32))
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }

@@ -14,6 +14,7 @@
 		1A0000010000000000000005 /* CharacterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000015 /* CharacterViews.swift */; };
 		1A0000010000000000000006 /* GameContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000016 /* GameContent.swift */; };
 		1A0000010000000000000007 /* FeedbackPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000017 /* FeedbackPlayer.swift */; };
+		1A0000010000000000000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000018 /* Assets.xcassets */; };
 		1A0000020000000000000001 /* GameViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000020000000000000011 /* GameViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +37,7 @@
 		1A0000010000000000000015 /* CharacterViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterViews.swift; sourceTree = "<group>"; };
 		1A0000010000000000000016 /* GameContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameContent.swift; sourceTree = "<group>"; };
 		1A0000010000000000000017 /* FeedbackPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackPlayer.swift; sourceTree = "<group>"; };
+		1A0000010000000000000018 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A0000020000000000000010 /* LiuliuFriendsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LiuliuFriendsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A0000020000000000000011 /* GameViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -77,6 +79,7 @@
 				1A0000010000000000000017 /* FeedbackPlayer.swift */,
 				1A0000010000000000000014 /* ContentView.swift */,
 				1A0000010000000000000033 /* Views */,
+				1A0000010000000000000018 /* Assets.xcassets */,
 			);
 			path = LiuliuFriends;
 			sourceTree = "<group>";
@@ -188,6 +191,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A0000010000000000000008 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,6 +356,7 @@
 		1A0000010000000000000070 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -382,6 +387,7 @@
 		1A0000010000000000000071 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

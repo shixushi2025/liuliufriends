@@ -6,8 +6,13 @@ final class GameViewModelTests: XCTestCase {
         for round in GameContent.rounds {
             let correctCount = round.candidates.filter { $0.isCorrect }.count
             XCTAssertEqual(correctCount, 1, "\(round.mode.title) should have exactly one correct candidate.")
-            XCTAssertLessThanOrEqual(round.candidates.count, 2, "1-2 岁玩法每轮最多保留两个选项。")
+            XCTAssertLessThanOrEqual(round.candidates.count, 2, "1.5-3 岁玩法每轮最多保留两个选项。")
         }
+    }
+
+    func testContentCoversAllDesignGameModes() {
+        let modes = Set(GameContent.rounds.map(\.mode))
+        XCTAssertEqual(modes, Set(GameMode.allCases))
     }
 
     func testCorrectSelectionCompletesRoundWithoutAutoAdvanceWhenDisabled() {
@@ -36,6 +41,17 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.wrongCandidateID, wrong.id)
         XCTAssertEqual(viewModel.completedRounds, 0)
         XCTAssertEqual(feedback.retryCount, 1)
+    }
+
+    func testWrongSelectionShowsCorrectHint() async throws {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+        let wrong = viewModel.round.candidates.first { !$0.isCorrect }!
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+
+        viewModel.choose(wrong)
+        try await Task.sleep(nanoseconds: 520_000_000)
+
+        XCTAssertEqual(viewModel.hintCandidateID, correct.id)
     }
 
     func testNextRoundCyclesThroughContent() {
@@ -73,6 +89,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.round.id, firstRoundID)
         XCTAssertEqual(viewModel.completedRounds, 0)
         XCTAssertNil(viewModel.completedCandidateID)
+        XCTAssertNil(viewModel.hintCandidateID)
     }
 
     func testCorrectSelectionClearsPendingWrongFeedback() {

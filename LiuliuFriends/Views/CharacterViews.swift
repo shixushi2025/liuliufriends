@@ -6,22 +6,22 @@ struct BackgroundView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color(red: 1.0, green: 0.91, blue: 0.66),
-                    Color(red: 0.78, green: 0.94, blue: 1.0),
-                    Color(red: 0.93, green: 0.84, blue: 1.0)
+                    Color(red: 1.0, green: 0.96, blue: 0.86),
+                    Color(red: 1.0, green: 0.90, blue: 0.88),
+                    Color(red: 0.98, green: 0.89, blue: 0.94)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
             Circle()
-                .fill(Color(red: 1.0, green: 0.34, blue: 0.25).opacity(0.18))
+                .fill(Color(red: 1.0, green: 0.42, blue: 0.34).opacity(0.16))
                 .frame(width: 420, height: 420)
                 .blur(radius: 42)
                 .offset(x: -180, y: -260)
 
             Circle()
-                .fill(Color(red: 0.18, green: 0.50, blue: 1.0).opacity(0.16))
+                .fill(Color(red: 0.22, green: 0.65, blue: 0.94).opacity(0.13))
                 .frame(width: 520, height: 520)
                 .blur(radius: 54)
                 .offset(x: 210, y: 260)
@@ -33,6 +33,7 @@ struct BackgroundView: View {
 enum LiuliuMood {
     case waiting
     case happy
+    case encourage
 }
 
 struct MascotPanel: View {
@@ -87,32 +88,83 @@ struct LiuliuPendant: View {
     }
 
     var body: some View {
-        ZStack {
-            PendantCord()
-                .stroke(Color(red: 0.24, green: 0.17, blue: 0.12), style: StrokeStyle(lineWidth: 5, lineCap: .round))
-                .frame(width: 56, height: 46)
-                .offset(y: -82)
-
-            RoundedRectangle(cornerRadius: 34)
-                .fill(.white.opacity(0.72))
-                .frame(width: 132, height: 156)
-                .rotationEffect(.degrees(-4))
-                .shadow(color: Color(red: 0.62, green: 0.25, blue: 0.08).opacity(0.18), radius: 22, y: 12)
-
-            BeanFace(isHappy: mood == .happy)
-                .frame(width: 118, height: 118)
-                .offset(y: -18)
-
-            DudouView()
-                .scaleEffect(0.54)
-                .offset(y: 55)
-
-            Text("六六")
-                .font(.system(size: 18, weight: .black, design: .rounded))
-                .foregroundStyle(.white)
-                .offset(y: 66)
-        }
+        Image(assetName)
+            .resizable()
+            .scaledToFit()
         .frame(width: 150, height: 190)
+            .shadow(color: Color(red: 0.60, green: 0.36, blue: 0.14).opacity(0.12), radius: 12, y: 8)
+    }
+
+    private var assetName: String {
+        switch mood {
+        case .waiting:
+            return "LiuliuIdleArt"
+        case .happy:
+            return "LiuliuHappyArt"
+        case .encourage:
+            return "LiuliuEncourageArt"
+        }
+    }
+}
+
+private struct DudouDiamond: View {
+    let coral: Color
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 18)
+            .fill(
+                LinearGradient(
+                    colors: [
+                        Color(red: 1.0, green: 0.45, blue: 0.38),
+                        coral
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .rotationEffect(.degrees(45))
+            .shadow(color: Color(red: 0.76, green: 0.16, blue: 0.10).opacity(0.18), radius: 8, y: 4)
+            .overlay(
+                Circle()
+                    .fill(Color(red: 1.0, green: 0.78, blue: 0.50))
+                    .frame(width: 17, height: 17)
+            )
+    }
+}
+
+private struct LiuliuSmileEye: View {
+    let ink: Color
+
+    var body: some View {
+        Path { path in
+            path.move(to: CGPoint(x: 2, y: 12))
+            path.addQuadCurve(to: CGPoint(x: 24, y: 12), control: CGPoint(x: 13, y: 0))
+        }
+        .stroke(ink, style: StrokeStyle(lineWidth: 4.2, lineCap: .round))
+        .frame(width: 26, height: 18)
+    }
+}
+
+private struct SmileMouth: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.10, y: rect.minY + rect.height * 0.34))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.maxX - rect.width * 0.10, y: rect.minY + rect.height * 0.34),
+            control: CGPoint(x: rect.midX, y: rect.maxY)
+        )
+        return path
+    }
+}
+
+private struct HappyMouth: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY + rect.height * 0.20))
+        path.addQuadCurve(to: CGPoint(x: rect.maxX, y: rect.minY + rect.height * 0.20), control: CGPoint(x: rect.midX, y: rect.minY - rect.height * 0.14))
+        path.addQuadCurve(to: CGPoint(x: rect.minX, y: rect.minY + rect.height * 0.20), control: CGPoint(x: rect.midX, y: rect.maxY * 1.18))
+        path.closeSubpath()
+        return path
     }
 }
 
@@ -164,28 +216,10 @@ private struct BeanFace: View {
 
 struct LiuliuAppIconConcept: View {
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 44)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 1.0, green: 0.70, blue: 0.23),
-                            Color(red: 0.98, green: 0.20, blue: 0.20),
-                            Color(red: 0.20, green: 0.53, blue: 1.0)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-
-            Circle()
-                .fill(.white.opacity(0.34))
-                .frame(width: 178, height: 178)
-
-            LiuliuPendant(mood: .happy)
-                .frame(width: 170, height: 210)
-                .offset(y: 10)
-        }
+        Image("LiuliuLogoIcon")
+            .resizable()
+            .scaledToFit()
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .aspectRatio(1, contentMode: .fit)
     }
 }
@@ -265,22 +299,24 @@ private struct EyeView: View {
     let isHappy: Bool
 
     var body: some View {
+        let ink = Color(red: 0.34, green: 0.25, blue: 0.18)
+
         if isHappy {
             Path { path in
-                path.move(to: CGPoint(x: 0, y: 10))
-                path.addQuadCurve(to: CGPoint(x: 24, y: 10), control: CGPoint(x: 12, y: 22))
+                path.move(to: CGPoint(x: 1, y: 12))
+                path.addQuadCurve(to: CGPoint(x: 23, y: 12), control: CGPoint(x: 12, y: 1))
             }
-            .stroke(Color(red: 0.18, green: 0.15, blue: 0.12).opacity(0.8), style: StrokeStyle(lineWidth: 4.5, lineCap: .round))
+            .stroke(ink.opacity(0.82), style: StrokeStyle(lineWidth: 4, lineCap: .round))
             .frame(width: 24, height: 22)
         } else {
             Circle()
-                .fill(Color(red: 0.18, green: 0.15, blue: 0.12).opacity(0.86))
-                .frame(width: 17, height: 17)
+                .fill(ink.opacity(0.86))
+                .frame(width: 13, height: 13)
                 .overlay(
                     Circle()
                         .fill(.white.opacity(0.9))
-                        .frame(width: 5, height: 5)
-                        .offset(x: -4, y: -4)
+                        .frame(width: 4, height: 4)
+                        .offset(x: -3, y: -3)
                 )
         }
     }
@@ -380,13 +416,21 @@ struct ColorFriendTarget: View {
 
     var body: some View {
         ZStack {
-            Circle()
-                .fill(color.opacity(0.25))
-                .overlay(Circle().stroke(color, lineWidth: 8))
+            BlobShape()
+                .fill(
+                    RadialGradient(
+                        colors: [.white.opacity(0.55), color],
+                        center: .topLeading,
+                        startRadius: 8,
+                        endRadius: 92
+                    )
+                )
+                .shadow(color: color.opacity(0.22), radius: 14, y: 8)
 
-            Image(systemName: "heart.fill")
-                .font(.system(size: 46, weight: .bold))
-                .foregroundStyle(color)
+            Circle()
+                .fill(.white.opacity(0.26))
+                .frame(width: 28, height: 28)
+                .offset(x: -28, y: -30)
         }
     }
 }
@@ -396,21 +440,76 @@ struct SoundBubble: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.78, green: 0.93, blue: 1.0))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(.white, lineWidth: 4)
+            RoundedRectangle(cornerRadius: 42)
+                .fill(
+                    LinearGradient(
+                        colors: [.white, Color(red: 0.91, green: 0.96, blue: 1.0)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 42)
+                        .stroke(Color(red: 0.75, green: 0.88, blue: 0.98), lineWidth: 4)
+                )
+                .shadow(color: Color(red: 0.22, green: 0.65, blue: 0.94).opacity(0.18), radius: 18, y: 10)
 
             VStack(spacing: 10) {
-                Image(systemName: "speaker.wave.2.fill")
-                    .font(.system(size: 40, weight: .bold))
+                SpeakerGlyph()
+                    .stroke(Color(red: 0.17, green: 0.48, blue: 0.74), style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+                    .frame(width: 46, height: 34)
                 Text(text)
                     .font(.system(size: 34, weight: .heavy, design: .rounded))
             }
             .foregroundStyle(Color(red: 0.1, green: 0.34, blue: 0.58))
         }
+    }
+}
+
+private struct BlobShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY + rect.height * 0.06))
+        path.addCurve(
+            to: CGPoint(x: rect.maxX - rect.width * 0.06, y: rect.midY),
+            control1: CGPoint(x: rect.maxX - rect.width * 0.14, y: rect.minY - rect.height * 0.02),
+            control2: CGPoint(x: rect.maxX, y: rect.minY + rect.height * 0.24)
+        )
+        path.addCurve(
+            to: CGPoint(x: rect.midX, y: rect.maxY - rect.height * 0.05),
+            control1: CGPoint(x: rect.maxX - rect.width * 0.02, y: rect.maxY - rect.height * 0.22),
+            control2: CGPoint(x: rect.maxX - rect.width * 0.20, y: rect.maxY)
+        )
+        path.addCurve(
+            to: CGPoint(x: rect.minX + rect.width * 0.06, y: rect.midY),
+            control1: CGPoint(x: rect.minX + rect.width * 0.20, y: rect.maxY),
+            control2: CGPoint(x: rect.minX - rect.width * 0.02, y: rect.maxY - rect.height * 0.22)
+        )
+        path.addCurve(
+            to: CGPoint(x: rect.midX, y: rect.minY + rect.height * 0.06),
+            control1: CGPoint(x: rect.minX, y: rect.minY + rect.height * 0.24),
+            control2: CGPoint(x: rect.minX + rect.width * 0.14, y: rect.minY - rect.height * 0.02)
+        )
+        path.closeSubpath()
+        return path
+    }
+}
+
+private struct SpeakerGlyph: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.05, y: rect.midY - rect.height * 0.18))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.28, y: rect.midY - rect.height * 0.18))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.50, y: rect.minY + rect.height * 0.10))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.50, y: rect.maxY - rect.height * 0.10))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.28, y: rect.midY + rect.height * 0.18))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.05, y: rect.midY + rect.height * 0.18))
+        path.closeSubpath()
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.64, y: rect.midY - rect.height * 0.22))
+        path.addQuadCurve(to: CGPoint(x: rect.minX + rect.width * 0.64, y: rect.midY + rect.height * 0.22), control: CGPoint(x: rect.minX + rect.width * 0.78, y: rect.midY))
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.78, y: rect.midY - rect.height * 0.34))
+        path.addQuadCurve(to: CGPoint(x: rect.minX + rect.width * 0.78, y: rect.midY + rect.height * 0.34), control: CGPoint(x: rect.maxX, y: rect.midY))
+        return path
     }
 }
 
@@ -423,21 +522,87 @@ struct FriendShape: View {
         ZStack {
             switch kind {
             case .balloon:
-                BalloonShape(color: color, isShadow: isShadow)
+                if isShadow {
+                    BalloonShape(color: color, isShadow: true)
+                } else {
+                    Image("ObjectBalloonArt")
+                        .resizable()
+                        .scaledToFit()
+                }
             case .cat:
-                AnimalFace(color: color, ear: .triangle, isShadow: isShadow)
+                if isShadow {
+                    AnimalFace(color: color, ear: .triangle, isShadow: true)
+                } else {
+                    Image("AnimalCatArt")
+                        .resizable()
+                        .scaledToFit()
+                }
             case .dog:
-                AnimalFace(color: color, ear: .floppy, isShadow: isShadow)
+                if isShadow {
+                    AnimalFace(color: color, ear: .floppy, isShadow: true)
+                } else {
+                    Image("AnimalDogArt")
+                        .resizable()
+                        .scaledToFit()
+                }
             case .duck:
-                DuckShape(color: color, isShadow: isShadow)
+                if isShadow {
+                    DuckShape(color: color, isShadow: true)
+                } else {
+                    Image("AnimalDuckArt")
+                        .resizable()
+                        .scaledToFit()
+                }
             case .bear:
-                AnimalFace(color: color, ear: .round, isShadow: isShadow)
+                if isShadow {
+                    AnimalFace(color: color, ear: .round, isShadow: true)
+                } else {
+                    Image("AnimalBearArt")
+                        .resizable()
+                        .scaledToFit()
+                }
+            case .rabbit:
+                if isShadow {
+                    AnimalFace(color: color, ear: .long, isShadow: true)
+                } else {
+                    Image("AnimalRabbitArt")
+                        .resizable()
+                        .scaledToFit()
+                }
+            case .frog:
+                if isShadow {
+                    FrogFace(color: color, isShadow: true)
+                } else {
+                    Image("AnimalFrogArt")
+                        .resizable()
+                        .scaledToFit()
+                }
             case .apple:
-                AppleShape(color: color, isShadow: isShadow)
+                if isShadow {
+                    AppleShape(color: color, isShadow: true)
+                } else {
+                    Image("ObjectAppleArt")
+                        .resizable()
+                        .scaledToFit()
+                }
             case .fish:
-                FishShape(color: color, isShadow: isShadow)
+                if isShadow {
+                    FishShape(color: color, isShadow: true)
+                } else {
+                    Image("AnimalFishArt")
+                        .resizable()
+                        .scaledToFit()
+                }
+            case .circle:
+                ShapeSymbol(kind: .circle, color: color, isShadow: isShadow)
+            case .square:
+                ShapeSymbol(kind: .square, color: color, isShadow: isShadow)
+            case .triangle:
+                ShapeSymbol(kind: .triangle, color: color, isShadow: isShadow)
             case .star:
                 StarShape(color: color, isShadow: isShadow)
+            case .heart:
+                ShapeSymbol(kind: .heart, color: color, isShadow: isShadow)
             }
         }
         .saturation(isShadow ? 0 : 1)
@@ -473,6 +638,7 @@ private enum EarStyle {
     case triangle
     case floppy
     case round
+    case long
 }
 
 private struct AnimalFace: View {
@@ -491,8 +657,8 @@ private struct AnimalFace: View {
 
             if !isShadow {
                 HStack(spacing: 30) {
-                    Circle().fill(.black.opacity(0.75)).frame(width: 12, height: 12)
-                    Circle().fill(.black.opacity(0.75)).frame(width: 12, height: 12)
+                    SoftAnimalEye(size: 10)
+                    SoftAnimalEye(size: 10)
                 }
                 .offset(y: -14)
 
@@ -502,8 +668,8 @@ private struct AnimalFace: View {
                     .offset(y: 18)
 
                 Circle()
-                    .fill(.black.opacity(0.65))
-                    .frame(width: 10, height: 8)
+                    .fill(Color(red: 0.34, green: 0.25, blue: 0.18).opacity(0.62))
+                    .frame(width: 8, height: 6)
                     .offset(y: 10)
             }
         }
@@ -527,6 +693,43 @@ private struct AnimalFace: View {
                 Circle().fill(color).frame(width: 48, height: 48)
                 Circle().fill(color).frame(width: 48, height: 48)
             }
+        case .long:
+            HStack(spacing: 38) {
+                Capsule().fill(color).frame(width: 28, height: 86).rotationEffect(.degrees(-8))
+                Capsule().fill(color).frame(width: 28, height: 86).rotationEffect(.degrees(8))
+            }
+        }
+    }
+}
+
+private struct FrogFace: View {
+    let color: Color
+    let isShadow: Bool
+
+    var body: some View {
+        ZStack {
+            HStack(spacing: 32) {
+                Circle().fill(color).frame(width: 54, height: 54)
+                Circle().fill(color).frame(width: 54, height: 54)
+            }
+            .offset(y: -48)
+
+            Circle()
+                .fill(color)
+                .frame(width: 126, height: 112)
+
+            if !isShadow {
+                HStack(spacing: 40) {
+                    Circle().fill(.white.opacity(0.92)).frame(width: 24, height: 24).overlay(SoftAnimalEye(size: 8))
+                    Circle().fill(.white.opacity(0.92)).frame(width: 24, height: 24).overlay(SoftAnimalEye(size: 8))
+                }
+                .offset(y: -48)
+
+                MouthView(isHappy: false)
+                    .stroke(Color(red: 0.34, green: 0.25, blue: 0.18).opacity(0.66), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .frame(width: 54, height: 26)
+                    .offset(y: 18)
+            }
         }
     }
 }
@@ -548,7 +751,7 @@ private struct DuckShape: View {
                 .offset(x: -36, y: -34)
 
             if !isShadow {
-                Circle().fill(.black.opacity(0.75)).frame(width: 10, height: 10).offset(x: -48, y: -44)
+                SoftAnimalEye(size: 8).offset(x: -48, y: -44)
                 Capsule().fill(.orange).frame(width: 42, height: 18).offset(x: -82, y: -26)
             }
         }
@@ -601,12 +804,26 @@ private struct FishShape: View {
                 .offset(x: 72)
 
             if !isShadow {
-                Circle()
-                    .fill(.black.opacity(0.75))
-                    .frame(width: 10, height: 10)
+                SoftAnimalEye(size: 8)
                     .offset(x: -36, y: -10)
             }
         }
+    }
+}
+
+private struct SoftAnimalEye: View {
+    let size: CGFloat
+
+    var body: some View {
+        Circle()
+            .fill(Color(red: 0.34, green: 0.25, blue: 0.18).opacity(0.82))
+            .frame(width: size, height: size)
+            .overlay(
+                Circle()
+                    .fill(.white.opacity(0.86))
+                    .frame(width: size * 0.34, height: size * 0.34)
+                    .offset(x: -size * 0.18, y: -size * 0.18)
+            )
     }
 }
 
@@ -619,6 +836,38 @@ private struct StarShape: View {
             .font(.system(size: 118, weight: .heavy))
             .foregroundStyle(color)
             .shadow(color: isShadow ? .clear : .yellow.opacity(0.2), radius: 8)
+    }
+}
+
+private enum ShapeSymbolKind {
+    case circle
+    case square
+    case triangle
+    case heart
+}
+
+private struct ShapeSymbol: View {
+    let kind: ShapeSymbolKind
+    let color: Color
+    let isShadow: Bool
+
+    var body: some View {
+        Group {
+            switch kind {
+            case .circle:
+                Circle()
+            case .square:
+                RoundedRectangle(cornerRadius: 26)
+            case .triangle:
+                Triangle()
+            case .heart:
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 118, weight: .heavy))
+            }
+        }
+        .foregroundStyle(color)
+        .frame(width: 118, height: 118)
+        .shadow(color: isShadow ? .clear : color.opacity(0.18), radius: 8, y: 5)
     }
 }
 

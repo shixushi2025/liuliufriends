@@ -5,6 +5,7 @@ final class GameViewModel: ObservableObject {
     @Published var round: GameRound
     @Published var completedCandidateID: UUID?
     @Published var wrongCandidateID: UUID?
+    @Published var hintCandidateID: UUID?
     @Published var celebrationSeed = 0
     @Published var completedRounds = 0
     @Published var screen: AppScreen = .play
@@ -16,6 +17,8 @@ final class GameViewModel: ObservableObject {
     private let autoAdvanceDelay: TimeInterval
     private var pendingAutoAdvanceWorkItem: DispatchWorkItem?
     private var pendingRetryClearWorkItem: DispatchWorkItem?
+    private var pendingHintWorkItem: DispatchWorkItem?
+    private var pendingHintClearWorkItem: DispatchWorkItem?
 
     init(
         rounds: [GameRound] = GameContent.rounds,
@@ -37,7 +40,9 @@ final class GameViewModel: ObservableObject {
 
         if candidate.isCorrect {
             cancelPendingRetryClear()
+            cancelPendingHint()
             wrongCandidateID = nil
+            hintCandidateID = nil
             completedCandidateID = candidate.id
             celebrationSeed += 1
             completedRounds += 1
@@ -49,15 +54,25 @@ final class GameViewModel: ObservableObject {
             return .correct
         } else {
             wrongCandidateID = candidate.id
+            hintCandidateID = nil
             feedbackPlayer.playRetry(settings: settings)
 
             cancelPendingRetryClear()
+            cancelPendingHint()
+            let correctID = round.candidates.first { $0.isCorrect }?.id
+            let hintWorkItem = DispatchWorkItem { [weak self] in
+                self?.pendingHintWorkItem = nil
+                self?.hintCandidateID = correctID
+            }
+            pendingHintWorkItem = hintWorkItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45, execute: hintWorkItem)
+
             let workItem = DispatchWorkItem { [weak self] in
                 self?.pendingRetryClearWorkItem = nil
                 self?.wrongCandidateID = nil
             }
             pendingRetryClearWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45, execute: workItem)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.15, execute: workItem)
             return .retry
         }
     }
@@ -65,9 +80,11 @@ final class GameViewModel: ObservableObject {
     func nextRound() {
         cancelPendingAutoAdvance()
         cancelPendingRetryClear()
+        cancelPendingHint()
         roundIndex = (roundIndex + 1) % rounds.count
         completedCandidateID = nil
         wrongCandidateID = nil
+        hintCandidateID = nil
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
             round = rounds[roundIndex]
@@ -77,15 +94,18 @@ final class GameViewModel: ObservableObject {
 
     func replayPrompt() {
         feedbackPlayer.playPrompt(for: round, settings: settings)
+        showCorrectHint(duration: 1.5)
     }
 
     func resetProgress() {
         cancelPendingAutoAdvance()
         cancelPendingRetryClear()
+        cancelPendingHint()
         roundIndex = 0
         completedRounds = 0
         completedCandidateID = nil
         wrongCandidateID = nil
+        hintCandidateID = nil
         celebrationSeed = 0
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
@@ -111,5 +131,23 @@ final class GameViewModel: ObservableObject {
     private func cancelPendingRetryClear() {
         pendingRetryClearWorkItem?.cancel()
         pendingRetryClearWorkItem = nil
+    }
+
+    private func showCorrectHint(duration: TimeInterval) {
+        cancelPendingHint()
+        hintCandidateID = round.candidates.first { $0.isCorrect }?.id
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.pendingHintClearWorkItem = nil
+            self?.hintCandidateID = nil
+        }
+        pendingHintClearWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
+    }
+
+    private func cancelPendingHint() {
+        pendingHintWorkItem?.cancel()
+        pendingHintWorkItem = nil
+        pendingHintClearWorkItem?.cancel()
+        pendingHintClearWorkItem = nil
     }
 }
