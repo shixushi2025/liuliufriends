@@ -253,6 +253,14 @@ final class GameViewModel: ObservableObject {
         return promptAliasStore.soundPrompt(for: kind)
     }
 
+    func soundRoundPrompt(for kind: FriendKind) -> String {
+        let prompt = soundPrompt(for: kind)
+        guard LearningPromptTextCatalog.usesRecognizedSoundPrompt(kind), !settings.customPromptAliasEnabled else {
+            return "找\(prompt)"
+        }
+        return prompt
+    }
+
     func customPromptName(for target: VoicePromptTarget) -> String {
         promptAliasStore.customName(for: target.id) ?? ""
     }
@@ -359,7 +367,7 @@ final class GameViewModel: ObservableObject {
         case .animal:
             return "找\(displayName(for: round.targetKind))"
         case .sound:
-            return soundPrompt(for: round.targetKind)
+            return soundRoundPrompt(for: round.targetKind)
         case .color:
             return "找\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))"
         case .shape:

@@ -231,7 +231,11 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertTrue(colorRound.promptSpeechText.hasPrefix("找"))
         XCTAssertTrue(colorRound.successSpeechText.contains("找到了"))
         XCTAssertTrue(colorRound.voicePromptID.hasPrefix("color."))
-        XCTAssertEqual(soundRound.promptSpeechText, soundRound.targetKind.soundText)
+        if LearningPromptTextCatalog.usesRecognizedSoundPrompt(soundRound.targetKind) {
+            XCTAssertEqual(soundRound.promptSpeechText, soundRound.targetKind.soundText)
+        } else {
+            XCTAssertEqual(soundRound.promptSpeechText, "找\(soundRound.targetKind.soundText)")
+        }
         XCTAssertEqual(soundRound.voicePromptID, soundRound.targetKind.rawValue)
     }
 
@@ -271,6 +275,7 @@ final class GameViewModelTests: XCTestCase {
         let viewModel = GameViewModel(rounds: rounds, promptAliasStore: aliasStore, feedbackPlayer: feedback, initialPromptDelay: 0)
 
         XCTAssertEqual(viewModel.soundPrompt(for: .grape), "葡萄")
+        XCTAssertEqual(viewModel.soundRoundPrompt(for: .grape), "找葡萄")
 
         viewModel.setCustomPromptName("串串", for: VoicePromptTarget(kind: .grape))
         XCTAssertEqual(viewModel.soundPrompt(for: .grape), "葡萄")
@@ -279,8 +284,13 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertEqual(FriendKind.grape.name, "葡萄")
         XCTAssertEqual(viewModel.soundPrompt(for: .grape), "串串")
+        XCTAssertEqual(viewModel.soundRoundPrompt(for: .grape), "找串串")
         viewModel.playInitialPromptIfNeeded()
-        XCTAssertEqual(feedback.promptText, "串串")
+        XCTAssertEqual(feedback.promptText, "找串串")
+    }
+
+    func testEyeComfortDefaultsToEnabled() {
+        XCTAssertTrue(GameSettings().eyeComfortEnabled)
     }
 
     func testUsageTickShowsSessionBreakReminder() {

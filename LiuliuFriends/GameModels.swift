@@ -833,7 +833,10 @@ struct GameRound: Identifiable {
         case .animal:
             return "找\(targetKind.name)"
         case .sound:
-            return targetKind.soundText
+            if LearningPromptTextCatalog.usesRecognizedSoundPrompt(targetKind) {
+                return targetKind.soundText
+            }
+            return "找\(targetKind.soundText)"
         case .color:
             return "找\(targetColor.speechName)"
         case .shape:
@@ -871,7 +874,7 @@ struct GameSettings: Equatable {
     var customPromptAliasEnabled: Bool = false
     var autoAdvanceEnabled: Bool = true
     var restReminderEnabled: Bool = true
-    var eyeComfortEnabled: Bool = false
+    var eyeComfortEnabled: Bool = true
     var reducedMotion: Bool = false
     var enabledGameModes: Set<GameMode> = Set(GameMode.allCases)
 }
