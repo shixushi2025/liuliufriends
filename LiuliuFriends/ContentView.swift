@@ -1123,9 +1123,16 @@ private struct RecordingTargetArtwork: View {
                     .padding(imageInset(for: kind))
                     .clipped()
             } else if let kind = target.kind {
-                FriendShape(kind: kind, color: fallbackColor(for: kind), isShadow: false)
-                    .padding(isLarge ? 10 : 8)
-                    .clipped()
+                Group {
+                    if kind.category == .shape {
+                        RecordingShapeArtwork(kind: kind, color: fallbackColor(for: kind))
+                            .padding(isLarge ? 8 : 7)
+                    } else {
+                        FriendShape(kind: kind, color: fallbackColor(for: kind), isShadow: false)
+                            .padding(isLarge ? 10 : 8)
+                    }
+                }
+                .clipped()
             }
         }
     }
@@ -1152,6 +1159,68 @@ private struct RecordingTargetArtwork: View {
         case .object:
             return Color(red: 0.58, green: 0.72, blue: 0.36)
         }
+    }
+}
+
+private struct RecordingShapeArtwork: View {
+    let kind: FriendKind
+    let color: Color
+
+    var body: some View {
+        GeometryReader { proxy in
+            let side = min(proxy.size.width, proxy.size.height)
+
+            shapeContent(side: side)
+                .foregroundStyle(color)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .shadow(color: color.opacity(0.16), radius: max(3, side * 0.08), y: max(2, side * 0.04))
+        }
+        .aspectRatio(1, contentMode: .fit)
+    }
+
+    @ViewBuilder
+    private func shapeContent(side: CGFloat) -> some View {
+        switch kind {
+        case .circle:
+            Circle()
+                .frame(width: side * 0.78, height: side * 0.78)
+        case .square:
+            RoundedRectangle(cornerRadius: side * 0.16, style: .continuous)
+                .frame(width: side * 0.78, height: side * 0.78)
+        case .triangle:
+            RecordingTriangle()
+                .frame(width: side * 0.82, height: side * 0.76)
+        case .star:
+            Image(systemName: "star.fill")
+                .font(.system(size: side * 0.78, weight: .heavy))
+        case .heart:
+            Image(systemName: "heart.fill")
+                .font(.system(size: side * 0.74, weight: .heavy))
+        case .rectangle:
+            RoundedRectangle(cornerRadius: side * 0.13, style: .continuous)
+                .frame(width: side * 0.86, height: side * 0.54)
+        case .oval:
+            Ellipse()
+                .frame(width: side * 0.88, height: side * 0.58)
+        case .diamond:
+            Rectangle()
+                .rotationEffect(.degrees(45))
+                .frame(width: side * 0.58, height: side * 0.58)
+        default:
+            Circle()
+                .frame(width: side * 0.78, height: side * 0.78)
+        }
+    }
+}
+
+private struct RecordingTriangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
     }
 }
 
