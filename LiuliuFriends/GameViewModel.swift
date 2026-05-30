@@ -11,7 +11,7 @@ final class GameViewModel: ObservableObject {
     @Published var screen: AppScreen = .play
     @Published var settings = GameSettings()
     @Published var breakReminder: BreakReminder?
-    @Published var selectedRecordingKind: FriendKind = .cat
+    @Published var selectedRecordingTargetID = VoicePromptTarget.defaultTarget.id
 
     let voiceStore: VoicePromptStore
     private var roundIndex = 0
@@ -167,25 +167,29 @@ final class GameViewModel: ObservableObject {
         showCorrectHint(duration: 1.5)
     }
 
-    func selectRecordingKind(_ kind: FriendKind) {
-        guard voiceStore.recordingKind == nil else { return }
-        selectedRecordingKind = kind
+    var selectedRecordingTarget: VoicePromptTarget {
+        VoicePromptTarget.target(for: selectedRecordingTargetID)
+    }
+
+    func selectRecordingTarget(_ target: VoicePromptTarget) {
+        guard voiceStore.recordingID == nil else { return }
+        selectedRecordingTargetID = target.id
     }
 
     func toggleRecordingForSelectedKind() {
-        if voiceStore.recordingKind == selectedRecordingKind {
+        if voiceStore.recordingID == selectedRecordingTargetID {
             voiceStore.stopRecording()
         } else {
-            voiceStore.startRecording(for: selectedRecordingKind)
+            voiceStore.startRecording(for: selectedRecordingTargetID)
         }
     }
 
     func playRecordingForSelectedKind() {
-        _ = voiceStore.playRecording(for: selectedRecordingKind)
+        _ = voiceStore.playRecording(for: selectedRecordingTargetID)
     }
 
     func deleteRecordingForSelectedKind() {
-        voiceStore.deleteRecording(for: selectedRecordingKind)
+        voiceStore.deleteRecording(for: selectedRecordingTargetID)
     }
 
     func resetProgress() {

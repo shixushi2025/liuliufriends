@@ -127,7 +127,9 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertTrue(colorRound.promptSpeechText.hasPrefix("找"))
         XCTAssertTrue(colorRound.successSpeechText.contains("找到了"))
+        XCTAssertTrue(colorRound.voicePromptID.hasPrefix("color."))
         XCTAssertEqual(soundRound.promptSpeechText, soundRound.targetKind.soundText)
+        XCTAssertEqual(soundRound.voicePromptID, soundRound.targetKind.rawValue)
     }
 
     func testUsageTickShowsSessionBreakReminder() {

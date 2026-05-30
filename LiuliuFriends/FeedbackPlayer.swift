@@ -20,7 +20,7 @@ final class SystemFeedbackPlayer: FeedbackPlaying {
         if settings.soundEnabled {
             AudioServicesPlaySystemSound(1057)
         }
-        playSpokenFeedback(round.successSpeechText, for: round.targetKind, settings: settings)
+        playSpokenFeedback(round.successSpeechText, recordingID: round.voicePromptID, settings: settings)
     }
 
     func playRetry(settings: GameSettings) {
@@ -34,13 +34,13 @@ final class SystemFeedbackPlayer: FeedbackPlaying {
         if settings.soundEnabled {
             AudioServicesPlaySystemSound(1113)
         }
-        playSpokenFeedback(round.promptSpeechText, for: round.targetKind, settings: settings)
+        playSpokenFeedback(round.promptSpeechText, recordingID: round.voicePromptID, settings: settings)
     }
 
-    private func playSpokenFeedback(_ text: String, for kind: FriendKind, settings: GameSettings) {
+    private func playSpokenFeedback(_ text: String, recordingID: String, settings: GameSettings) {
         guard settings.voicePromptEnabled else { return }
 
-        if settings.customVoiceEnabled, voiceStore.playRecording(for: kind) {
+        if settings.customVoiceEnabled, voiceStore.playRecording(for: recordingID) {
             return
         }
         speak(text)
@@ -63,7 +63,7 @@ final class SystemFeedbackPlayer: FeedbackPlaying {
 final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegate {
     static let shared = VoicePromptStore()
 
-    @Published private(set) var recordingKind: FriendKind?
+    @Published private(set) var recordingID: String?
     @Published private(set) var availableRecordingIDs: Set<String> = []
     @Published private(set) var authorizationDenied = false
 
@@ -76,7 +76,11 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
     }
 
     func hasRecording(for kind: FriendKind) -> Bool {
-        availableRecordingIDs.contains(kind.rawValue)
+        hasRecording(for: kind.rawValue)
+    }
+
+    func hasRecording(for id: String) -> Bool {
+        availableRecordingIDs.contains(id)
     }
 
     var recordingCount: Int {
@@ -84,6 +88,10 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
     }
 
     func startRecording(for kind: FriendKind) {
+        startRecording(for: kind.rawValue)
+    }
+
+    func startRecording(for id: String) {
         stopRecording()
 
         let permissionHandler: (Bool) -> Void = { [weak self] granted in
@@ -94,7 +102,7 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
                     return
                 }
                 self.authorizationDenied = false
-                self.beginRecording(for: kind)
+                self.beginRecording(for: id)
             }
         }
 
@@ -105,16 +113,26 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
         }
     }
 
+    var recordingKind: FriendKind? {
+        guard let recordingID else { return nil }
+        return FriendKind(rawValue: recordingID)
+    }
+
     func stopRecording() {
         recorder?.stop()
         recorder = nil
-        recordingKind = nil
+        recordingID = nil
         refreshAvailableRecordings()
     }
 
     @discardableResult
     func playRecording(for kind: FriendKind) -> Bool {
-        let url = recordingURL(for: kind)
+        playRecording(for: kind.rawValue)
+    }
+
+    @discardableResult
+    func playRecording(for id: String) -> Bool {
+        let url = recordingURL(for: id)
         guard FileManager.default.fileExists(atPath: url.path) else {
             return false
         }
@@ -131,11 +149,15 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
     }
 
     func deleteRecording(for kind: FriendKind) {
-        try? FileManager.default.removeItem(at: recordingURL(for: kind))
+        deleteRecording(for: kind.rawValue)
+    }
+
+    func deleteRecording(for id: String) {
+        try? FileManager.default.removeItem(at: recordingURL(for: id))
         refreshAvailableRecordings()
     }
 
-    private func beginRecording(for kind: FriendKind) {
+    private func beginRecording(for id: String) {
         do {
             try FileManager.default.createDirectory(at: recordingsDirectory, withIntermediateDirectories: true)
             try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .duckOthers])
@@ -147,12 +169,12 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
                 AVNumberOfChannelsKey: 1,
                 AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
             ]
-            recorder = try AVAudioRecorder(url: recordingURL(for: kind), settings: settings)
+            recorder = try AVAudioRecorder(url: recordingURL(for: id), settings: settings)
             recorder?.delegate = self
             recorder?.record()
-            recordingKind = kind
+            recordingID = id
         } catch {
-            recordingKind = nil
+            recordingID = nil
             recorder = nil
         }
     }
@@ -170,7 +192,7 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
         return base.appendingPathComponent("VoicePrompts", isDirectory: true)
     }
 
-    private func recordingURL(for kind: FriendKind) -> URL {
-        recordingsDirectory.appendingPathComponent(kind.rawValue).appendingPathExtension("m4a")
+    private func recordingURL(for id: String) -> URL {
+        recordingsDirectory.appendingPathComponent(id).appendingPathExtension("m4a")
     }
 }

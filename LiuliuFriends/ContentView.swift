@@ -886,10 +886,10 @@ private struct VoiceRecordingSection: View {
     }
 
     var body: some View {
-        let selectedKind = viewModel.selectedRecordingKind
-        let isRecording = voiceStore.recordingKind == selectedKind
-        let isRecordingAnotherKind = voiceStore.recordingKind != nil && !isRecording
-        let hasRecording = voiceStore.hasRecording(for: selectedKind)
+        let selectedTarget = viewModel.selectedRecordingTarget
+        let isRecording = voiceStore.recordingID == selectedTarget.id
+        let isRecordingAnotherTarget = voiceStore.recordingID != nil && !isRecording
+        let hasRecording = voiceStore.hasRecording(for: selectedTarget.id)
 
         VStack(alignment: .leading, spacing: isCompact ? 12 : 16) {
             HStack(spacing: 12) {
@@ -901,25 +901,25 @@ private struct VoiceRecordingSection: View {
                     Text("家长录音")
                         .font(.system(size: isCompact ? 19 : 23, weight: .heavy, design: .rounded))
                         .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
-                    Text("先选择一个物体，再录它的专属读音。已录 \(voiceStore.recordingCount) 个。")
+                    Text("先选择颜色或物体，再录它的专属读音。已录 \(voiceStore.recordingCount) 个。")
                         .font(.system(size: isCompact ? 14 : 17, weight: .bold, design: .rounded))
                         .foregroundStyle(Color(red: 0.48, green: 0.40, blue: 0.33))
                         .lineLimit(2)
                 }
             }
 
-            SelectedRecordingCard(kind: selectedKind, isRecording: isRecording, hasRecording: hasRecording, isCompact: isCompact)
+            SelectedRecordingCard(target: selectedTarget, isRecording: isRecording, hasRecording: hasRecording, isCompact: isCompact)
 
             VStack(alignment: .leading, spacing: isCompact ? 12 : 14) {
-                ForEach(FriendCategory.allCases, id: \.self) { category in
-                    RecordingCategorySection(
-                        category: category,
-                        selectedKind: selectedKind,
+                ForEach(VoicePromptGroup.allCases, id: \.self) { group in
+                    RecordingTargetSection(
+                        group: group,
+                        selectedTargetID: selectedTarget.id,
                         voiceStore: voiceStore,
                         isCompact: isCompact,
-                        isSelectionLocked: voiceStore.recordingKind != nil
-                    ) { kind in
-                        viewModel.selectRecordingKind(kind)
+                        isSelectionLocked: voiceStore.recordingID != nil
+                    ) { target in
+                        viewModel.selectRecordingTarget(target)
                     }
                 }
             }
@@ -932,11 +932,11 @@ private struct VoiceRecordingSection: View {
 
             HStack(spacing: isCompact ? 8 : 12) {
                 VoiceActionButton(
-                    title: isRecording ? "停止" : "录\(selectedKind.name)",
+                    title: isRecording ? "停止" : "录\(selectedTarget.name)",
                     systemName: isRecording ? "stop.fill" : "mic.fill",
                     isPrimary: true,
                     isCompact: isCompact,
-                    isDisabled: isRecordingAnotherKind
+                    isDisabled: isRecordingAnotherTarget
                 ) {
                     viewModel.toggleRecordingForSelectedKind()
                 }
@@ -970,20 +970,20 @@ private struct VoiceRecordingSection: View {
 }
 
 private struct SelectedRecordingCard: View {
-    let kind: FriendKind
+    let target: VoicePromptTarget
     let isRecording: Bool
     let hasRecording: Bool
     let isCompact: Bool
 
     var body: some View {
         HStack(spacing: isCompact ? 12 : 16) {
-            RecordingKindArtwork(kind: kind)
+            RecordingTargetArtwork(target: target, isCompact: isCompact, isLarge: true)
                 .frame(width: isCompact ? 64 : 78, height: isCompact ? 64 : 78)
                 .padding(8)
                 .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: isCompact ? 20 : 24, style: .continuous))
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(kind.name)
+                Text(target.name)
                     .font(.system(size: isCompact ? 24 : 29, weight: .heavy, design: .rounded))
                     .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
 
@@ -999,7 +999,7 @@ private struct SelectedRecordingCard: View {
     }
 
     private var statusText: String {
-        if isRecording { return "正在录这个物体" }
+        if isRecording { return "正在录这个目标" }
         return hasRecording ? "已有专属录音" : "还没有录音"
     }
 
@@ -1014,16 +1014,16 @@ private struct SelectedRecordingCard: View {
     }
 }
 
-private struct RecordingCategorySection: View {
-    let category: FriendCategory
-    let selectedKind: FriendKind
+private struct RecordingTargetSection: View {
+    let group: VoicePromptGroup
+    let selectedTargetID: String
     @ObservedObject var voiceStore: VoicePromptStore
     let isCompact: Bool
     let isSelectionLocked: Bool
-    let select: (FriendKind) -> Void
+    let select: (VoicePromptTarget) -> Void
 
-    private var kinds: [FriendKind] {
-        FriendKind.allCases.filter { $0.category == category }
+    private var targets: [VoicePromptTarget] {
+        VoicePromptTarget.all.filter { $0.group == group }
     }
 
     private var columns: [GridItem] {
@@ -1033,20 +1033,20 @@ private struct RecordingCategorySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(category.title)
+            Text(group.title)
                 .font(.system(size: isCompact ? 16 : 18, weight: .heavy, design: .rounded))
                 .foregroundStyle(Color(red: 0.43, green: 0.34, blue: 0.26))
 
             LazyVGrid(columns: columns, spacing: isCompact ? 8 : 10) {
-                ForEach(kinds) { kind in
-                    RecordingKindButton(
-                        kind: kind,
-                        isSelected: kind == selectedKind,
-                        hasRecording: voiceStore.hasRecording(for: kind),
-                        isLocked: isSelectionLocked && kind != selectedKind,
+                ForEach(targets) { target in
+                    RecordingTargetButton(
+                        target: target,
+                        isSelected: target.id == selectedTargetID,
+                        hasRecording: voiceStore.hasRecording(for: target.id),
+                        isLocked: isSelectionLocked && target.id != selectedTargetID,
                         isCompact: isCompact
                     ) {
-                        select(kind)
+                        select(target)
                     }
                 }
             }
@@ -1054,8 +1054,8 @@ private struct RecordingCategorySection: View {
     }
 }
 
-private struct RecordingKindButton: View {
-    let kind: FriendKind
+private struct RecordingTargetButton: View {
+    let target: VoicePromptTarget
     let isSelected: Bool
     let hasRecording: Bool
     let isLocked: Bool
@@ -1066,7 +1066,7 @@ private struct RecordingKindButton: View {
         Button(action: action) {
             VStack(spacing: 6) {
                 ZStack(alignment: .topTrailing) {
-                    RecordingKindArtwork(kind: kind)
+                    RecordingTargetArtwork(target: target, isCompact: isCompact, isLarge: false)
                         .frame(width: isCompact ? 44 : 54, height: isCompact ? 44 : 54)
                         .padding(6)
 
@@ -1078,7 +1078,7 @@ private struct RecordingKindButton: View {
                     }
                 }
 
-                Text(kind.name)
+                Text(target.name)
                     .font(.system(size: isCompact ? 13 : 15, weight: .heavy, design: .rounded))
                     .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
                     .lineLimit(1)
@@ -1101,20 +1101,45 @@ private struct RecordingKindButton: View {
     }
 }
 
-private struct RecordingKindArtwork: View {
-    let kind: FriendKind
+private struct RecordingTargetArtwork: View {
+    let target: VoicePromptTarget
+    let isCompact: Bool
+    let isLarge: Bool
 
     var body: some View {
-        if let imageAssetName = kind.imageAssetName {
-            Image(imageAssetName)
-                .resizable()
-                .scaledToFit()
-        } else {
-            FriendShape(kind: kind, color: fallbackColor, isShadow: false)
+        Group {
+            if let color = target.color {
+                RoundedRectangle(cornerRadius: isLarge ? 20 : 15, style: .continuous)
+                    .fill(color)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: isLarge ? 20 : 15, style: .continuous)
+                            .stroke(.white.opacity(0.88), lineWidth: isLarge ? 5 : 3)
+                    )
+                    .shadow(color: color.opacity(0.24), radius: 8, y: 5)
+            } else if let kind = target.kind, let imageAssetName = kind.imageAssetName {
+                Image(imageAssetName)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(imageInset(for: kind))
+                    .clipped()
+            } else if let kind = target.kind {
+                FriendShape(kind: kind, color: fallbackColor(for: kind), isShadow: false)
+                    .padding(isLarge ? 10 : 8)
+                    .clipped()
+            }
         }
     }
 
-    private var fallbackColor: Color {
+    private func imageInset(for kind: FriendKind) -> CGFloat {
+        switch kind {
+        case .oval, .rectangle, .diamond, .moon, .flower, .book, .umbrella, .cloud, .ball:
+            return isLarge ? 8 : 7
+        default:
+            return isLarge ? 5 : 4
+        }
+    }
+
+    private func fallbackColor(for kind: FriendKind) -> Color {
         switch kind.category {
         case .animal:
             return Color(red: 1.0, green: 0.60, blue: 0.34)

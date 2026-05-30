@@ -112,6 +112,100 @@ enum FriendCategory: String, CaseIterable {
     }
 }
 
+enum VoicePromptGroup: String, CaseIterable {
+    case color
+    case animal
+    case vehicle
+    case fruit
+    case shape
+    case object
+
+    var title: String {
+        switch self {
+        case .color:
+            return "颜色"
+        case .animal:
+            return "动物"
+        case .vehicle:
+            return "车辆"
+        case .fruit:
+            return "水果"
+        case .shape:
+            return "形状"
+        case .object:
+            return "生活"
+        }
+    }
+}
+
+struct VoicePromptTarget: Identifiable, Equatable {
+    let id: String
+    let name: String
+    let group: VoicePromptGroup
+    let kind: FriendKind?
+    let color: Color?
+
+    static func == (lhs: VoicePromptTarget, rhs: VoicePromptTarget) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    static var all: [VoicePromptTarget] {
+        colorTargets + FriendKind.allCases.map { kind in
+            VoicePromptTarget(
+                id: kind.rawValue,
+                name: kind.name,
+                group: kind.voicePromptGroup,
+                kind: kind,
+                color: nil
+            )
+        }
+    }
+
+    static let defaultTarget = VoicePromptTarget(kind: .cat)
+
+    init(kind: FriendKind) {
+        id = kind.rawValue
+        name = kind.name
+        group = kind.voicePromptGroup
+        self.kind = kind
+        color = nil
+    }
+
+    private init(id: String, name: String, group: VoicePromptGroup, kind: FriendKind?, color: Color?) {
+        self.id = id
+        self.name = name
+        self.group = group
+        self.kind = kind
+        self.color = color
+    }
+
+    static func target(for id: String) -> VoicePromptTarget {
+        all.first { $0.id == id } ?? defaultTarget
+    }
+
+    static func target(for color: Color) -> VoicePromptTarget {
+        let targetComponents = color.rgbaComponents
+        return colorTargets.min { first, second in
+            colorDistance(targetComponents, first.color?.rgbaComponents ?? (0, 0, 0, 1)) < colorDistance(targetComponents, second.color?.rgbaComponents ?? (0, 0, 0, 1))
+        } ?? colorTargets[0]
+    }
+
+    static var colorTargets: [VoicePromptTarget] {
+        [
+            VoicePromptTarget(id: "color.red", name: "红色", group: .color, kind: nil, color: Color(red: 1.0, green: 0.42, blue: 0.37)),
+            VoicePromptTarget(id: "color.blue", name: "蓝色", group: .color, kind: nil, color: Color(red: 0.22, green: 0.65, blue: 0.94)),
+            VoicePromptTarget(id: "color.green", name: "绿色", group: .color, kind: nil, color: Color(red: 0.14, green: 0.76, blue: 0.54)),
+            VoicePromptTarget(id: "color.yellow", name: "黄色", group: .color, kind: nil, color: Color(red: 1.0, green: 0.75, blue: 0.18)),
+            VoicePromptTarget(id: "color.purple", name: "紫色", group: .color, kind: nil, color: Color(red: 0.61, green: 0.45, blue: 0.91)),
+            VoicePromptTarget(id: "color.pink", name: "粉色", group: .color, kind: nil, color: Color(red: 1.0, green: 0.55, blue: 0.70)),
+            VoicePromptTarget(id: "color.orange", name: "橙色", group: .color, kind: nil, color: Color(red: 0.98, green: 0.50, blue: 0.18)),
+            VoicePromptTarget(id: "color.brown", name: "棕色", group: .color, kind: nil, color: Color(red: 0.70, green: 0.48, blue: 0.30)),
+            VoicePromptTarget(id: "color.aqua", name: "蓝绿色", group: .color, kind: nil, color: Color(red: 0.20, green: 0.72, blue: 0.78)),
+            VoicePromptTarget(id: "color.gray", name: "灰色", group: .color, kind: nil, color: Color(red: 0.72, green: 0.75, blue: 0.78))
+        ]
+    }
+}
+
 enum FriendKind: String, CaseIterable, Identifiable {
     case balloon
     case cat
@@ -434,9 +528,24 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return .vehicle
         case .apple, .banana, .orange, .pear, .strawberry, .watermelon, .grape, .peach, .pineapple, .cherry, .lemon:
             return .fruit
-        case .circle, .square, .triangle, .star, .heart, .rectangle, .oval, .diamond, .moon:
+        case .circle, .square, .triangle, .star, .heart, .rectangle, .oval, .diamond:
             return .shape
-        case .balloon, .flower, .tree, .sun, .cloud, .umbrella, .ball, .book, .cup:
+        case .balloon, .moon, .flower, .tree, .sun, .cloud, .umbrella, .ball, .book, .cup:
+            return .object
+        }
+    }
+
+    var voicePromptGroup: VoicePromptGroup {
+        switch category {
+        case .animal:
+            return .animal
+        case .vehicle:
+            return .vehicle
+        case .fruit:
+            return .fruit
+        case .shape:
+            return .shape
+        case .object:
             return .object
         }
     }
@@ -731,6 +840,15 @@ struct GameRound: Identifiable {
             return "\(targetKind.name)，找到了"
         }
     }
+
+    var voicePromptID: String {
+        switch mode {
+        case .color:
+            return VoicePromptTarget.target(for: targetColor).id
+        default:
+            return targetKind.rawValue
+        }
+    }
 }
 
 struct GameSettings: Equatable {
@@ -772,27 +890,9 @@ enum BreakReminder: Equatable {
     }
 }
 
-private extension Color {
+extension Color {
     var speechName: String {
-        let knownColors: [(Color, String)] = [
-            (Color(red: 1.0, green: 0.42, blue: 0.37), "红色"),
-            (Color(red: 0.22, green: 0.65, blue: 0.94), "蓝色"),
-            (Color(red: 0.14, green: 0.76, blue: 0.54), "绿色"),
-            (Color(red: 1.0, green: 0.75, blue: 0.18), "黄色"),
-            (Color(red: 0.61, green: 0.45, blue: 0.91), "紫色"),
-            (Color(red: 1.0, green: 0.55, blue: 0.70), "粉色"),
-            (Color(red: 0.38, green: 0.68, blue: 0.32), "绿色"),
-            (Color(red: 0.98, green: 0.50, blue: 0.18), "橙色"),
-            (Color(red: 0.70, green: 0.48, blue: 0.30), "棕色"),
-            (Color(red: 0.92, green: 0.18, blue: 0.24), "红色"),
-            (Color(red: 0.20, green: 0.72, blue: 0.78), "蓝绿色"),
-            (Color(red: 0.72, green: 0.75, blue: 0.78), "灰色")
-        ]
-
-        let target = rgbaComponents
-        return knownColors.min { first, second in
-            colorDistance(target, first.0.rgbaComponents) < colorDistance(target, second.0.rgbaComponents)
-        }?.1 ?? "这个颜色"
+        VoicePromptTarget.target(for: self).name
     }
 
     var rgbaComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
@@ -809,10 +909,11 @@ private extension Color {
         #endif
     }
 
-    func colorDistance(
-        _ first: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat),
-        _ second: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
-    ) -> CGFloat {
-        abs(first.red - second.red) + abs(first.green - second.green) + abs(first.blue - second.blue)
-    }
+}
+
+func colorDistance(
+    _ first: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat),
+    _ second: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
+) -> CGFloat {
+    abs(first.red - second.red) + abs(first.green - second.green) + abs(first.blue - second.blue)
 }
