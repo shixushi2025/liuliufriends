@@ -30,6 +30,7 @@ Bundle ID：`baby.dudou.liuliufriends`
 - 官网源码无第三方分析、广告、Cookie 脚本；包含中英文首页、中英文隐私政策、`robots.txt`、`sitemap.xml` 和 Cloudflare Pages `_headers`。
 - 线上 `https://dudou.baby/`、`https://dudou.baby/privacy.html`、`https://dudou.baby/en/`、`https://dudou.baby/en/privacy.html` 可访问。
 - 线上隐私政策页已确认不含 Cloudflare Email Obfuscation 注入脚本。
+- iPhone 16 模拟器可安装并启动，首屏截图 `/tmp/liuliu-iphone16-start.png` 已人工检查无明显安全区遮挡。
 
 ## 验证命令
 
