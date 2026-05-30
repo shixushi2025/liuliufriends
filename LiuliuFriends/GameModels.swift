@@ -3,7 +3,6 @@ import SwiftUI
 
 enum AppScreen: Equatable {
     case play
-    case parent
     case settings
 }
 

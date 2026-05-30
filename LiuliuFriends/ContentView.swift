@@ -14,9 +14,6 @@ struct ContentView: View {
             case .settings:
                 SettingsScreen(viewModel: viewModel)
                     .transition(.move(edge: .trailing).combined(with: .opacity))
-            case .parent:
-                ParentScreen(viewModel: viewModel)
-                    .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
         .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.86), value: viewModel.screen)
@@ -114,12 +111,7 @@ private struct HeaderView: View {
             IconButton(systemName: "gearshape.fill", size: buttonSize) {
                 viewModel.screen = .settings
             }
-            .accessibilityLabel("设置")
-
-            IconButton(systemName: "lock.shield.fill", size: buttonSize) {
-                viewModel.screen = .parent
-            }
-            .accessibilityLabel("家长区")
+            .accessibilityLabel("家长设置")
         }
     }
 
@@ -132,12 +124,7 @@ private struct HeaderView: View {
             IconButton(systemName: "gearshape.fill", size: buttonSize) {
                 viewModel.screen = .settings
             }
-            .accessibilityLabel("设置")
-
-            IconButton(systemName: "lock.shield.fill", size: buttonSize) {
-                viewModel.screen = .parent
-            }
-            .accessibilityLabel("家长区")
+            .accessibilityLabel("家长设置")
         }
     }
 }
@@ -665,7 +652,7 @@ private struct SettingsScreen: View {
 
             ScrollView {
                 VStack(spacing: isCompact ? 18 : 22) {
-                    AdaptiveScreenHeader(title: "设置", actionTitle: "返回", isCompact: isCompact) {
+                    AdaptiveScreenHeader(title: "家长设置", actionTitle: "返回", isCompact: isCompact) {
                         viewModel.screen = .play
                     }
                     .frame(maxWidth: .infinity)
@@ -713,6 +700,8 @@ private struct SettingsScreen: View {
                         .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
                     }
 
+                    ParentSummarySection(isCompact: isCompact)
+
                     Button {
                         viewModel.resetProgress()
                         viewModel.screen = .play
@@ -737,93 +726,48 @@ private struct SettingsScreen: View {
     }
 }
 
-private struct ParentScreen: View {
-    @ObservedObject var viewModel: GameViewModel
-    @State private var gateTaps = 0
+private struct ParentSummarySection: View {
+    let isCompact: Bool
 
     var body: some View {
-        GeometryReader { geometry in
-            let isCompact = geometry.size.width < 700
+        VStack(alignment: .leading, spacing: isCompact ? 14 : 18) {
+            HStack(spacing: isCompact ? 12 : 16) {
+                LiuliuAppIconConcept()
+                    .frame(width: isCompact ? 58 : 82, height: isCompact ? 58 : 82)
 
-            ScrollView {
-                VStack(spacing: isCompact ? 18 : 22) {
-                    AdaptiveScreenHeader(title: "家长区", actionTitle: "返回", isCompact: isCompact) {
-                        viewModel.screen = .play
-                    }
-                    .frame(maxWidth: .infinity)
-
-                    VStack(alignment: .leading, spacing: isCompact ? 14 : 18) {
-                        HStack(spacing: isCompact ? 12 : 16) {
-                            LiuliuAppIconConcept()
-                                .frame(width: isCompact ? 62 : 96, height: isCompact ? 62 : 96)
-
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("肚兜启蒙")
-                                    .font(.system(size: isCompact ? 22 : 26, weight: .heavy, design: .rounded))
-                                    .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
-                                Text("六六找朋友")
-                                    .font(.system(size: isCompact ? 16 : 20, weight: .bold, design: .rounded))
-                                    .foregroundStyle(Color(red: 0.45, green: 0.38, blue: 0.32))
-                            }
-                        }
-
-                        Divider().opacity(0.3)
-
-                        if isCompact {
-                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                                ParentInfoTile(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁")
-                                ParentInfoTile(icon: "wifi.slash", title: "网络", value: "无联网")
-                                ParentInfoTile(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集")
-                                ParentInfoTile(icon: "megaphone.fill", title: "广告", value: "无广告")
-                                ParentInfoTile(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮")
-                                ParentInfoTile(icon: "cart.badge.minus", title: "内购", value: "无内购")
-                            }
-                        } else {
-                            InfoRow(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁，轻点为主", isCompact: false)
-                            InfoRow(icon: "wifi.slash", title: "网络", value: "当前版本无网络请求", isCompact: false)
-                            InfoRow(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集账号、位置或通讯录", isCompact: false)
-                            InfoRow(icon: "megaphone.fill", title: "广告", value: "无广告、无内购入口", isCompact: false)
-                            InfoRow(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮循环启蒙互动", isCompact: false)
-                        }
-
-                        Button {
-                            gateTaps += 1
-                        } label: {
-                            Label(gateTaps >= 3 ? "已解锁家长操作" : "连续点三下解锁", systemImage: gateTaps >= 3 ? "lock.open.fill" : "lock.fill")
-                                .font(.system(size: isCompact ? 18 : 20, weight: .heavy, design: .rounded))
-                                .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
-                                .frame(maxWidth: .infinity, minHeight: isCompact ? 54 : 58)
-                                .background(.white.opacity(0.86), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                        }
-                        .buttonStyle(.plain)
-
-                        if gateTaps >= 3 {
-                            Button {
-                                viewModel.resetProgress()
-                            } label: {
-                                Label("清除本次进度", systemImage: "trash.fill")
-                                    .font(.system(size: isCompact ? 18 : 20, weight: .heavy, design: .rounded))
-                                    .frame(maxWidth: .infinity, minHeight: isCompact ? 54 : 58)
-                                    .background(Color(red: 0.95, green: 0.26, blue: 0.24), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                                    .foregroundStyle(.white)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .frame(maxWidth: isCompact ? .infinity : 720, alignment: .leading)
-                    .padding(isCompact ? 18 : 24)
-                    .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-                    .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
-
-                    Spacer(minLength: 0)
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("肚兜启蒙")
+                        .font(.system(size: isCompact ? 21 : 25, weight: .heavy, design: .rounded))
+                        .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
+                    Text("六六找朋友")
+                        .font(.system(size: isCompact ? 15 : 19, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.45, green: 0.38, blue: 0.32))
                 }
-                .frame(maxWidth: isCompact ? .infinity : 720)
-                .padding(.horizontal, isCompact ? 16 : 28)
-                .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 10 : 28))
-                .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
-            .frame(width: geometry.size.width, height: geometry.size.height)
+
+            Divider().opacity(0.3)
+
+            if isCompact {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                    ParentInfoTile(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁")
+                    ParentInfoTile(icon: "wifi.slash", title: "网络", value: "无联网")
+                    ParentInfoTile(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集")
+                    ParentInfoTile(icon: "megaphone.fill", title: "广告", value: "无广告")
+                    ParentInfoTile(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮")
+                    ParentInfoTile(icon: "cart.badge.minus", title: "内购", value: "无内购")
+                }
+            } else {
+                InfoRow(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁，轻点为主", isCompact: false)
+                InfoRow(icon: "wifi.slash", title: "网络", value: "当前版本无网络请求", isCompact: false)
+                InfoRow(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集账号、位置或通讯录", isCompact: false)
+                InfoRow(icon: "megaphone.fill", title: "广告", value: "无广告、无内购入口", isCompact: false)
+                InfoRow(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮循环启蒙互动", isCompact: false)
+            }
         }
+        .frame(maxWidth: isCompact ? .infinity : 640, alignment: .leading)
+        .padding(isCompact ? 18 : 24)
+        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
     }
 }
 
