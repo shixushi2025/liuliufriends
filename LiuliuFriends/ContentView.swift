@@ -284,13 +284,12 @@ private struct PlayPanel: View {
                     .accessibilityHidden(true)
             }
 
-            if viewModel.completedCandidateID != nil {
+            if viewModel.completedCandidateID != nil && metrics.showsCelebrationMascot {
                 LiuliuPendant(mood: .happy)
                     .frame(width: metrics.celebrationMascotSize, height: metrics.celebrationMascotSize * 1.22)
                     .shadow(color: Color(red: 1.0, green: 0.82, blue: 0.35).opacity(0.55), radius: 26)
                     .scaleEffect(viewModel.settings.reducedMotion ? 1 : 1.08)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .padding(.top, metrics.celebrationTopPadding)
+                    .offset(x: metrics.celebrationOffsetX, y: metrics.celebrationOffsetY)
                     .allowsHitTesting(false)
                     .transition(.scale(scale: 0.78).combined(with: .opacity))
                     .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.62), value: viewModel.celebrationSeed)
@@ -590,58 +589,65 @@ private struct BreakReminderOverlay: View {
     @State private var isHolding = false
 
     var body: some View {
-        ZStack {
-            Color(red: 0.34, green: 0.26, blue: 0.18)
-                .opacity(0.24)
-                .ignoresSafeArea()
+        GeometryReader { geometry in
+            let isCompact = geometry.size.width < 520 || geometry.size.height < 700
+            let iconSize: CGFloat = isCompact ? 64 : 96
+            let cardWidth = min(geometry.size.width - (isCompact ? 40 : 64), isCompact ? 320 : 430)
 
-            VStack(spacing: 18) {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 1.0, green: 0.92, blue: 0.76))
-                        .frame(width: 96, height: 96)
+            ZStack {
+                Color(red: 0.34, green: 0.26, blue: 0.18)
+                    .opacity(0.24)
+                    .ignoresSafeArea()
 
-                    Image(systemName: reminder == .dailyLimit ? "moon.zzz.fill" : "eye.fill")
-                        .font(.system(size: 42, weight: .heavy))
-                        .foregroundStyle(Color(red: 0.95, green: 0.42, blue: 0.24))
-                }
+                VStack(spacing: isCompact ? 12 : 18) {
+                    ZStack {
+                        Circle()
+                            .fill(Color(red: 1.0, green: 0.92, blue: 0.76))
+                            .frame(width: iconSize, height: iconSize)
 
-                Text(reminder.title)
-                    .font(.system(size: 32, weight: .heavy, design: .rounded))
-                    .foregroundStyle(Color(red: 0.26, green: 0.19, blue: 0.13))
-
-                Text(reminder.message)
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Color(red: 0.48, green: 0.38, blue: 0.29))
-                    .lineSpacing(4)
-
-                Text("家长长按 3 秒继续")
-                    .font(.system(size: 17, weight: .heavy, design: .rounded))
-                    .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
-
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(isHolding ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 1.0, green: 0.84, blue: 0.70))
-                    .frame(height: 58)
-                    .overlay {
-                        Label(isHolding ? "继续按住" : "长按继续", systemImage: "hand.point.up.left.fill")
-                            .font(.system(size: 20, weight: .heavy, design: .rounded))
-                            .foregroundStyle(isHolding ? .white : Color(red: 0.38, green: 0.24, blue: 0.15))
+                        Image(systemName: reminder == .dailyLimit ? "moon.zzz.fill" : "eye.fill")
+                            .font(.system(size: isCompact ? 30 : 42, weight: .heavy))
+                            .foregroundStyle(Color(red: 0.95, green: 0.42, blue: 0.24))
                     }
-                    .gesture(
-                        LongPressGesture(minimumDuration: 3)
-                            .onChanged { _ in isHolding = true }
-                            .onEnded { _ in
-                                isHolding = false
-                                continueAction()
-                            }
-                    )
+
+                    Text(reminder.title)
+                        .font(.system(size: isCompact ? 24 : 32, weight: .heavy, design: .rounded))
+                        .foregroundStyle(Color(red: 0.26, green: 0.19, blue: 0.13))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.82)
+
+                    Text(reminder.message)
+                        .font(.system(size: isCompact ? 16 : 20, weight: .bold, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Color(red: 0.48, green: 0.38, blue: 0.29))
+                        .lineSpacing(isCompact ? 2 : 4)
+
+                    Text("家长长按 3 秒继续")
+                        .font(.system(size: isCompact ? 14 : 17, weight: .heavy, design: .rounded))
+                        .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
+
+                    RoundedRectangle(cornerRadius: isCompact ? 20 : 24, style: .continuous)
+                        .fill(isHolding ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 1.0, green: 0.84, blue: 0.70))
+                        .frame(height: isCompact ? 48 : 58)
+                        .overlay {
+                            Label(isHolding ? "继续按住" : "长按继续", systemImage: "hand.point.up.left.fill")
+                                .font(.system(size: isCompact ? 17 : 20, weight: .heavy, design: .rounded))
+                                .foregroundStyle(isHolding ? .white : Color(red: 0.38, green: 0.24, blue: 0.15))
+                        }
+                        .gesture(
+                            LongPressGesture(minimumDuration: 3)
+                                .onChanged { _ in isHolding = true }
+                                .onEnded { _ in
+                                    isHolding = false
+                                    continueAction()
+                                }
+                        )
+                }
+                .frame(width: cardWidth)
+                .padding(isCompact ? 20 : 28)
+                .background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: isCompact ? 26 : 32, style: .continuous))
+                .shadow(color: .black.opacity(0.16), radius: isCompact ? 18 : 24, y: isCompact ? 8 : 12)
             }
-            .frame(maxWidth: 430)
-            .padding(28)
-            .background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: 32, style: .continuous))
-            .shadow(color: .black.opacity(0.16), radius: 24, y: 12)
-            .padding(.horizontal, 24)
         }
     }
 }
@@ -772,8 +778,16 @@ private struct GameLayoutMetrics {
         isCompact ? 132 : 190
     }
 
-    var celebrationTopPadding: CGFloat {
-        isCompact ? 8 : 24
+    var showsCelebrationMascot: Bool {
+        !usesWidePanel
+    }
+
+    var celebrationOffsetX: CGFloat {
+        isCompact ? -22 : 0
+    }
+
+    var celebrationOffsetY: CGFloat {
+        isCompact ? -28 : -120
     }
 
     var boardCornerRadius: CGFloat {
