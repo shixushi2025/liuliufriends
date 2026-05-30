@@ -102,3 +102,51 @@ xcodebuild archive -project LiuliuFriends.xcodeproj -scheme LiuliuFriends -confi
 - `hello@dudou.baby` 可收信
 - `https://dudou.baby/privacy.html` 可访问
 - TestFlight 包上传后无 ITMS 隐私/权限警告
+
+## 8. 本轮 iPhone / iPad 检查记录
+
+- iPhone 休息提示：已修复小屏文字超出问题，弹窗宽度、字号、行数和按钮高度会按短屏压缩。
+- iPhone 休息提示：已改为内容自适应高度，避免卡片在 iPhone SE 上出现大面积空白。
+- iPhone 首屏语音：进入 App 先显示「开始玩」，点击后才播放第一条“找……”语音，避免打开 App 突然出声。
+- iPhone 顶部控件：积分、设置入口已按安全区布局，仍需真机复查刘海/灵动岛机型。
+- iPad 横屏：已检查本轮休息提示相关改动，横屏未发现文字溢出或弹窗异常。
+- iPad 截图：App Store Connect 需要使用后台要求的 iPad 尺寸；截图必须来自当前最终 build。
+
+## 9. App Store Connect 填写补充
+
+- App Icon / Logo：Connect 不单独设置 Logo，图标来自所选 build 内的 `Assets.xcassets/AppIcon.appiconset`。
+- Build 选择：Archive 上传并处理完成后，在版本页 `Build` 区域点 `Add Build` / `Select a build`，选择最新 build 后才能提交审核。
+- Xcode Archive：打包本地工作区当前文件，不按 Git commit 打包；`Assets.xcassets` 当前图片资源会进入包内。
+- 加密合规：当前 0.30 未实现自定义加密或自行实现标准加密，`App Encryption Documentation` 选择 `None of the algorithms mentioned above`。
+- 年龄分级：当前问卷计算结果建议保持 `4+`；如使用儿童类目，继续保持无广告、无追踪、无儿童可误触外链。
+- 内容权利：当前素材如均为自有/生成并已授权使用，可选择不包含、展示或访问第三方内容。
+
+## 10. 备案 / 平台资料留档
+
+以下信息用于域名、应用市场或应用备案材料整理，提交前按实际后台字段核对：
+
+| 字段 | 当前建议 |
+| --- | --- |
+| App 名称 | 肚兜启蒙 |
+| 当前小游戏名称 | 六六找朋友 |
+| Bundle ID | `baby.dudou.liuliufriends` |
+| 官网域名 | `dudou.baby` |
+| 官网 URL | `https://dudou.baby/` |
+| 隐私政策 URL | `https://dudou.baby/privacy.html` |
+| 支持邮箱 | `hello@dudou.baby` |
+| 版本 | `0.30` |
+| 平台 | iOS，支持 iPhone / iPad |
+| 内容分类 | 儿童启蒙、早教认知、教育游戏；如果后台只有普通分类，优先选教育，其次游戏或工具 |
+| 主要功能 | 动物、声音、颜色、形状、大小和影子配对认知 |
+| 用户体系 | 无账号注册、无登录 |
+| 数据收集 | 不收集用户数据，不追踪 |
+| 网络能力 | 当前 App 主要本地运行，无业务服务端请求 |
+| 广告/内购 | 当前无广告、无内购 |
+| 证书 SHA-1 | 应为 40 位十六进制字符，不能包含冒号、空格或非十六进制字符 |
+| 公钥信息 | 以备案后台要求为准，通常从 Apple 签名证书导出；提交前确认对应当前发布证书 |
+
+备案材料注意：
+
+- SHA-1 如果后台提示格式错误，优先检查是否复制了冒号分隔格式；备案字段通常要填写连续 40 位十六进制。
+- 公钥、SHA-1、Bundle ID 必须对应实际用于发布的证书和 App 标识，不能用模拟器、本地调试证书或旧证书。
+- 若后续加入账号、云同步、统计、广告、推送、录音上传或服务端日志，需要同步更新备案说明、隐私政策和 App Store 隐私问卷。
