@@ -2,10 +2,11 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = GameViewModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ZStack {
-            BackgroundView()
+            BackgroundView(eyeComfortEnabled: viewModel.settings.eyeComfortEnabled)
 
             switch viewModel.screen {
             case .play:
@@ -15,10 +16,23 @@ struct ContentView: View {
                 SettingsScreen(viewModel: viewModel)
                     .transition(.move(edge: .trailing).combined(with: .opacity))
             }
+
+            if let reminder = viewModel.breakReminder {
+                BreakReminderOverlay(reminder: reminder) {
+                    viewModel.continueAfterBreak()
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                .zIndex(2)
+            }
         }
         .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.86), value: viewModel.screen)
+        .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.38, dampingFraction: 0.86), value: viewModel.breakReminder)
         .onAppear {
             viewModel.playInitialPromptIfNeeded()
+        }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            guard scenePhase == .active else { return }
+            viewModel.recordActiveUsageTick()
         }
     }
 }
@@ -491,6 +505,68 @@ private struct IconButton: View {
     }
 }
 
+private struct BreakReminderOverlay: View {
+    let reminder: BreakReminder
+    let continueAction: () -> Void
+    @State private var isHolding = false
+
+    var body: some View {
+        ZStack {
+            Color(red: 0.34, green: 0.26, blue: 0.18)
+                .opacity(0.24)
+                .ignoresSafeArea()
+
+            VStack(spacing: 18) {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 1.0, green: 0.92, blue: 0.76))
+                        .frame(width: 96, height: 96)
+
+                    Image(systemName: reminder == .dailyLimit ? "moon.zzz.fill" : "eye.fill")
+                        .font(.system(size: 42, weight: .heavy))
+                        .foregroundStyle(Color(red: 0.95, green: 0.42, blue: 0.24))
+                }
+
+                Text(reminder.title)
+                    .font(.system(size: 32, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.26, green: 0.19, blue: 0.13))
+
+                Text(reminder.message)
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color(red: 0.48, green: 0.38, blue: 0.29))
+                    .lineSpacing(4)
+
+                Text("家长长按 3 秒继续")
+                    .font(.system(size: 17, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
+
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(isHolding ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 1.0, green: 0.84, blue: 0.70))
+                    .frame(height: 58)
+                    .overlay {
+                        Label(isHolding ? "继续按住" : "长按继续", systemImage: "hand.point.up.left.fill")
+                            .font(.system(size: 20, weight: .heavy, design: .rounded))
+                            .foregroundStyle(isHolding ? .white : Color(red: 0.38, green: 0.24, blue: 0.15))
+                    }
+                    .gesture(
+                        LongPressGesture(minimumDuration: 3)
+                            .onChanged { _ in isHolding = true }
+                            .onEnded { _ in
+                                isHolding = false
+                                continueAction()
+                            }
+                    )
+            }
+            .frame(maxWidth: 430)
+            .padding(28)
+            .background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: 32, style: .continuous))
+            .shadow(color: .black.opacity(0.16), radius: 24, y: 12)
+            .padding(.horizontal, 24)
+        }
+    }
+}
+
 private struct GameLayoutMetrics {
     let size: CGSize
     let horizontalSizeClass: UserInterfaceSizeClass?
@@ -665,6 +741,8 @@ private struct SettingsScreen: View {
                             SettingsTile(title: "音效", systemName: "speaker.wave.2.fill", isOn: $viewModel.settings.soundEnabled)
                             SettingsTile(title: "语音", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
                             SettingsTile(title: "录音", systemName: "mic.fill", isOn: $viewModel.settings.customVoiceEnabled)
+                            SettingsTile(title: "休息", systemName: "timer", isOn: $viewModel.settings.restReminderEnabled)
+                            SettingsTile(title: "护眼", systemName: "eye.fill", isOn: $viewModel.settings.eyeComfortEnabled)
                             SettingsTile(title: "自动", systemName: "arrow.right.circle.fill", isOn: $viewModel.settings.autoAdvanceEnabled)
                             SettingsTile(title: "动画", systemName: "sparkles", isOn: Binding(
                                 get: { !viewModel.settings.reducedMotion },
@@ -695,6 +773,18 @@ private struct SettingsScreen: View {
                                 title: "自动下一题",
                                 systemName: "arrow.right.circle.fill",
                                 isOn: $viewModel.settings.autoAdvanceEnabled,
+                                isCompact: false
+                            )
+                            SettingsToggle(
+                                title: "休息提醒",
+                                systemName: "timer",
+                                isOn: $viewModel.settings.restReminderEnabled,
+                                isCompact: false
+                            )
+                            SettingsToggle(
+                                title: "护眼模式",
+                                systemName: "eye.fill",
+                                isOn: $viewModel.settings.eyeComfortEnabled,
                                 isCompact: false
                             )
                             SettingsToggle(

@@ -130,6 +130,50 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(soundRound.promptSpeechText, soundRound.targetKind.soundText)
     }
 
+    func testUsageTickShowsSessionBreakReminder() {
+        let defaults = UserDefaults(suiteName: "liuliufriends.tests.session")!
+        defaults.removePersistentDomain(forName: "liuliufriends.tests.session")
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), sessionLimit: 2, dailyLimit: 60, defaults: defaults)
+
+        viewModel.recordActiveUsageTick()
+        XCTAssertNil(viewModel.breakReminder)
+
+        viewModel.recordActiveUsageTick()
+        XCTAssertEqual(viewModel.breakReminder, .sessionLimit)
+    }
+
+    func testBreakReminderBlocksSelectionUntilParentContinues() {
+        let defaults = UserDefaults(suiteName: "liuliufriends.tests.break")!
+        defaults.removePersistentDomain(forName: "liuliufriends.tests.break")
+        let feedback = TestFeedbackPlayer()
+        let viewModel = GameViewModel(feedbackPlayer: feedback, sessionLimit: 1, dailyLimit: 60, defaults: defaults)
+        viewModel.recordActiveUsageTick()
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+
+        XCTAssertEqual(viewModel.choose(correct), .ignored)
+
+        viewModel.continueAfterBreak()
+
+        XCTAssertNil(viewModel.breakReminder)
+        XCTAssertEqual(viewModel.choose(correct), .correct)
+        XCTAssertEqual(feedback.promptCount, 1)
+    }
+
+    func testDailyBreakCanBeDismissedForCurrentDay() {
+        let defaults = UserDefaults(suiteName: "liuliufriends.tests.daily")!
+        defaults.removePersistentDomain(forName: "liuliufriends.tests.daily")
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), sessionLimit: 60, dailyLimit: 2, defaults: defaults)
+
+        viewModel.recordActiveUsageTick()
+        viewModel.recordActiveUsageTick()
+        XCTAssertEqual(viewModel.breakReminder, .dailyLimit)
+
+        viewModel.continueAfterBreak()
+        viewModel.recordActiveUsageTick()
+
+        XCTAssertNil(viewModel.breakReminder)
+    }
+
     func testResetProgressReturnsToFirstRound() {
         let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
         let firstRoundID = viewModel.round.id

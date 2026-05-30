@@ -2,31 +2,45 @@ import Foundation
 import SwiftUI
 
 struct BackgroundView: View {
+    var eyeComfortEnabled = false
+
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [
-                    Color(red: 1.0, green: 0.96, blue: 0.86),
-                    Color(red: 1.0, green: 0.90, blue: 0.88),
-                    Color(red: 0.98, green: 0.89, blue: 0.94)
-                ],
+                colors: eyeComfortEnabled ? eyeComfortColors : defaultColors,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
             Circle()
-                .fill(Color(red: 1.0, green: 0.42, blue: 0.34).opacity(0.16))
+                .fill(Color(red: 1.0, green: 0.42, blue: 0.34).opacity(eyeComfortEnabled ? 0.08 : 0.16))
                 .frame(width: 420, height: 420)
-                .blur(radius: 42)
+                .blur(radius: eyeComfortEnabled ? 58 : 42)
                 .offset(x: -180, y: -260)
 
             Circle()
-                .fill(Color(red: 0.22, green: 0.65, blue: 0.94).opacity(0.13))
+                .fill(Color(red: 0.22, green: 0.65, blue: 0.94).opacity(eyeComfortEnabled ? 0.07 : 0.13))
                 .frame(width: 520, height: 520)
-                .blur(radius: 54)
+                .blur(radius: eyeComfortEnabled ? 70 : 54)
                 .offset(x: 210, y: 260)
         }
         .ignoresSafeArea()
+    }
+
+    private var defaultColors: [Color] {
+        [
+            Color(red: 1.0, green: 0.96, blue: 0.86),
+            Color(red: 1.0, green: 0.90, blue: 0.88),
+            Color(red: 0.98, green: 0.89, blue: 0.94)
+        ]
+    }
+
+    private var eyeComfortColors: [Color] {
+        [
+            Color(red: 0.99, green: 0.96, blue: 0.88),
+            Color(red: 0.98, green: 0.94, blue: 0.86),
+            Color(red: 0.95, green: 0.93, blue: 0.87)
+        ]
     }
 }
 

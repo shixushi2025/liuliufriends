@@ -10,13 +10,21 @@ final class GameViewModel: ObservableObject {
     @Published var completedRounds = 0
     @Published var screen: AppScreen = .play
     @Published var settings = GameSettings()
+    @Published var breakReminder: BreakReminder?
 
     let voiceStore: VoicePromptStore
     private var roundIndex = 0
     private let rounds: [GameRound]
     private let feedbackPlayer: FeedbackPlaying
     private let autoAdvanceDelay: TimeInterval
+    private let sessionLimit: TimeInterval
+    private let dailyLimit: TimeInterval
+    private let defaults: UserDefaults
     private var hasPlayedInitialPrompt = false
+    private var sessionUsage: TimeInterval = 0
+    private var dailyUsage: TimeInterval
+    private var dailyUsageDate: String
+    private var dismissedDailyLimitDate: String?
     private var pendingAutoAdvanceWorkItem: DispatchWorkItem?
     private var pendingRetryClearWorkItem: DispatchWorkItem?
     private var pendingHintWorkItem: DispatchWorkItem?
@@ -26,13 +34,30 @@ final class GameViewModel: ObservableObject {
         rounds: [GameRound] = GameContent.rounds,
         voiceStore: VoicePromptStore = .shared,
         feedbackPlayer: FeedbackPlaying? = nil,
-        autoAdvanceDelay: TimeInterval = 1.15
+        autoAdvanceDelay: TimeInterval = 1.15,
+        sessionLimit: TimeInterval = 10 * 60,
+        dailyLimit: TimeInterval = 20 * 60,
+        defaults: UserDefaults = .standard
     ) {
         precondition(!rounds.isEmpty, "Game requires at least one round.")
         self.rounds = rounds
         self.voiceStore = voiceStore
         self.feedbackPlayer = feedbackPlayer ?? SystemFeedbackPlayer(voiceStore: voiceStore)
         self.autoAdvanceDelay = autoAdvanceDelay
+        self.sessionLimit = sessionLimit
+        self.dailyLimit = dailyLimit
+        self.defaults = defaults
+        let today = Self.todayKey()
+        dailyUsageDate = defaults.string(forKey: Self.dailyUsageDateKey) ?? today
+        if dailyUsageDate == today {
+            dailyUsage = defaults.double(forKey: Self.dailyUsageSecondsKey)
+        } else {
+            dailyUsageDate = today
+            dailyUsage = 0
+            defaults.set(today, forKey: Self.dailyUsageDateKey)
+            defaults.set(0, forKey: Self.dailyUsageSecondsKey)
+        }
+        dismissedDailyLimitDate = defaults.string(forKey: Self.dismissedDailyLimitDateKey)
         round = rounds[0]
     }
 
@@ -42,8 +67,38 @@ final class GameViewModel: ObservableObject {
         feedbackPlayer.playPrompt(for: round, settings: settings)
     }
 
+    func recordActiveUsageTick(_ seconds: TimeInterval = 1) {
+        guard settings.restReminderEnabled else { return }
+        guard screen == .play, breakReminder == nil else { return }
+
+        rolloverDailyUsageIfNeeded()
+        sessionUsage += seconds
+        dailyUsage += seconds
+        defaults.set(dailyUsage, forKey: Self.dailyUsageSecondsKey)
+
+        if dailyUsage >= dailyLimit, dismissedDailyLimitDate != dailyUsageDate {
+            pauseForBreak(.dailyLimit)
+        } else if sessionUsage >= sessionLimit {
+            pauseForBreak(.sessionLimit)
+        }
+    }
+
+    func continueAfterBreak() {
+        if breakReminder == .dailyLimit {
+            dismissedDailyLimitDate = dailyUsageDate
+            defaults.set(dailyUsageDate, forKey: Self.dismissedDailyLimitDateKey)
+        }
+        sessionUsage = 0
+        breakReminder = nil
+        feedbackPlayer.playPrompt(for: round, settings: settings)
+    }
+
     @discardableResult
     func choose(_ candidate: FriendCandidate) -> SelectionResult {
+        guard breakReminder == nil else {
+            return .ignored
+        }
+
         guard completedCandidateID == nil else {
             return .ignored
         }
@@ -137,6 +192,8 @@ final class GameViewModel: ObservableObject {
         wrongCandidateID = nil
         hintCandidateID = nil
         celebrationSeed = 0
+        sessionUsage = 0
+        breakReminder = nil
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             round = rounds[0]
@@ -180,5 +237,43 @@ final class GameViewModel: ObservableObject {
         pendingHintWorkItem = nil
         pendingHintClearWorkItem?.cancel()
         pendingHintClearWorkItem = nil
+    }
+
+    private func pauseForBreak(_ reminder: BreakReminder) {
+        cancelPendingAutoAdvance()
+        cancelPendingRetryClear()
+        cancelPendingHint()
+        breakReminder = reminder
+    }
+
+    private func rolloverDailyUsageIfNeeded() {
+        let today = Self.todayKey()
+        guard dailyUsageDate != today else { return }
+        dailyUsageDate = today
+        dailyUsage = 0
+        dismissedDailyLimitDate = nil
+        defaults.set(today, forKey: Self.dailyUsageDateKey)
+        defaults.set(0, forKey: Self.dailyUsageSecondsKey)
+        defaults.removeObject(forKey: Self.dismissedDailyLimitDateKey)
+    }
+
+    private static var dailyUsageDateKey: String {
+        "liuliufriends.dailyUsageDate"
+    }
+
+    private static var dailyUsageSecondsKey: String {
+        "liuliufriends.dailyUsageSeconds"
+    }
+
+    private static var dismissedDailyLimitDateKey: String {
+        "liuliufriends.dismissedDailyLimitDate"
+    }
+
+    private static func todayKey() -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
     }
 }

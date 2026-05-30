@@ -723,6 +723,8 @@ struct GameSettings: Equatable {
     var voicePromptEnabled: Bool = true
     var customVoiceEnabled: Bool = true
     var autoAdvanceEnabled: Bool = true
+    var restReminderEnabled: Bool = true
+    var eyeComfortEnabled: Bool = false
     var reducedMotion: Bool = false
 }
 
@@ -730,6 +732,29 @@ enum SelectionResult: Equatable {
     case correct
     case retry
     case ignored
+}
+
+enum BreakReminder: Equatable {
+    case sessionLimit
+    case dailyLimit
+
+    var title: String {
+        switch self {
+        case .sessionLimit:
+            return "休息一下"
+        case .dailyLimit:
+            return "今天先到这里"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .sessionLimit:
+            return "已经连续玩了一会儿，看看远处、喝口水，再继续。"
+        case .dailyLimit:
+            return "今天的启蒙时间已经不少了，建议换成亲子阅读或户外活动。"
+        }
+    }
 }
 
 private extension Color {
