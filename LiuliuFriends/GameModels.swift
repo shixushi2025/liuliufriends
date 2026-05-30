@@ -9,6 +9,54 @@ enum AppScreen: Equatable {
     case settings
 }
 
+enum LearningAgeBand: String, CaseIterable {
+    case starter18Months
+    case explorer24Months
+    case matcher30Months
+    case preschool36Months
+
+    var label: String {
+        switch self {
+        case .starter18Months:
+            return "18m+"
+        case .explorer24Months:
+            return "24m+"
+        case .matcher30Months:
+            return "30m+"
+        case .preschool36Months:
+            return "36m+"
+        }
+    }
+
+    var focus: String {
+        switch self {
+        case .starter18Months:
+            return "看图识物、听声音、点选反馈"
+        case .explorer24Months:
+            return "颜色、形状、常见分类"
+        case .matcher30Months:
+            return "大小、影子、相似项辨别"
+        case .preschool36Months:
+            return "数字、节奏、儿歌、顺序认知"
+        }
+    }
+}
+
+enum FutureLearningModule: String, CaseIterable {
+    case numbers
+    case nurseryRhymes
+    case dailyRoutines
+
+    var recommendedAgeBand: LearningAgeBand {
+        switch self {
+        case .numbers, .nurseryRhymes:
+            return .preschool36Months
+        case .dailyRoutines:
+            return .explorer24Months
+        }
+    }
+}
+
 enum GameMode: String, CaseIterable {
     case animal
     case sound
@@ -51,15 +99,19 @@ enum GameMode: String, CaseIterable {
         }
     }
 
-    var ageLabel: String {
+    var ageBand: LearningAgeBand {
         switch self {
         case .animal, .sound:
-            return "18m+"
+            return .starter18Months
         case .color, .shape:
-            return "24m+"
+            return .explorer24Months
         case .size, .shadow:
-            return "30m+"
+            return .matcher30Months
         }
+    }
+
+    var ageLabel: String {
+        ageBand.label
     }
 
     var usesNeutralBackground: Bool {
@@ -246,6 +298,52 @@ enum LearningPromptTextCatalog {
         .ambulance: "滴嘟",
         .tractor: "突突"
     ]
+}
+
+final class PromptAliasStore: ObservableObject {
+    static let shared = PromptAliasStore()
+
+    @Published private(set) var aliases: [String: String]
+
+    private let defaults: UserDefaults
+    private let aliasesKey = "liuliufriends.promptAliases"
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        aliases = defaults.dictionary(forKey: aliasesKey) as? [String: String] ?? [:]
+    }
+
+    func displayName(for target: VoicePromptTarget) -> String {
+        customName(for: target.id) ?? target.name
+    }
+
+    func displayName(for kind: FriendKind) -> String {
+        customName(for: kind.rawValue) ?? kind.name
+    }
+
+    func soundPrompt(for kind: FriendKind) -> String {
+        customName(for: kind.rawValue) ?? LearningPromptTextCatalog.soundPrompt(for: kind)
+    }
+
+    func customName(for id: String) -> String? {
+        guard let value = aliases[id], !value.isEmpty else { return nil }
+        return value
+    }
+
+    func setCustomName(_ name: String, for id: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            aliases.removeValue(forKey: id)
+        } else {
+            aliases[id] = trimmed
+        }
+        defaults.set(aliases, forKey: aliasesKey)
+    }
+
+    func resetCustomName(for id: String) {
+        aliases.removeValue(forKey: id)
+        defaults.set(aliases, forKey: aliasesKey)
+    }
 }
 
 enum FriendKind: String, CaseIterable, Identifiable {

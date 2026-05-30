@@ -14,6 +14,7 @@ final class GameViewModel: ObservableObject {
     @Published var selectedRecordingTargetID = VoicePromptTarget.defaultTarget.id
 
     let voiceStore: VoicePromptStore
+    let promptAliasStore: PromptAliasStore
     private var roundIndex = 0
     private let rounds: [GameRound]
     private let feedbackPlayer: FeedbackPlaying
@@ -36,6 +37,7 @@ final class GameViewModel: ObservableObject {
     init(
         rounds: [GameRound] = GameContent.rounds,
         voiceStore: VoicePromptStore = .shared,
+        promptAliasStore: PromptAliasStore = .shared,
         feedbackPlayer: FeedbackPlaying? = nil,
         autoAdvanceDelay: TimeInterval = 1.15,
         nextPromptDelayAfterAutoAdvance: TimeInterval = 0.75,
@@ -46,6 +48,7 @@ final class GameViewModel: ObservableObject {
         precondition(!rounds.isEmpty, "Game requires at least one round.")
         self.rounds = rounds
         self.voiceStore = voiceStore
+        self.promptAliasStore = promptAliasStore
         self.feedbackPlayer = feedbackPlayer ?? SystemFeedbackPlayer(voiceStore: voiceStore)
         self.autoAdvanceDelay = autoAdvanceDelay
         self.nextPromptDelayAfterAutoAdvance = nextPromptDelayAfterAutoAdvance
@@ -69,7 +72,7 @@ final class GameViewModel: ObservableObject {
     func playInitialPromptIfNeeded() {
         guard !hasPlayedInitialPrompt else { return }
         hasPlayedInitialPrompt = true
-        feedbackPlayer.playPrompt(for: round, settings: settings)
+        playPrompt(for: round)
     }
 
     func recordActiveUsageTick(_ seconds: TimeInterval = 1) {
@@ -95,7 +98,7 @@ final class GameViewModel: ObservableObject {
         }
         sessionUsage = 0
         breakReminder = nil
-        feedbackPlayer.playPrompt(for: round, settings: settings)
+        playPrompt(for: round)
     }
 
     @discardableResult
@@ -120,7 +123,7 @@ final class GameViewModel: ObservableObject {
             completedCandidateID = candidate.id
             celebrationSeed += 1
             completedRounds += 1
-            feedbackPlayer.playCorrect(for: round, settings: settings)
+            feedbackPlayer.playCorrect(text: successSpeechText(for: round), recordingID: round.voicePromptID, settings: settings)
 
             if settings.autoAdvanceEnabled {
                 scheduleAutoAdvance()
@@ -172,7 +175,7 @@ final class GameViewModel: ObservableObject {
     }
 
     func replayPrompt() {
-        feedbackPlayer.playPrompt(for: round, settings: settings)
+        playPrompt(for: round)
         showCorrectHint(duration: 1.5)
     }
 
@@ -201,6 +204,30 @@ final class GameViewModel: ObservableObject {
         voiceStore.deleteRecording(for: selectedRecordingTargetID)
     }
 
+    func displayName(for target: VoicePromptTarget) -> String {
+        promptAliasStore.displayName(for: target)
+    }
+
+    func displayName(for kind: FriendKind) -> String {
+        promptAliasStore.displayName(for: kind)
+    }
+
+    func soundPrompt(for kind: FriendKind) -> String {
+        promptAliasStore.soundPrompt(for: kind)
+    }
+
+    func customPromptName(for target: VoicePromptTarget) -> String {
+        promptAliasStore.customName(for: target.id) ?? ""
+    }
+
+    func setCustomPromptName(_ name: String, for target: VoicePromptTarget) {
+        promptAliasStore.setCustomName(name, for: target.id)
+    }
+
+    func resetCustomPromptName(for target: VoicePromptTarget) {
+        promptAliasStore.resetCustomName(for: target.id)
+    }
+
     func resetProgress() {
         cancelPendingAutoAdvance()
         cancelPendingRetryClear()
@@ -218,7 +245,7 @@ final class GameViewModel: ObservableObject {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             round = rounds[0]
         }
-        feedbackPlayer.playPrompt(for: round, settings: settings)
+        playPrompt(for: round)
     }
 
     private func scheduleAutoAdvance() {
@@ -238,7 +265,7 @@ final class GameViewModel: ObservableObject {
 
     private func playPromptAfterDelay(_ delay: TimeInterval) {
         guard delay > 0 else {
-            feedbackPlayer.playPrompt(for: round, settings: settings)
+            playPrompt(for: round)
             return
         }
 
@@ -246,10 +273,40 @@ final class GameViewModel: ObservableObject {
         let workItem = DispatchWorkItem { [weak self] in
             guard let self, self.round.id == roundID else { return }
             self.pendingPromptWorkItem = nil
-            self.feedbackPlayer.playPrompt(for: self.round, settings: self.settings)
+            self.playPrompt(for: self.round)
         }
         pendingPromptWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+    }
+
+    private func playPrompt(for round: GameRound) {
+        feedbackPlayer.playPrompt(text: promptSpeechText(for: round), recordingID: round.voicePromptID, settings: settings)
+    }
+
+    func promptSpeechText(for round: GameRound) -> String {
+        switch round.mode {
+        case .animal:
+            return "找\(displayName(for: round.targetKind))"
+        case .sound:
+            return soundPrompt(for: round.targetKind)
+        case .color:
+            return "找\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))"
+        case .shape:
+            return "找\(displayName(for: round.targetKind))"
+        case .size:
+            return "找一样大的\(displayName(for: round.targetKind))"
+        case .shadow:
+            return "找\(displayName(for: round.targetKind))的影子"
+        }
+    }
+
+    private func successSpeechText(for round: GameRound) -> String {
+        switch round.mode {
+        case .color:
+            return "\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))，找到了"
+        default:
+            return "\(displayName(for: round.targetKind))，找到了"
+        }
     }
 
     private func cancelPendingPrompt() {

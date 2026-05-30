@@ -1,5 +1,6 @@
 import XCTest
 import UIKit
+import SwiftUI
 @testable import LiuliuFriends
 
 final class GameViewModelTests: XCTestCase {
@@ -33,6 +34,17 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(categories, [.animal, .vehicle, .fruit, .shape, .object])
     }
 
+    func testGameModesUseStructuredAgeBands() {
+        XCTAssertEqual(GameMode.animal.ageBand, .starter18Months)
+        XCTAssertEqual(GameMode.sound.ageBand, .starter18Months)
+        XCTAssertEqual(GameMode.color.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.shape.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.size.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.shadow.ageBand, .matcher30Months)
+        XCTAssertEqual(FutureLearningModule.numbers.recommendedAgeBand, .preschool36Months)
+        XCTAssertEqual(FutureLearningModule.nurseryRhymes.recommendedAgeBand, .preschool36Months)
+    }
+
     func testContentUsesAllFriendKinds() {
         let usedKinds = Set(GameContent.rounds.flatMap { round in
             [round.targetKind] + round.candidates.map(\.kind)
@@ -64,7 +76,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.completedRounds, 1)
         XCTAssertEqual(viewModel.celebrationSeed, 1)
         XCTAssertEqual(feedback.correctCount, 1)
-        XCTAssertEqual(feedback.correctRound?.id, viewModel.round.id)
+        XCTAssertEqual(feedback.correctRecordingID, viewModel.round.voicePromptID)
     }
 
     func testWrongSelectionMarksRetryAndDoesNotAdvanceProgress() {
@@ -147,6 +159,34 @@ final class GameViewModelTests: XCTestCase {
             XCTAssertFalse(LearningPromptTextCatalog.usesRecognizedSoundPrompt(kind), "\(kind.name) should default to canonical name unless parents customize it.")
             XCTAssertEqual(kind.soundText, kind.name)
         }
+    }
+
+    func testCustomPromptAliasOverridesSpokenPromptWithoutChangingDefaultName() {
+        let defaults = UserDefaults(suiteName: "liuliufriends.tests.alias")!
+        defaults.removePersistentDomain(forName: "liuliufriends.tests.alias")
+        let aliasStore = PromptAliasStore(defaults: defaults)
+        let feedback = TestFeedbackPlayer()
+        let rounds = [
+            GameRound(
+                mode: .sound,
+                targetKind: .grape,
+                targetColor: .red,
+                candidates: [
+                    FriendCandidate(kind: .grape, color: .red, isCorrect: true),
+                    FriendCandidate(kind: .apple, color: .red, isCorrect: false)
+                ]
+            )
+        ]
+        let viewModel = GameViewModel(rounds: rounds, promptAliasStore: aliasStore, feedbackPlayer: feedback)
+
+        XCTAssertEqual(viewModel.soundPrompt(for: .grape), "葡萄")
+
+        viewModel.setCustomPromptName("串串", for: VoicePromptTarget(kind: .grape))
+
+        XCTAssertEqual(FriendKind.grape.name, "葡萄")
+        XCTAssertEqual(viewModel.soundPrompt(for: .grape), "串串")
+        viewModel.playInitialPromptIfNeeded()
+        XCTAssertEqual(feedback.promptText, "串串")
     }
 
     func testUsageTickShowsSessionBreakReminder() {
@@ -257,18 +297,20 @@ private final class TestFeedbackPlayer: FeedbackPlaying {
     private(set) var correctCount = 0
     private(set) var retryCount = 0
     private(set) var promptCount = 0
-    private(set) var correctRound: GameRound?
+    private(set) var correctRecordingID: String?
+    private(set) var promptText: String?
 
-    func playCorrect(for round: GameRound, settings: GameSettings) {
+    func playCorrect(text: String, recordingID: String, settings: GameSettings) {
         correctCount += 1
-        correctRound = round
+        correctRecordingID = recordingID
     }
 
     func playRetry(settings: GameSettings) {
         retryCount += 1
     }
 
-    func playPrompt(for round: GameRound, settings: GameSettings) {
+    func playPrompt(text: String, recordingID: String, settings: GameSettings) {
         promptCount += 1
+        promptText = text
     }
 }

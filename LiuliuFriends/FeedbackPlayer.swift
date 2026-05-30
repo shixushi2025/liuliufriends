@@ -3,9 +3,9 @@ import AudioToolbox
 import Foundation
 
 protocol FeedbackPlaying {
-    func playCorrect(for round: GameRound, settings: GameSettings)
+    func playCorrect(text: String, recordingID: String, settings: GameSettings)
     func playRetry(settings: GameSettings)
-    func playPrompt(for round: GameRound, settings: GameSettings)
+    func playPrompt(text: String, recordingID: String, settings: GameSettings)
 }
 
 final class SystemFeedbackPlayer: FeedbackPlaying {
@@ -16,11 +16,11 @@ final class SystemFeedbackPlayer: FeedbackPlaying {
         self.voiceStore = voiceStore
     }
 
-    func playCorrect(for round: GameRound, settings: GameSettings) {
+    func playCorrect(text: String, recordingID: String, settings: GameSettings) {
         if settings.soundEnabled {
             AudioServicesPlaySystemSound(1057)
         }
-        playSpokenFeedback(round.successSpeechText, recordingID: round.voicePromptID, settings: settings)
+        playSpokenFeedback(text, recordingID: recordingID, settings: settings)
     }
 
     func playRetry(settings: GameSettings) {
@@ -28,13 +28,13 @@ final class SystemFeedbackPlayer: FeedbackPlaying {
         AudioServicesPlaySystemSound(1104)
     }
 
-    func playPrompt(for round: GameRound, settings: GameSettings) {
+    func playPrompt(text: String, recordingID: String, settings: GameSettings) {
         guard settings.voicePromptEnabled else { return }
 
         if settings.soundEnabled {
             AudioServicesPlaySystemSound(1113)
         }
-        playSpokenFeedback(round.promptSpeechText, recordingID: round.voicePromptID, settings: settings)
+        playSpokenFeedback(text, recordingID: recordingID, settings: settings)
     }
 
     private func playSpokenFeedback(_ text: String, recordingID: String, settings: GameSettings) {

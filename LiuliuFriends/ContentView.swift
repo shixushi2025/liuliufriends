@@ -224,7 +224,7 @@ private struct PlayPanel: View {
     private var panelContent: some View {
         if metrics.usesWidePanel {
             HStack(alignment: .center, spacing: metrics.panelSpacing) {
-                TargetArea(round: viewModel.round, metrics: metrics)
+                TargetArea(viewModel: viewModel, round: viewModel.round, metrics: metrics)
                     .frame(width: metrics.wideTargetWidth, height: metrics.targetHeight)
 
                 VStack(spacing: metrics.candidateSpacing) {
@@ -233,7 +233,7 @@ private struct PlayPanel: View {
             }
         } else {
             VStack(spacing: metrics.panelSpacing) {
-                TargetArea(round: viewModel.round, metrics: metrics)
+                TargetArea(viewModel: viewModel, round: viewModel.round, metrics: metrics)
                     .frame(height: metrics.targetHeight)
 
                 if metrics.stacksCandidates {
@@ -284,6 +284,7 @@ private struct PlayPanel: View {
 }
 
 private struct TargetArea: View {
+    @ObservedObject var viewModel: GameViewModel
     let round: GameRound
     let metrics: GameLayoutMetrics
 
@@ -311,12 +312,12 @@ private struct TargetArea: View {
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(round.targetKind.name)", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .sound:
                 VStack(spacing: metrics.targetContentSpacing) {
-                    SoundBubble(text: round.targetKind.soundText)
+                    SoundBubble(text: viewModel.soundPrompt(for: round.targetKind))
                         .frame(width: metrics.targetIconSize * 1.08, height: metrics.targetIconSize * 0.78)
                     TargetCaption(title: "听声音找朋友", mode: round.mode)
                 }
@@ -877,13 +878,17 @@ private struct ParentSummarySection: View {
 private struct VoiceRecordingSection: View {
     @ObservedObject var viewModel: GameViewModel
     @ObservedObject private var voiceStore: VoicePromptStore
+    @ObservedObject private var promptAliasStore: PromptAliasStore
     @State private var selectedRecordingGroup: VoicePromptGroup
+    @State private var customNameDraft = ""
     let isCompact: Bool
 
     init(viewModel: GameViewModel, isCompact: Bool) {
         self.viewModel = viewModel
         self.voiceStore = viewModel.voiceStore
+        self.promptAliasStore = viewModel.promptAliasStore
         _selectedRecordingGroup = State(initialValue: viewModel.selectedRecordingTarget.group)
+        _customNameDraft = State(initialValue: viewModel.customPromptName(for: viewModel.selectedRecordingTarget))
         self.isCompact = isCompact
     }
 
@@ -910,7 +915,27 @@ private struct VoiceRecordingSection: View {
                 }
             }
 
-            SelectedRecordingCard(target: selectedTarget, isRecording: isRecording, hasRecording: hasRecording, isCompact: isCompact)
+            SelectedRecordingCard(
+                target: selectedTarget,
+                displayName: viewModel.displayName(for: selectedTarget),
+                defaultName: selectedTarget.name,
+                isRecording: isRecording,
+                hasRecording: hasRecording,
+                isCompact: isCompact
+            )
+
+            CustomPromptNameEditor(
+                target: selectedTarget,
+                displayName: viewModel.displayName(for: selectedTarget),
+                draftName: $customNameDraft,
+                isCompact: isCompact
+            ) {
+                viewModel.setCustomPromptName(customNameDraft, for: selectedTarget)
+                customNameDraft = viewModel.customPromptName(for: selectedTarget)
+            } reset: {
+                viewModel.resetCustomPromptName(for: selectedTarget)
+                customNameDraft = ""
+            }
 
             RecordingGroupPicker(
                 selectedGroup: selectedRecordingGroup,
@@ -928,6 +953,7 @@ private struct VoiceRecordingSection: View {
                 group: selectedRecordingGroup,
                 selectedTargetID: selectedTarget.id,
                 voiceStore: voiceStore,
+                displayName: { viewModel.displayName(for: $0) },
                 isCompact: isCompact,
                 isSelectionLocked: voiceStore.recordingID != nil
             ) { target in
@@ -942,7 +968,7 @@ private struct VoiceRecordingSection: View {
 
             HStack(spacing: isCompact ? 8 : 12) {
                 VoiceActionButton(
-                    title: isRecording ? "停止" : "录\(selectedTarget.name)",
+                    title: isRecording ? "停止" : "录\(viewModel.displayName(for: selectedTarget))",
                     systemName: isRecording ? "stop.fill" : "mic.fill",
                     isPrimary: true,
                     isCompact: isCompact,
@@ -978,7 +1004,70 @@ private struct VoiceRecordingSection: View {
         .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
         .onChange(of: selectedTarget.id) { _, _ in
             selectedRecordingGroup = selectedTarget.group
+            customNameDraft = viewModel.customPromptName(for: selectedTarget)
         }
+        .onChange(of: promptAliasStore.aliases) { _, _ in
+            customNameDraft = viewModel.customPromptName(for: selectedTarget)
+        }
+    }
+}
+
+private struct CustomPromptNameEditor: View {
+    let target: VoicePromptTarget
+    let displayName: String
+    @Binding var draftName: String
+    let isCompact: Bool
+    let save: () -> Void
+    let reset: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "textformat")
+                    .foregroundStyle(Color(red: 0.95, green: 0.38, blue: 0.28))
+                Text("自定义称呼")
+                    .font(.system(size: isCompact ? 15 : 17, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
+                Spacer()
+                Text("当前：\(displayName)")
+                    .font(.system(size: isCompact ? 12 : 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color(red: 0.55, green: 0.45, blue: 0.36))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+
+            HStack(spacing: isCompact ? 8 : 10) {
+                TextField("默认：\(target.name)", text: $draftName)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
+                    .font(.system(size: isCompact ? 16 : 18, weight: .bold, design: .rounded))
+                    .padding(.horizontal, 12)
+                    .frame(minHeight: isCompact ? 44 : 50)
+                    .background(.white.opacity(0.82), in: RoundedRectangle(cornerRadius: isCompact ? 14 : 16, style: .continuous))
+
+                Button(action: save) {
+                    Text("保存")
+                        .font(.system(size: isCompact ? 14 : 16, weight: .heavy, design: .rounded))
+                        .padding(.horizontal, isCompact ? 12 : 16)
+                        .frame(minHeight: isCompact ? 44 : 50)
+                        .background(Color(red: 0.95, green: 0.38, blue: 0.28), in: RoundedRectangle(cornerRadius: isCompact ? 14 : 16, style: .continuous))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+
+                Button(action: reset) {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.system(size: isCompact ? 15 : 17, weight: .heavy))
+                        .frame(width: isCompact ? 44 : 50, height: isCompact ? 44 : 50)
+                        .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: isCompact ? 14 : 16, style: .continuous))
+                        .foregroundStyle(Color(red: 0.55, green: 0.45, blue: 0.36))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("恢复默认称呼")
+            }
+        }
+        .padding(isCompact ? 12 : 14)
+        .background(Color(red: 1.0, green: 0.96, blue: 0.88).opacity(0.78), in: RoundedRectangle(cornerRadius: isCompact ? 18 : 20, style: .continuous))
     }
 }
 
@@ -1070,6 +1159,8 @@ private struct RecordingGroupButton: View {
 
 private struct SelectedRecordingCard: View {
     let target: VoicePromptTarget
+    let displayName: String
+    let defaultName: String
     let isRecording: Bool
     let hasRecording: Bool
     let isCompact: Bool
@@ -1082,13 +1173,19 @@ private struct SelectedRecordingCard: View {
                 .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: isCompact ? 20 : 24, style: .continuous))
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(target.name)
+                Text(displayName)
                     .font(.system(size: isCompact ? 24 : 29, weight: .heavy, design: .rounded))
                     .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
 
                 Label(statusText, systemImage: statusIcon)
                     .font(.system(size: isCompact ? 14 : 17, weight: .heavy, design: .rounded))
                     .foregroundStyle(statusColor)
+
+                if displayName != defaultName {
+                    Text("默认：\(defaultName)")
+                        .font(.system(size: isCompact ? 12 : 14, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.55, green: 0.45, blue: 0.36))
+                }
             }
 
             Spacer()
@@ -1117,6 +1214,7 @@ private struct RecordingTargetSection: View {
     let group: VoicePromptGroup
     let selectedTargetID: String
     @ObservedObject var voiceStore: VoicePromptStore
+    let displayName: (VoicePromptTarget) -> String
     let isCompact: Bool
     let isSelectionLocked: Bool
     let select: (VoicePromptTarget) -> Void
@@ -1140,6 +1238,7 @@ private struct RecordingTargetSection: View {
                 ForEach(targets) { target in
                     RecordingTargetButton(
                         target: target,
+                        displayName: displayName(target),
                         isSelected: target.id == selectedTargetID,
                         hasRecording: voiceStore.hasRecording(for: target.id),
                         isLocked: isSelectionLocked && target.id != selectedTargetID,
@@ -1155,6 +1254,7 @@ private struct RecordingTargetSection: View {
 
 private struct RecordingTargetButton: View {
     let target: VoicePromptTarget
+    let displayName: String
     let isSelected: Bool
     let hasRecording: Bool
     let isLocked: Bool
@@ -1177,7 +1277,7 @@ private struct RecordingTargetButton: View {
                     }
                 }
 
-                Text(target.name)
+                Text(displayName)
                     .font(.system(size: isCompact ? 13 : 15, weight: .heavy, design: .rounded))
                     .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
                     .lineLimit(1)
