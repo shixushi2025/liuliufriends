@@ -322,7 +322,7 @@
 - 暖奶油背景下的柔和棚拍光感
 - 轻微材质纹理，避免塑料廉价感
 - 可爱的黑豆眼、小腮红、轻微微笑；车辆、形状、物品也可以有表情
-- 透明 PNG，主体居中，主体最大边约占画布 80%-84%，避免透明边距过大导致进游戏后显小
+- 透明 PNG，主体居中，主体最大边约占画布 74%-78%，避免透明边距过大导致进游戏后显小，也避免耳朵、尾巴、翅膀被裁切
 - 单个资源建议 512x512 或更高，再由 Xcode asset catalog 管理缩放
 
 生成提示词基准：
@@ -332,7 +332,7 @@ Create cute soft 3D clay-like children app icons matching a warm plush toy style
 rounded forms, soft matte material, warm studio lighting, subtle blush cheeks where appropriate,
 gentle shadows, no outlines, no text, no watermark.
 Premium kawaii toddler education app asset, isolated centered object, transparent background.
-The object should fill about 82% of the square canvas while preserving safe margins.
+The object should fill about 76% of the square canvas while preserving safe margins.
 Avoid hard vector flat icons, photorealism, busy background, scary expressions.
 ```
 
@@ -340,7 +340,7 @@ Avoid hard vector flat icons, photorealism, busy background, scary expressions.
 
 - 正式入库资源优先单个对象单独生成，不再使用多宫格截图裁切作为最终素材
 - 如果探索阶段临时使用资产表，每批最多 12 个对象，只能用于方向预览
-- 单独生成后必须检查主体占比，同类资源最大边统一在画布 80%-84%
+- 单独生成后必须检查主体占比，同类资源最大边统一在画布 74%-78%
 - 背景优先直接透明；如工具不支持透明，使用纯色背景后再抠透明
 - 裁切后必须检查透明边缘，不能留下色线、邻格残影或多余底色
 - 进入工程后必须通过资源加载测试
