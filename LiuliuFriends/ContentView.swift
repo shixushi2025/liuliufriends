@@ -597,47 +597,53 @@ private struct BreakReminderOverlay: View {
     var body: some View {
         GeometryReader { geometry in
             let isCompact = geometry.size.width < 520 || geometry.size.height < 700
-            let iconSize: CGFloat = isCompact ? 64 : 96
-            let cardWidth = min(geometry.size.width - (isCompact ? 40 : 64), isCompact ? 320 : 430)
+            let isVeryShort = geometry.size.height < 620
+            let iconSize: CGFloat = isVeryShort ? 44 : (isCompact ? 56 : 96)
+            let cardWidth = min(max(geometry.size.width - (isCompact ? 32 : 64), 260), isCompact ? 300 : 430)
 
             ZStack {
                 Color(red: 0.34, green: 0.26, blue: 0.18)
                     .opacity(0.24)
                     .ignoresSafeArea()
 
-                VStack(spacing: isCompact ? 12 : 18) {
+                VStack(spacing: isVeryShort ? 8 : (isCompact ? 10 : 18)) {
                     ZStack {
                         Circle()
                             .fill(Color(red: 1.0, green: 0.92, blue: 0.76))
                             .frame(width: iconSize, height: iconSize)
 
                         Image(systemName: reminder == .dailyLimit ? "moon.zzz.fill" : "eye.fill")
-                            .font(.system(size: isCompact ? 30 : 42, weight: .heavy))
+                            .font(.system(size: isVeryShort ? 22 : (isCompact ? 26 : 42), weight: .heavy))
                             .foregroundStyle(Color(red: 0.95, green: 0.42, blue: 0.24))
                     }
 
                     Text(reminder.title)
-                        .font(.system(size: isCompact ? 24 : 32, weight: .heavy, design: .rounded))
+                        .font(.system(size: isVeryShort ? 20 : (isCompact ? 22 : 32), weight: .heavy, design: .rounded))
                         .foregroundStyle(Color(red: 0.26, green: 0.19, blue: 0.13))
                         .lineLimit(2)
-                        .minimumScaleFactor(0.82)
+                        .minimumScaleFactor(0.72)
+                        .multilineTextAlignment(.center)
 
                     Text(reminder.message)
-                        .font(.system(size: isCompact ? 16 : 20, weight: .bold, design: .rounded))
+                        .font(.system(size: isVeryShort ? 14 : (isCompact ? 15 : 20), weight: .bold, design: .rounded))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(Color(red: 0.48, green: 0.38, blue: 0.29))
-                        .lineSpacing(isCompact ? 2 : 4)
+                        .lineLimit(isVeryShort ? 3 : nil)
+                        .minimumScaleFactor(0.78)
+                        .lineSpacing(isVeryShort ? 1 : (isCompact ? 2 : 4))
 
                     Text("家长长按 3 秒继续")
-                        .font(.system(size: isCompact ? 14 : 17, weight: .heavy, design: .rounded))
+                        .font(.system(size: isVeryShort ? 12 : (isCompact ? 13 : 17), weight: .heavy, design: .rounded))
                         .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
 
-                    RoundedRectangle(cornerRadius: isCompact ? 20 : 24, style: .continuous)
+                    RoundedRectangle(cornerRadius: isCompact ? 18 : 24, style: .continuous)
                         .fill(isHolding ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 1.0, green: 0.84, blue: 0.70))
-                        .frame(height: isCompact ? 48 : 58)
+                        .frame(height: isVeryShort ? 42 : (isCompact ? 46 : 58))
                         .overlay {
                             Label(isHolding ? "继续按住" : "长按继续", systemImage: "hand.point.up.left.fill")
-                                .font(.system(size: isCompact ? 17 : 20, weight: .heavy, design: .rounded))
+                                .font(.system(size: isVeryShort ? 15 : (isCompact ? 16 : 20), weight: .heavy, design: .rounded))
                                 .foregroundStyle(isHolding ? .white : Color(red: 0.38, green: 0.24, blue: 0.15))
                         }
                         .gesture(
@@ -649,10 +655,13 @@ private struct BreakReminderOverlay: View {
                                 }
                         )
                 }
+                .padding(isVeryShort ? 14 : (isCompact ? 18 : 28))
                 .frame(width: cardWidth)
-                .padding(isCompact ? 20 : 28)
+                .fixedSize(horizontal: false, vertical: true)
                 .background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: isCompact ? 26 : 32, style: .continuous))
                 .shadow(color: .black.opacity(0.16), radius: isCompact ? 18 : 24, y: isCompact ? 8 : 12)
+                .padding(.horizontal, isCompact ? 16 : 32)
+                .padding(.vertical, isCompact ? 20 : 40)
             }
         }
     }
