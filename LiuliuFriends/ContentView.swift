@@ -35,11 +35,11 @@ private struct GameScreen: View {
                 HeaderView(
                     viewModel: viewModel,
                     isCompact: metrics.isCompact,
-                    showsCompactPrompt: metrics.showsCompactPrompt
+                    showsCompactPrompt: metrics.showsCompactPrompt,
+                    sidePadding: metrics.sidePadding
                 )
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, metrics.sidePadding)
-                    .padding(.top, metrics.topPadding)
+                    .frame(width: geometry.size.width, alignment: .leading)
+                    .padding(.top, geometry.safeAreaInsets.top + metrics.topPadding)
 
                 Spacer(minLength: metrics.minimumSpacer)
 
@@ -59,16 +59,17 @@ private struct HeaderView: View {
     @ObservedObject var viewModel: GameViewModel
     let isCompact: Bool
     let showsCompactPrompt: Bool
+    let sidePadding: CGFloat
 
     var body: some View {
         if isCompact {
-            HStack(spacing: 10) {
-                headerActions(spacing: 10, buttonSize: 44)
+            HStack(spacing: 7) {
                 Spacer(minLength: 0)
-                ProgressBadge(completedRounds: viewModel.completedRounds, isCompact: true)
+                compactHeaderActions(spacing: 7, buttonSize: 42)
             }
-            .padding(.leading, 72)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, sidePadding)
+            .padding(.trailing, sidePadding + 54)
+            .frame(height: 44)
         } else {
             HStack {
                 titleBlock(titleSize: 34, promptSize: 20, showsPrompt: true)
@@ -80,6 +81,7 @@ private struct HeaderView: View {
                     headerActions(spacing: 12, buttonSize: 52)
                 }
             }
+            .padding(.horizontal, sidePadding)
         }
     }
 
@@ -105,11 +107,25 @@ private struct HeaderView: View {
 
     private func headerActions(spacing: CGFloat, buttonSize: CGFloat) -> some View {
         HStack(spacing: spacing) {
-            IconButton(systemName: "speaker.wave.2.fill", size: buttonSize) {
+            IconButton(systemName: "questionmark.bubble.fill", size: buttonSize) {
                 viewModel.replayPrompt()
             }
-            .accessibilityLabel("重播提示")
+            .accessibilityLabel("提示")
 
+            IconButton(systemName: "gearshape.fill", size: buttonSize) {
+                viewModel.screen = .settings
+            }
+            .accessibilityLabel("设置")
+
+            IconButton(systemName: "lock.shield.fill", size: buttonSize) {
+                viewModel.screen = .parent
+            }
+            .accessibilityLabel("家长区")
+        }
+    }
+
+    private func compactHeaderActions(spacing: CGFloat, buttonSize: CGFloat) -> some View {
+        HStack(spacing: spacing) {
             IconButton(systemName: "gearshape.fill", size: buttonSize) {
                 viewModel.screen = .settings
             }
@@ -206,7 +222,7 @@ private struct PlayPanel: View {
     private var panelContent: some View {
         if metrics.usesWidePanel {
             HStack(alignment: .center, spacing: metrics.panelSpacing) {
-                TargetArea(round: viewModel.round, metrics: metrics)
+                TargetArea(round: viewModel.round, completedRounds: viewModel.completedRounds, metrics: metrics)
                     .frame(width: metrics.wideTargetWidth, height: metrics.targetHeight)
 
                 VStack(spacing: metrics.candidateSpacing) {
@@ -215,7 +231,7 @@ private struct PlayPanel: View {
             }
         } else {
             VStack(spacing: metrics.panelSpacing) {
-                TargetArea(round: viewModel.round, metrics: metrics)
+                TargetArea(round: viewModel.round, completedRounds: viewModel.completedRounds, metrics: metrics)
                     .frame(height: metrics.targetHeight)
 
                 if metrics.stacksCandidates {
@@ -266,6 +282,7 @@ private struct PlayPanel: View {
 
 private struct TargetArea: View {
     let round: GameRound
+    let completedRounds: Int
     let metrics: GameLayoutMetrics
 
     var body: some View {
@@ -331,6 +348,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找这个影子", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            }
+
+            if metrics.isCompact {
+                ProgressBadge(completedRounds: completedRounds, isCompact: true)
+                    .scaleEffect(0.86)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, 10)
             }
         }
     }
@@ -631,6 +655,7 @@ private struct SettingsScreen: View {
                     ScreenHeader(title: "设置", actionTitle: "返回", isCompact: isCompact) {
                         viewModel.screen = .play
                     }
+                    .frame(maxWidth: .infinity)
 
                     VStack(spacing: isCompact ? 12 : 16) {
                         SettingsToggle(
@@ -658,6 +683,7 @@ private struct SettingsScreen: View {
                             isCompact: isCompact
                         )
                     }
+                    .frame(maxWidth: isCompact ? .infinity : 640, alignment: .leading)
                     .padding(isCompact ? 18 : 24)
                     .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
@@ -676,10 +702,12 @@ private struct SettingsScreen: View {
 
                     Spacer(minLength: 0)
                 }
+                .frame(maxWidth: isCompact ? .infinity : 720)
                 .padding(.horizontal, isCompact ? 18 : 28)
                 .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 18 : 28))
                 .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
 }
@@ -697,6 +725,7 @@ private struct ParentScreen: View {
                     ScreenHeader(title: "家长区", actionTitle: "返回", isCompact: isCompact) {
                         viewModel.screen = .play
                     }
+                    .frame(maxWidth: .infinity)
 
                     VStack(alignment: .leading, spacing: isCompact ? 14 : 18) {
                         HStack(spacing: 16) {
@@ -704,7 +733,7 @@ private struct ParentScreen: View {
                                 .frame(width: isCompact ? 76 : 96, height: isCompact ? 76 : 96)
 
                             VStack(alignment: .leading, spacing: 6) {
-                                Text("肚兜游戏")
+                                Text("肚兜启蒙")
                                     .font(.system(size: isCompact ? 24 : 26, weight: .heavy, design: .rounded))
                                     .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
                                 Text("六六找朋友")
@@ -745,17 +774,19 @@ private struct ParentScreen: View {
                             .buttonStyle(.plain)
                         }
                     }
+                    .frame(maxWidth: isCompact ? .infinity : 720, alignment: .leading)
                     .padding(isCompact ? 18 : 24)
-                    .frame(maxWidth: 720)
                     .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
 
                     Spacer(minLength: 0)
                 }
+                .frame(maxWidth: isCompact ? .infinity : 720)
                 .padding(.horizontal, isCompact ? 18 : 28)
                 .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 18 : 28))
                 .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
 }
