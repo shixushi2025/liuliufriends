@@ -103,11 +103,6 @@ private struct HeaderView: View {
 
     private func headerActions(spacing: CGFloat, buttonSize: CGFloat) -> some View {
         HStack(spacing: spacing) {
-            IconButton(systemName: "questionmark.bubble.fill", size: buttonSize) {
-                viewModel.replayPrompt()
-            }
-            .accessibilityLabel("提示")
-
             IconButton(systemName: "gearshape.fill", size: buttonSize) {
                 viewModel.screen = .settings
             }
@@ -464,8 +459,12 @@ private struct ProgressBadge: View {
             Text("\(completedRounds)")
                 .font(.system(size: isCompact ? 16 : 18, weight: .heavy, design: .rounded))
                 .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
+                .frame(minWidth: isCompact ? 30 : 38, alignment: .center)
         }
-        .frame(minWidth: isCompact ? 54 : 74, minHeight: isCompact ? 40 : 54)
+        .padding(.horizontal, isCompact ? 10 : 14)
+        .frame(minWidth: isCompact ? 72 : 92, minHeight: isCompact ? 40 : 54)
         .background(.white.opacity(0.78), in: RoundedRectangle(cornerRadius: isCompact ? 18 : 22))
         .shadow(color: .black.opacity(0.08), radius: 12, y: 7)
     }
