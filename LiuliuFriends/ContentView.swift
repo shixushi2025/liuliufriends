@@ -64,11 +64,11 @@ private struct HeaderView: View {
     var body: some View {
         if isCompact {
             ZStack {
-                compactHeaderActions(spacing: 7, buttonSize: 42, showsProgress: true)
+                compactHeaderActions(spacing: 6, buttonSize: 40, showsProgress: true)
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(.trailing, sidePadding + 54)
             }
-            .frame(height: 44)
+            .frame(height: 40)
         } else {
             HStack {
                 titleBlock(titleSize: 34, promptSize: 20, showsPrompt: true)
@@ -478,7 +478,7 @@ private struct ProgressBadge: View {
                 .font(.system(size: isCompact ? 16 : 18, weight: .heavy, design: .rounded))
                 .monospacedDigit()
         }
-        .frame(minWidth: isCompact ? 58 : 74, minHeight: isCompact ? 44 : 54)
+        .frame(minWidth: isCompact ? 54 : 74, minHeight: isCompact ? 40 : 54)
         .background(.white.opacity(0.78), in: RoundedRectangle(cornerRadius: isCompact ? 18 : 22))
         .shadow(color: .black.opacity(0.08), radius: 12, y: 7)
     }
@@ -515,7 +515,7 @@ private struct GameLayoutMetrics {
     }
 
     var topPadding: CGFloat {
-        isCompact ? 8 : 20
+        isCompact ? -24 : 20
     }
 
     var bottomPadding: CGFloat {
@@ -665,41 +665,53 @@ private struct SettingsScreen: View {
 
             ScrollView {
                 VStack(spacing: isCompact ? 18 : 22) {
-                    ScreenHeader(title: "设置", actionTitle: "返回", isCompact: isCompact) {
+                    AdaptiveScreenHeader(title: "设置", actionTitle: "返回", isCompact: isCompact) {
                         viewModel.screen = .play
                     }
                     .frame(maxWidth: .infinity)
 
-                    VStack(spacing: isCompact ? 12 : 16) {
-                        SettingsToggle(
-                            title: "音效",
-                            systemName: "speaker.wave.2.fill",
-                            isOn: $viewModel.settings.soundEnabled,
-                            isCompact: isCompact
-                        )
-                        SettingsToggle(
-                            title: "提示音",
-                            systemName: "bubble.left.and.soundwave.right.fill",
-                            isOn: $viewModel.settings.voicePromptEnabled,
-                            isCompact: isCompact
-                        )
-                        SettingsToggle(
-                            title: "自动下一题",
-                            systemName: "arrow.right.circle.fill",
-                            isOn: $viewModel.settings.autoAdvanceEnabled,
-                            isCompact: isCompact
-                        )
-                        SettingsToggle(
-                            title: "减少动画",
-                            systemName: "slowmo",
-                            isOn: $viewModel.settings.reducedMotion,
-                            isCompact: isCompact
-                        )
+                    if isCompact {
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                            SettingsTile(title: "音效", systemName: "speaker.wave.2.fill", isOn: $viewModel.settings.soundEnabled)
+                            SettingsTile(title: "提示", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
+                            SettingsTile(title: "自动", systemName: "arrow.right.circle.fill", isOn: $viewModel.settings.autoAdvanceEnabled)
+                            SettingsTile(title: "动画", systemName: "sparkles", isOn: Binding(
+                                get: { !viewModel.settings.reducedMotion },
+                                set: { viewModel.settings.reducedMotion = !$0 }
+                            ))
+                        }
+                    } else {
+                        VStack(spacing: 16) {
+                            SettingsToggle(
+                                title: "音效",
+                                systemName: "speaker.wave.2.fill",
+                                isOn: $viewModel.settings.soundEnabled,
+                                isCompact: false
+                            )
+                            SettingsToggle(
+                                title: "提示音",
+                                systemName: "bubble.left.and.soundwave.right.fill",
+                                isOn: $viewModel.settings.voicePromptEnabled,
+                                isCompact: false
+                            )
+                            SettingsToggle(
+                                title: "自动下一题",
+                                systemName: "arrow.right.circle.fill",
+                                isOn: $viewModel.settings.autoAdvanceEnabled,
+                                isCompact: false
+                            )
+                            SettingsToggle(
+                                title: "减少动画",
+                                systemName: "slowmo",
+                                isOn: $viewModel.settings.reducedMotion,
+                                isCompact: false
+                            )
+                        }
+                        .frame(maxWidth: 640, alignment: .leading)
+                        .padding(24)
+                        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                        .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
                     }
-                    .frame(maxWidth: isCompact ? .infinity : 640, alignment: .leading)
-                    .padding(isCompact ? 18 : 24)
-                    .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-                    .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
 
                     Button {
                         viewModel.resetProgress()
@@ -716,8 +728,8 @@ private struct SettingsScreen: View {
                     Spacer(minLength: 0)
                 }
                 .frame(maxWidth: isCompact ? .infinity : 720)
-                .padding(.horizontal, isCompact ? 18 : 28)
-                .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 18 : 28))
+                .padding(.horizontal, isCompact ? 16 : 28)
+                .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 10 : 28))
                 .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -735,33 +747,44 @@ private struct ParentScreen: View {
 
             ScrollView {
                 VStack(spacing: isCompact ? 18 : 22) {
-                    ScreenHeader(title: "家长区", actionTitle: "返回", isCompact: isCompact) {
+                    AdaptiveScreenHeader(title: "家长区", actionTitle: "返回", isCompact: isCompact) {
                         viewModel.screen = .play
                     }
                     .frame(maxWidth: .infinity)
 
                     VStack(alignment: .leading, spacing: isCompact ? 14 : 18) {
-                        HStack(spacing: 16) {
+                        HStack(spacing: isCompact ? 12 : 16) {
                             LiuliuAppIconConcept()
-                                .frame(width: isCompact ? 76 : 96, height: isCompact ? 76 : 96)
+                                .frame(width: isCompact ? 62 : 96, height: isCompact ? 62 : 96)
 
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("肚兜启蒙")
-                                    .font(.system(size: isCompact ? 24 : 26, weight: .heavy, design: .rounded))
+                                    .font(.system(size: isCompact ? 22 : 26, weight: .heavy, design: .rounded))
                                     .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
                                 Text("六六找朋友")
-                                    .font(.system(size: isCompact ? 18 : 20, weight: .bold, design: .rounded))
+                                    .font(.system(size: isCompact ? 16 : 20, weight: .bold, design: .rounded))
                                     .foregroundStyle(Color(red: 0.45, green: 0.38, blue: 0.32))
                             }
                         }
 
                         Divider().opacity(0.3)
 
-                        InfoRow(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁，轻点为主", isCompact: isCompact)
-                        InfoRow(icon: "wifi.slash", title: "网络", value: "当前版本无网络请求", isCompact: isCompact)
-                        InfoRow(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集账号、位置或通讯录", isCompact: isCompact)
-                        InfoRow(icon: "megaphone.fill", title: "广告", value: "无广告、无内购入口", isCompact: isCompact)
-                        InfoRow(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮循环启蒙互动", isCompact: isCompact)
+                        if isCompact {
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                ParentInfoTile(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁")
+                                ParentInfoTile(icon: "wifi.slash", title: "网络", value: "无联网")
+                                ParentInfoTile(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集")
+                                ParentInfoTile(icon: "megaphone.fill", title: "广告", value: "无广告")
+                                ParentInfoTile(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮")
+                                ParentInfoTile(icon: "cart.badge.minus", title: "内购", value: "无内购")
+                            }
+                        } else {
+                            InfoRow(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁，轻点为主", isCompact: false)
+                            InfoRow(icon: "wifi.slash", title: "网络", value: "当前版本无网络请求", isCompact: false)
+                            InfoRow(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集账号、位置或通讯录", isCompact: false)
+                            InfoRow(icon: "megaphone.fill", title: "广告", value: "无广告、无内购入口", isCompact: false)
+                            InfoRow(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮循环启蒙互动", isCompact: false)
+                        }
 
                         Button {
                             gateTaps += 1
@@ -795,8 +818,8 @@ private struct ParentScreen: View {
                     Spacer(minLength: 0)
                 }
                 .frame(maxWidth: isCompact ? .infinity : 720)
-                .padding(.horizontal, isCompact ? 18 : 28)
-                .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 18 : 28))
+                .padding(.horizontal, isCompact ? 16 : 28)
+                .padding(.top, geometry.safeAreaInsets.top + (isCompact ? 10 : 28))
                 .padding(.bottom, geometry.safeAreaInsets.bottom + 28)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -804,27 +827,78 @@ private struct ParentScreen: View {
     }
 }
 
-private struct ScreenHeader: View {
+private struct AdaptiveScreenHeader: View {
     let title: String
     let actionTitle: String
     let isCompact: Bool
     let action: () -> Void
 
     var body: some View {
-        HStack {
-            Text(title)
-                .font(.system(size: isCompact ? 30 : 34, weight: .heavy, design: .rounded))
-                .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
-            Spacer()
-            Button(action: action) {
-                Label(actionTitle, systemImage: "chevron.left")
-                    .font(.system(size: isCompact ? 18 : 20, weight: .heavy, design: .rounded))
-                    .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
-                    .frame(minWidth: isCompact ? 96 : 116, minHeight: isCompact ? 48 : 52)
-                    .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        if isCompact {
+            HStack(spacing: 12) {
+                Button(action: action) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .heavy))
+                        .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+                        .frame(width: 44, height: 44)
+                        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                Text(title)
+                    .font(.system(size: 25, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
+
+                Spacer()
             }
-            .buttonStyle(.plain)
+        } else {
+            HStack {
+                Text(title)
+                    .font(.system(size: 34, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
+                Spacer()
+                Button(action: action) {
+                    Label(actionTitle, systemImage: "chevron.left")
+                        .font(.system(size: 20, weight: .heavy, design: .rounded))
+                        .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+                        .frame(minWidth: 116, minHeight: 52)
+                        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
         }
+    }
+}
+
+private struct SettingsTile: View {
+    let title: String
+    let systemName: String
+    @Binding var isOn: Bool
+
+    var body: some View {
+        Button {
+            isOn.toggle()
+        } label: {
+            VStack(spacing: 10) {
+                Image(systemName: systemName)
+                    .font(.system(size: 24, weight: .heavy))
+                    .foregroundStyle(isOn ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.55, green: 0.50, blue: 0.46))
+                    .frame(width: 44, height: 44)
+                    .background((isOn ? Color(red: 1.0, green: 0.86, blue: 0.76) : Color.white).opacity(0.72), in: Circle())
+
+                Text(title)
+                    .font(.system(size: 17, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+
+                Text(isOn ? "开" : "关")
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundStyle(isOn ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.55, green: 0.50, blue: 0.46))
+            }
+            .frame(maxWidth: .infinity, minHeight: 126)
+            .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: .black.opacity(0.07), radius: 14, y: 7)
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -868,5 +942,33 @@ private struct InfoRow: View {
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }
+    }
+}
+
+private struct ParentInfoTile: View {
+    let icon: String
+    let title: String
+    let value: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 21, weight: .heavy))
+                .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
+                .frame(width: 42, height: 42)
+                .background(Color(red: 1.0, green: 0.88, blue: 0.78).opacity(0.72), in: Circle())
+
+            Text(title)
+                .font(.system(size: 15, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+
+            Text(value)
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundStyle(Color(red: 0.45, green: 0.38, blue: 0.32))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .frame(maxWidth: .infinity, minHeight: 112)
+        .background(.white.opacity(0.74), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 }

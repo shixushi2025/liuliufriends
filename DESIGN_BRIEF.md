@@ -312,6 +312,38 @@
 - 密集设置项风格
 - 小图标堆叠
 
+### 图片资产风格
+
+所有新增游戏对象图片要和小猫、小狗、六六角色保持同一质感方向，不允许再使用扁平占位图或系统图标直接替代。
+
+标准方向：
+
+- 软 3D 黏土 / 毛绒玩具质感
+- 圆润、厚实、低攻击性，适合 1-3 岁
+- 暖奶油背景下的柔和棚拍光感
+- 轻微材质纹理，避免塑料廉价感
+- 可爱的黑豆眼、小腮红、轻微微笑；车辆、形状、物品也可以有表情
+- 透明 PNG，主体居中，四周留足安全边距
+- 单个资源建议 512x512 或更高，再由 Xcode asset catalog 管理缩放
+
+生成提示词基准：
+
+```text
+Create cute soft 3D clay-like children app icons matching a warm plush toy style:
+rounded forms, soft matte material, warm studio lighting, subtle blush cheeks where appropriate,
+gentle shadows, no outlines, no text, no watermark.
+Premium kawaii toddler education app asset, isolated centered object, generous padding.
+Avoid hard vector flat icons, photorealism, busy background, scary expressions.
+```
+
+批量生成要求：
+
+- 每批最多 12 个对象，使用 4 列 x 3 行资产表，便于裁切
+- 同一批对象要保持比例一致，不能有的巨大有的很小
+- 背景用干净暖奶油色，方便后期抠透明
+- 裁切后必须检查透明边缘，不能留下邻格残影
+- 进入工程后必须通过资源加载测试
+
 ### 字体
 
 建议：
