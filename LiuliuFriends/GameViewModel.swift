@@ -11,10 +11,12 @@ final class GameViewModel: ObservableObject {
     @Published var screen: AppScreen = .play
     @Published var settings = GameSettings()
 
+    let voiceStore: VoicePromptStore
     private var roundIndex = 0
     private let rounds: [GameRound]
     private let feedbackPlayer: FeedbackPlaying
     private let autoAdvanceDelay: TimeInterval
+    private var hasPlayedInitialPrompt = false
     private var pendingAutoAdvanceWorkItem: DispatchWorkItem?
     private var pendingRetryClearWorkItem: DispatchWorkItem?
     private var pendingHintWorkItem: DispatchWorkItem?
@@ -22,14 +24,22 @@ final class GameViewModel: ObservableObject {
 
     init(
         rounds: [GameRound] = GameContent.rounds,
-        feedbackPlayer: FeedbackPlaying = SystemFeedbackPlayer(),
+        voiceStore: VoicePromptStore = .shared,
+        feedbackPlayer: FeedbackPlaying? = nil,
         autoAdvanceDelay: TimeInterval = 1.15
     ) {
         precondition(!rounds.isEmpty, "Game requires at least one round.")
         self.rounds = rounds
-        self.feedbackPlayer = feedbackPlayer
+        self.voiceStore = voiceStore
+        self.feedbackPlayer = feedbackPlayer ?? SystemFeedbackPlayer(voiceStore: voiceStore)
         self.autoAdvanceDelay = autoAdvanceDelay
         round = rounds[0]
+    }
+
+    func playInitialPromptIfNeeded() {
+        guard !hasPlayedInitialPrompt else { return }
+        hasPlayedInitialPrompt = true
+        feedbackPlayer.playPrompt(for: round, settings: settings)
     }
 
     @discardableResult
@@ -50,7 +60,7 @@ final class GameViewModel: ObservableObject {
             completedCandidateID = candidate.id
             celebrationSeed += 1
             completedRounds += 1
-            feedbackPlayer.playCorrect(settings: settings)
+            feedbackPlayer.playCorrect(for: round, settings: settings)
 
             if settings.autoAdvanceEnabled {
                 scheduleAutoAdvance()
@@ -101,6 +111,22 @@ final class GameViewModel: ObservableObject {
         showCorrectHint(duration: 1.5)
     }
 
+    func toggleRecordingForCurrentTarget() {
+        if voiceStore.recordingKind == round.targetKind {
+            voiceStore.stopRecording()
+        } else {
+            voiceStore.startRecording(for: round.targetKind)
+        }
+    }
+
+    func playRecordingForCurrentTarget() {
+        _ = voiceStore.playRecording(for: round.targetKind)
+    }
+
+    func deleteRecordingForCurrentTarget() {
+        voiceStore.deleteRecording(for: round.targetKind)
+    }
+
     func resetProgress() {
         cancelPendingAutoAdvance()
         cancelPendingRetryClear()
@@ -115,6 +141,7 @@ final class GameViewModel: ObservableObject {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             round = rounds[0]
         }
+        feedbackPlayer.playPrompt(for: round, settings: settings)
     }
 
     private func scheduleAutoAdvance() {

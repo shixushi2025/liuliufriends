@@ -1,5 +1,8 @@
 import Foundation
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 enum AppScreen: Equatable {
     case play
@@ -687,11 +690,38 @@ struct GameRound: Identifiable {
         self.targetSizeScale = targetSizeScale
         self.candidates = candidates
     }
+
+    var promptSpeechText: String {
+        switch mode {
+        case .animal:
+            return "找\(targetKind.name)"
+        case .sound:
+            return targetKind.soundText
+        case .color:
+            return "找\(targetColor.speechName)"
+        case .shape:
+            return "找\(targetKind.name)"
+        case .size:
+            return "找一样大的\(targetKind.name)"
+        case .shadow:
+            return "找\(targetKind.name)的影子"
+        }
+    }
+
+    var successSpeechText: String {
+        switch mode {
+        case .color:
+            return "\(targetColor.speechName)，找到了"
+        default:
+            return "\(targetKind.name)，找到了"
+        }
+    }
 }
 
 struct GameSettings: Equatable {
     var soundEnabled: Bool = true
     var voicePromptEnabled: Bool = true
+    var customVoiceEnabled: Bool = true
     var autoAdvanceEnabled: Bool = true
     var reducedMotion: Bool = false
 }
@@ -700,4 +730,49 @@ enum SelectionResult: Equatable {
     case correct
     case retry
     case ignored
+}
+
+private extension Color {
+    var speechName: String {
+        let knownColors: [(Color, String)] = [
+            (Color(red: 1.0, green: 0.42, blue: 0.37), "红色"),
+            (Color(red: 0.22, green: 0.65, blue: 0.94), "蓝色"),
+            (Color(red: 0.14, green: 0.76, blue: 0.54), "绿色"),
+            (Color(red: 1.0, green: 0.75, blue: 0.18), "黄色"),
+            (Color(red: 0.61, green: 0.45, blue: 0.91), "紫色"),
+            (Color(red: 1.0, green: 0.55, blue: 0.70), "粉色"),
+            (Color(red: 0.38, green: 0.68, blue: 0.32), "绿色"),
+            (Color(red: 0.98, green: 0.50, blue: 0.18), "橙色"),
+            (Color(red: 0.70, green: 0.48, blue: 0.30), "棕色"),
+            (Color(red: 0.92, green: 0.18, blue: 0.24), "红色"),
+            (Color(red: 0.20, green: 0.72, blue: 0.78), "蓝绿色"),
+            (Color(red: 0.72, green: 0.75, blue: 0.78), "灰色")
+        ]
+
+        let target = rgbaComponents
+        return knownColors.min { first, second in
+            colorDistance(target, first.0.rgbaComponents) < colorDistance(target, second.0.rgbaComponents)
+        }?.1 ?? "这个颜色"
+    }
+
+    var rgbaComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+        #if canImport(UIKit)
+        let uiColor = UIColor(self)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return (red, green, blue, alpha)
+        #else
+        return (0, 0, 0, 1)
+        #endif
+    }
+
+    func colorDistance(
+        _ first: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat),
+        _ second: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
+    ) -> CGFloat {
+        abs(first.red - second.red) + abs(first.green - second.green) + abs(first.blue - second.blue)
+    }
 }

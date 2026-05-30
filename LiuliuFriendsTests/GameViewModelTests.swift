@@ -64,6 +64,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.completedRounds, 1)
         XCTAssertEqual(viewModel.celebrationSeed, 1)
         XCTAssertEqual(feedback.correctCount, 1)
+        XCTAssertEqual(feedback.correctRound?.id, viewModel.round.id)
     }
 
     func testWrongSelectionMarksRetryAndDoesNotAdvanceProgress() {
@@ -108,6 +109,25 @@ final class GameViewModelTests: XCTestCase {
         viewModel.nextRound()
 
         XCTAssertNotEqual(viewModel.round.id, firstRoundID)
+    }
+
+    func testInitialPromptPlaysOnlyOnce() {
+        let feedback = TestFeedbackPlayer()
+        let viewModel = GameViewModel(feedbackPlayer: feedback)
+
+        viewModel.playInitialPromptIfNeeded()
+        viewModel.playInitialPromptIfNeeded()
+
+        XCTAssertEqual(feedback.promptCount, 1)
+    }
+
+    func testRoundSpeechTextCoversPromptAndSuccess() {
+        let colorRound = GameContent.rounds.first { $0.mode == .color }!
+        let soundRound = GameContent.rounds.first { $0.mode == .sound }!
+
+        XCTAssertTrue(colorRound.promptSpeechText.hasPrefix("找"))
+        XCTAssertTrue(colorRound.successSpeechText.contains("找到了"))
+        XCTAssertEqual(soundRound.promptSpeechText, soundRound.targetKind.soundText)
     }
 
     func testResetProgressReturnsToFirstRound() {
@@ -157,9 +177,11 @@ private final class TestFeedbackPlayer: FeedbackPlaying {
     private(set) var correctCount = 0
     private(set) var retryCount = 0
     private(set) var promptCount = 0
+    private(set) var correctRound: GameRound?
 
-    func playCorrect(settings: GameSettings) {
+    func playCorrect(for round: GameRound, settings: GameSettings) {
         correctCount += 1
+        correctRound = round
     }
 
     func playRetry(settings: GameSettings) {

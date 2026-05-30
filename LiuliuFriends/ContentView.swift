@@ -17,6 +17,9 @@ struct ContentView: View {
             }
         }
         .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.86), value: viewModel.screen)
+        .onAppear {
+            viewModel.playInitialPromptIfNeeded()
+        }
     }
 }
 
@@ -660,7 +663,8 @@ private struct SettingsScreen: View {
                     if isCompact {
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                             SettingsTile(title: "音效", systemName: "speaker.wave.2.fill", isOn: $viewModel.settings.soundEnabled)
-                            SettingsTile(title: "提示", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
+                            SettingsTile(title: "语音", systemName: "bubble.left.and.soundwave.right.fill", isOn: $viewModel.settings.voicePromptEnabled)
+                            SettingsTile(title: "录音", systemName: "mic.fill", isOn: $viewModel.settings.customVoiceEnabled)
                             SettingsTile(title: "自动", systemName: "arrow.right.circle.fill", isOn: $viewModel.settings.autoAdvanceEnabled)
                             SettingsTile(title: "动画", systemName: "sparkles", isOn: Binding(
                                 get: { !viewModel.settings.reducedMotion },
@@ -676,9 +680,15 @@ private struct SettingsScreen: View {
                                 isCompact: false
                             )
                             SettingsToggle(
-                                title: "提示音",
+                                title: "语音提示",
                                 systemName: "bubble.left.and.soundwave.right.fill",
                                 isOn: $viewModel.settings.voicePromptEnabled,
+                                isCompact: false
+                            )
+                            SettingsToggle(
+                                title: "优先使用家长录音",
+                                systemName: "mic.fill",
+                                isOn: $viewModel.settings.customVoiceEnabled,
                                 isCompact: false
                             )
                             SettingsToggle(
@@ -699,6 +709,8 @@ private struct SettingsScreen: View {
                         .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                         .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
                     }
+
+                    VoiceRecordingSection(viewModel: viewModel, isCompact: isCompact)
 
                     ParentSummarySection(isCompact: isCompact)
 
@@ -769,6 +781,115 @@ private struct ParentSummarySection: View {
         .padding(isCompact ? 16 : 24)
         .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: isCompact ? 20 : 22, style: .continuous))
         .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
+    }
+}
+
+private struct VoiceRecordingSection: View {
+    @ObservedObject var viewModel: GameViewModel
+    @ObservedObject private var voiceStore: VoicePromptStore
+    let isCompact: Bool
+
+    init(viewModel: GameViewModel, isCompact: Bool) {
+        self.viewModel = viewModel
+        self.voiceStore = viewModel.voiceStore
+        self.isCompact = isCompact
+    }
+
+    var body: some View {
+        let target = viewModel.round.targetKind
+        let isRecording = voiceStore.recordingKind == target
+        let hasRecording = voiceStore.hasRecording(for: target)
+
+        VStack(alignment: .leading, spacing: isCompact ? 12 : 16) {
+            HStack(spacing: 12) {
+                Image(systemName: isRecording ? "record.circle.fill" : "mic.circle.fill")
+                    .font(.system(size: isCompact ? 30 : 36, weight: .heavy))
+                    .foregroundStyle(isRecording ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.24, green: 0.65, blue: 0.94))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("家长录音")
+                        .font(.system(size: isCompact ? 19 : 23, weight: .heavy, design: .rounded))
+                        .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
+                    Text("当前目标：\(target.name)。录好后会优先替代系统读音。")
+                        .font(.system(size: isCompact ? 14 : 17, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.48, green: 0.40, blue: 0.33))
+                        .lineLimit(2)
+                }
+            }
+
+            if voiceStore.authorizationDenied {
+                Text("麦克风权限未开启，请到系统设置允许麦克风。")
+                    .font(.system(size: isCompact ? 14 : 16, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
+            }
+
+            HStack(spacing: isCompact ? 8 : 12) {
+                VoiceActionButton(
+                    title: isRecording ? "停止" : "录制",
+                    systemName: isRecording ? "stop.fill" : "mic.fill",
+                    isPrimary: true,
+                    isCompact: isCompact
+                ) {
+                    viewModel.toggleRecordingForCurrentTarget()
+                }
+
+                VoiceActionButton(
+                    title: "试听",
+                    systemName: "play.fill",
+                    isPrimary: false,
+                    isCompact: isCompact,
+                    isDisabled: !hasRecording || isRecording
+                ) {
+                    viewModel.playRecordingForCurrentTarget()
+                }
+
+                VoiceActionButton(
+                    title: "删除",
+                    systemName: "trash.fill",
+                    isPrimary: false,
+                    isCompact: isCompact,
+                    isDisabled: !hasRecording || isRecording
+                ) {
+                    viewModel.deleteRecordingForCurrentTarget()
+                }
+            }
+        }
+        .frame(maxWidth: isCompact ? .infinity : 640, alignment: .leading)
+        .padding(isCompact ? 16 : 22)
+        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: isCompact ? 20 : 22, style: .continuous))
+        .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
+    }
+}
+
+private struct VoiceActionButton: View {
+    let title: String
+    let systemName: String
+    let isPrimary: Bool
+    let isCompact: Bool
+    var isDisabled = false
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: systemName)
+                .font(.system(size: isCompact ? 15 : 18, weight: .heavy, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
+                .frame(maxWidth: .infinity, minHeight: isCompact ? 42 : 48)
+                .background(backgroundColor, in: RoundedRectangle(cornerRadius: isCompact ? 15 : 17, style: .continuous))
+                .foregroundStyle(foregroundColor)
+        }
+        .buttonStyle(.plain)
+        .disabled(isDisabled)
+        .opacity(isDisabled ? 0.46 : 1)
+    }
+
+    private var backgroundColor: Color {
+        isPrimary ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 1.0, green: 0.88, blue: 0.76)
+    }
+
+    private var foregroundColor: Color {
+        isPrimary ? .white : Color(red: 0.38, green: 0.24, blue: 0.15)
     }
 }
 
