@@ -24,15 +24,93 @@ struct ContentView: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 .zIndex(2)
             }
+
+            if !viewModel.hasStartedPlaying, viewModel.screen == .play {
+                StartPlayOverlay {
+                    viewModel.startPlaying()
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                .zIndex(3)
+            }
         }
         .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.86), value: viewModel.screen)
         .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.38, dampingFraction: 0.86), value: viewModel.breakReminder)
-        .onAppear {
-            viewModel.playInitialPromptIfNeeded()
-        }
+        .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.86), value: viewModel.hasStartedPlaying)
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
             guard scenePhase == .active else { return }
             viewModel.recordActiveUsageTick()
+        }
+    }
+}
+
+private struct StartPlayOverlay: View {
+    let onStart: () -> Void
+
+    var body: some View {
+        GeometryReader { geometry in
+            let isCompact = geometry.size.width < 520
+
+            ZStack {
+                Color.white.opacity(0.44)
+                    .ignoresSafeArea()
+
+                VStack(spacing: isCompact ? 18 : 22) {
+                    HStack(spacing: 14) {
+                        FriendShape(kind: .cat, color: Color(red: 0.94, green: 0.63, blue: 0.30), isShadow: false)
+                            .frame(width: isCompact ? 70 : 88, height: isCompact ? 70 : 88)
+                            .accessibilityHidden(true)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("准备好了吗？")
+                                .font(.system(size: isCompact ? 28 : 36, weight: .heavy, design: .rounded))
+                                .foregroundStyle(Color(red: 0.34, green: 0.25, blue: 0.18))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.82)
+
+                            Text("点一下，我们一起找朋友")
+                                .font(.system(size: isCompact ? 16 : 20, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color(red: 0.67, green: 0.49, blue: 0.32))
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.86)
+                        }
+                    }
+
+                    Button(action: onStart) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "play.fill")
+                                .font(.system(size: isCompact ? 18 : 22, weight: .heavy))
+                            Text("开始玩")
+                                .font(.system(size: isCompact ? 22 : 26, weight: .heavy, design: .rounded))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, isCompact ? 34 : 46)
+                        .padding(.vertical, isCompact ? 16 : 18)
+                        .background(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 1.0, green: 0.48, blue: 0.34),
+                                    Color(red: 1.0, green: 0.67, blue: 0.26)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            in: Capsule()
+                        )
+                        .shadow(color: Color(red: 0.98, green: 0.38, blue: 0.25).opacity(0.24), radius: 16, y: 8)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("开始玩")
+                }
+                .padding(.horizontal, isCompact ? 24 : 34)
+                .padding(.vertical, isCompact ? 28 : 38)
+                .frame(maxWidth: isCompact ? 340 : 460)
+                .background(
+                    RoundedRectangle(cornerRadius: isCompact ? 34 : 42, style: .continuous)
+                        .fill(.white.opacity(0.94))
+                        .shadow(color: Color(red: 0.55, green: 0.34, blue: 0.18).opacity(0.16), radius: 28, y: 16)
+                )
+                .padding(.horizontal, 22)
+            }
         }
     }
 }

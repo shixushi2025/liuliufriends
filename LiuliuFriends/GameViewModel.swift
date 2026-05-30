@@ -11,6 +11,7 @@ final class GameViewModel: ObservableObject {
     @Published var screen: AppScreen = .play
     @Published var settings = GameSettings()
     @Published var breakReminder: BreakReminder?
+    @Published var hasStartedPlaying = false
     @Published var selectedRecordingTargetID = VoicePromptTarget.defaultTarget.id
 
     let voiceStore: VoicePromptStore
@@ -42,7 +43,7 @@ final class GameViewModel: ObservableObject {
         feedbackPlayer: FeedbackPlaying? = nil,
         autoAdvanceDelay: TimeInterval = 1.15,
         nextPromptDelayAfterAutoAdvance: TimeInterval = 0.75,
-        initialPromptDelay: TimeInterval = 0.9,
+        initialPromptDelay: TimeInterval = 0.25,
         sessionLimit: TimeInterval = 10 * 60,
         dailyLimit: TimeInterval = 20 * 60,
         defaults: UserDefaults = .standard
@@ -78,8 +79,15 @@ final class GameViewModel: ObservableObject {
         scheduleInitialPrompt()
     }
 
+    func startPlaying() {
+        guard !hasStartedPlaying else { return }
+        hasStartedPlaying = true
+        playInitialPromptIfNeeded()
+    }
+
     func recordActiveUsageTick(_ seconds: TimeInterval = 1) {
         guard settings.restReminderEnabled else { return }
+        guard hasStartedPlaying else { return }
         guard screen == .play, breakReminder == nil else { return }
 
         rolloverDailyUsageIfNeeded()

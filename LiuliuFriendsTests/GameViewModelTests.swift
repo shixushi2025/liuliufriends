@@ -141,6 +141,20 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(feedback.promptCount, 1)
     }
 
+    func testStartPlayingTriggersFirstPromptOnce() {
+        let feedback = TestFeedbackPlayer()
+        let viewModel = GameViewModel(feedbackPlayer: feedback, initialPromptDelay: 0)
+
+        XCTAssertFalse(viewModel.hasStartedPlaying)
+        XCTAssertEqual(feedback.promptCount, 0)
+
+        viewModel.startPlaying()
+        viewModel.startPlaying()
+
+        XCTAssertTrue(viewModel.hasStartedPlaying)
+        XCTAssertEqual(feedback.promptCount, 1)
+    }
+
     func testRoundSpeechTextCoversPromptAndSuccess() {
         let colorRound = GameContent.rounds.first { $0.mode == .color }!
         let soundRound = GameContent.rounds.first { $0.mode == .sound }!
@@ -203,8 +217,12 @@ final class GameViewModelTests: XCTestCase {
     func testUsageTickShowsSessionBreakReminder() {
         let defaults = UserDefaults(suiteName: "liuliufriends.tests.session")!
         defaults.removePersistentDomain(forName: "liuliufriends.tests.session")
-        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), sessionLimit: 2, dailyLimit: 60, defaults: defaults)
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), initialPromptDelay: 60, sessionLimit: 2, dailyLimit: 60, defaults: defaults)
 
+        viewModel.recordActiveUsageTick()
+        XCTAssertNil(viewModel.breakReminder)
+
+        viewModel.startPlaying()
         viewModel.recordActiveUsageTick()
         XCTAssertNil(viewModel.breakReminder)
 
@@ -216,7 +234,8 @@ final class GameViewModelTests: XCTestCase {
         let defaults = UserDefaults(suiteName: "liuliufriends.tests.break")!
         defaults.removePersistentDomain(forName: "liuliufriends.tests.break")
         let feedback = TestFeedbackPlayer()
-        let viewModel = GameViewModel(feedbackPlayer: feedback, sessionLimit: 1, dailyLimit: 60, defaults: defaults)
+        let viewModel = GameViewModel(feedbackPlayer: feedback, initialPromptDelay: 60, sessionLimit: 1, dailyLimit: 60, defaults: defaults)
+        viewModel.startPlaying()
         viewModel.recordActiveUsageTick()
         let correct = viewModel.round.candidates.first { $0.isCorrect }!
 
@@ -232,8 +251,9 @@ final class GameViewModelTests: XCTestCase {
     func testDailyBreakCanBeDismissedForCurrentDay() {
         let defaults = UserDefaults(suiteName: "liuliufriends.tests.daily")!
         defaults.removePersistentDomain(forName: "liuliufriends.tests.daily")
-        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), sessionLimit: 60, dailyLimit: 2, defaults: defaults)
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), initialPromptDelay: 60, sessionLimit: 60, dailyLimit: 2, defaults: defaults)
 
+        viewModel.startPlaying()
         viewModel.recordActiveUsageTick()
         viewModel.recordActiveUsageTick()
         XCTAssertEqual(viewModel.breakReminder, .dailyLimit)
