@@ -254,11 +254,7 @@ final class GameViewModel: ObservableObject {
     }
 
     func soundRoundPrompt(for kind: FriendKind) -> String {
-        let prompt = soundPrompt(for: kind)
-        guard LearningPromptTextCatalog.usesRecognizedSoundPrompt(kind), !settings.customPromptAliasEnabled else {
-            return "找\(prompt)"
-        }
-        return prompt
+        "找\(soundPrompt(for: kind))"
     }
 
     func customPromptName(for target: VoicePromptTarget) -> String {

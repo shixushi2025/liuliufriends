@@ -833,9 +833,6 @@ struct GameRound: Identifiable {
         case .animal:
             return "找\(targetKind.name)"
         case .sound:
-            if LearningPromptTextCatalog.usesRecognizedSoundPrompt(targetKind) {
-                return targetKind.soundText
-            }
             return "找\(targetKind.soundText)"
         case .color:
             return "找\(targetColor.speechName)"

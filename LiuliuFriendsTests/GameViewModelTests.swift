@@ -231,12 +231,16 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertTrue(colorRound.promptSpeechText.hasPrefix("找"))
         XCTAssertTrue(colorRound.successSpeechText.contains("找到了"))
         XCTAssertTrue(colorRound.voicePromptID.hasPrefix("color."))
-        if LearningPromptTextCatalog.usesRecognizedSoundPrompt(soundRound.targetKind) {
-            XCTAssertEqual(soundRound.promptSpeechText, soundRound.targetKind.soundText)
-        } else {
-            XCTAssertEqual(soundRound.promptSpeechText, "找\(soundRound.targetKind.soundText)")
-        }
+        XCTAssertEqual(soundRound.promptSpeechText, "找\(soundRound.targetKind.soundText)")
         XCTAssertEqual(soundRound.voicePromptID, soundRound.targetKind.rawValue)
+    }
+
+
+    func testSoundRoundPromptsAlwaysUseFindPrefix() {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+
+        XCTAssertEqual(viewModel.soundRoundPrompt(for: .cat), "找喵喵")
+        XCTAssertEqual(viewModel.soundRoundPrompt(for: .peach), "找桃子")
     }
 
     func testSoundPromptsUseOnlyRecognizedSoundsOrCanonicalNames() {
