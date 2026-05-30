@@ -89,12 +89,27 @@ enum GameMode: String, CaseIterable {
     }
 }
 
-enum FriendCategory: String {
+enum FriendCategory: String, CaseIterable {
     case animal
     case vehicle
     case fruit
     case shape
     case object
+
+    var title: String {
+        switch self {
+        case .animal:
+            return "动物"
+        case .vehicle:
+            return "车辆"
+        case .fruit:
+            return "水果"
+        case .shape:
+            return "形状"
+        case .object:
+            return "生活"
+        }
+    }
 }
 
 enum FriendKind: String, CaseIterable, Identifiable {
