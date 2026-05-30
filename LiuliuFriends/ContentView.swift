@@ -900,7 +900,7 @@ private struct VoiceRecordingSection: View {
                     Text("家长录音")
                         .font(.system(size: isCompact ? 19 : 23, weight: .heavy, design: .rounded))
                         .foregroundStyle(Color(red: 0.25, green: 0.19, blue: 0.14))
-                    Text("当前目标：\(target.name)。录好后会优先替代系统读音。")
+                    Text("当前物体：\(target.name)。每个物体独立保存录音，已录 \(voiceStore.recordingCount) 个。")
                         .font(.system(size: isCompact ? 14 : 17, weight: .bold, design: .rounded))
                         .foregroundStyle(Color(red: 0.48, green: 0.40, blue: 0.33))
                         .lineLimit(2)
@@ -915,7 +915,7 @@ private struct VoiceRecordingSection: View {
 
             HStack(spacing: isCompact ? 8 : 12) {
                 VoiceActionButton(
-                    title: isRecording ? "停止" : "录制",
+                    title: isRecording ? "停止" : "录\(target.name)",
                     systemName: isRecording ? "stop.fill" : "mic.fill",
                     isPrimary: true,
                     isCompact: isCompact

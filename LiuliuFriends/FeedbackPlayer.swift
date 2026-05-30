@@ -79,6 +79,10 @@ final class VoicePromptStore: NSObject, ObservableObject, AVAudioRecorderDelegat
         availableRecordingIDs.contains(kind.rawValue)
     }
 
+    var recordingCount: Int {
+        availableRecordingIDs.count
+    }
+
     func startRecording(for kind: FriendKind) {
         stopRecording()
 
