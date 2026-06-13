@@ -22,7 +22,14 @@ enum GameContent {
         .softGray
     ]
 
-    private static let colorPracticeKind = FriendKind.balloon
+    private static let colorPracticeKinds: [FriendKind] = [
+        .balloon,
+        .ball,
+        .book,
+        .cup,
+        .flower,
+        .umbrella
+    ]
     private static let colorLearningPalette = VoicePromptTarget.colorTargets.compactMap(\.color)
 
     private static let shapePracticeColor = Color(red: 0.24, green: 0.65, blue: 0.94)
@@ -102,6 +109,33 @@ enum GameContent {
         FriendKind.allCases
     }
 
+    private static let countPracticeKinds: [FriendKind] = [
+        .cat,
+        .dog,
+        .fish,
+        .apple,
+        .banana,
+        .ball,
+        .book,
+        .car
+    ]
+
+    private static let categoryPracticeGroups: [FriendCategory: [FriendKind]] = [
+        .animal: [.cat, .dog, .duck, .rabbit, .fish, .bird],
+        .vehicle: [.car, .bus, .train, .truck, .airplane, .boat],
+        .fruit: [.apple, .banana, .orange, .pear, .strawberry, .watermelon],
+        .object: [.balloon, .flower, .tree, .umbrella, .ball, .book]
+    ]
+
+    private static let positionPracticeKinds: [FriendKind] = [
+        .cat,
+        .dog,
+        .fish,
+        .ball,
+        .car,
+        .apple
+    ]
+
     private static func makeRounds() -> [GameRound] {
         var result: [GameRound] = []
 
@@ -114,7 +148,12 @@ enum GameContent {
         }
 
         result += colorLearningPalette.enumerated().map { colorIndex, targetColor in
-            color(colorPracticeKind, targetColor, colorLearningPalette[(colorIndex + 3) % colorLearningPalette.count], correctFirst: colorIndex.isMultiple(of: 2))
+            color(
+                colorPracticeKinds[colorIndex % colorPracticeKinds.count],
+                targetColor,
+                colorLearningPalette[(colorIndex + 3) % colorLearningPalette.count],
+                correctFirst: colorIndex.isMultiple(of: 2)
+            )
         }
 
         result += shapes.enumerated().map { kindIndex, kind in
@@ -130,6 +169,34 @@ enum GameContent {
 
         result += visibleKinds.enumerated().map { index, kind in
             matchingRound(.shadow, kind, color(for: kind), distractor(for: kind, in: visibleKinds, offset: 7), color(for: distractor(for: kind, in: visibleKinds, offset: 7)), correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += countPracticeKinds.enumerated().flatMap { index, kind in
+            [
+                count(kind, color(for: kind), targetCount: (index % 4) + 1, distractorCount: ((index + 1) % 4) + 1, correctFirst: index.isMultiple(of: 2)),
+                count(kind, color(for: kind), targetCount: ((index + 2) % 4) + 1, distractorCount: ((index + 3) % 4) + 1, correctFirst: !index.isMultiple(of: 2))
+            ]
+        }
+
+        let categoryRounds = categoryPracticeGroups.keys.sorted { $0.rawValue < $1.rawValue }.flatMap { category in
+            categoryPracticeGroups[category, default: []].enumerated().map { index, kind in
+                categoryRound(
+                    category,
+                    correctKind: kind,
+                    wrongKind: categoryDistractor(for: category, offset: index + 2),
+                    correctFirst: index.isMultiple(of: 2)
+                )
+            }
+        }
+        result += categoryRounds
+
+        result += positionPracticeKinds.enumerated().flatMap { index, kind in
+            let firstTarget = SpatialPosition.allCases[index % SpatialPosition.allCases.count]
+            let secondTarget = SpatialPosition.allCases[(index + 2) % SpatialPosition.allCases.count]
+            return [
+                position(kind, color(for: kind), targetPosition: firstTarget, distractorPosition: distractorPosition(for: firstTarget), correctFirst: index.isMultiple(of: 2)),
+                position(kind, color(for: kind), targetPosition: secondTarget, distractorPosition: distractorPosition(for: secondTarget), correctFirst: !index.isMultiple(of: 2))
+            ]
         }
 
         return result
@@ -178,6 +245,59 @@ enum GameContent {
         )
     }
 
+    private static func count(
+        _ kind: FriendKind,
+        _ color: Color,
+        targetCount: Int,
+        distractorCount: Int,
+        correctFirst: Bool = true
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: kind, color: color, isCorrect: true, count: targetCount)
+        let wrong = FriendCandidate(kind: kind, color: color, isCorrect: false, count: distractorCount)
+        return GameRound(
+            mode: .count,
+            targetKind: kind,
+            targetColor: color,
+            targetCount: targetCount,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func categoryRound(
+        _ category: FriendCategory,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .category,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetCategory: category,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func position(
+        _ kind: FriendKind,
+        _ color: Color,
+        targetPosition: SpatialPosition,
+        distractorPosition: SpatialPosition,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: kind, color: color, isCorrect: true, position: targetPosition)
+        let wrong = FriendCandidate(kind: kind, color: color, isCorrect: false, position: distractorPosition)
+        return GameRound(
+            mode: .position,
+            targetKind: kind,
+            targetColor: color,
+            targetPosition: targetPosition,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
     private static func matchingRound(
         _ mode: GameMode,
         _ target: FriendKind,
@@ -209,6 +329,29 @@ enum GameContent {
             return kind
         }
         return kinds[(index + offset) % kinds.count]
+    }
+
+    private static func categoryDistractor(for category: FriendCategory, offset: Int) -> FriendKind {
+        let otherKinds = categoryPracticeGroups
+            .filter { $0.key != category }
+            .flatMap(\.value)
+        guard !otherKinds.isEmpty else {
+            return visibleKinds.first { $0.category != category } ?? .cat
+        }
+        return otherKinds[offset % otherKinds.count]
+    }
+
+    private static func distractorPosition(for position: SpatialPosition) -> SpatialPosition {
+        switch position {
+        case .top:
+            return .bottom
+        case .bottom:
+            return .top
+        case .left:
+            return .right
+        case .right:
+            return .left
+        }
     }
 
     private static func balancedShuffled(_ sourceRounds: [GameRound]) -> [GameRound] {

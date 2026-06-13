@@ -401,7 +401,7 @@ private struct TargetArea: View {
                 .padding(.vertical, metrics.targetVerticalInset)
             case .color:
                 VStack(spacing: metrics.targetContentSpacing) {
-                    ColorFriendTarget(color: round.targetColor)
+                    ColorLearningObjectView(kind: round.targetKind, color: round.targetColor)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
                     TargetCaption(title: "找一样的颜色", mode: round.mode)
                 }
@@ -426,6 +426,27 @@ private struct TargetArea: View {
                     FriendShape(kind: round.targetKind, color: Color(red: 0.28, green: 0.25, blue: 0.22), isShadow: true)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
                     TargetCaption(title: "找这个影子", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .count:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    CountClusterView(kind: round.targetKind, color: round.targetColor, count: round.targetCount)
+                        .frame(width: metrics.targetIconSize * 1.1, height: metrics.targetIconSize * 0.96)
+                    TargetCaption(title: "找\(round.targetCount.cnNumberName)个", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .category:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    CategoryTargetView(category: round.targetCategory ?? round.targetKind.category, sampleKind: round.targetKind, color: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.95)
+                    TargetCaption(title: "找\(round.targetCategory?.childPromptTitle ?? round.targetKind.category.childPromptTitle)", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .position:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    PositionTargetView(position: round.targetPosition, kind: round.targetKind, color: round.targetColor, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.98)
+                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             }
@@ -492,7 +513,7 @@ private struct CandidateButton: View {
                     .shadow(color: Color(red: 0.72, green: 0.50, blue: 0.24).opacity(isCompleted ? 0.18 : 0.08), radius: isCompleted ? 22 : 12, y: isCompleted ? 14 : 8)
                     .shadow(color: Color(red: 1.0, green: 0.78, blue: 0.28).opacity(isCompleted || isHinted ? 0.38 : 0), radius: isCompleted ? 24 : 16)
 
-                GameObjectView(round: round, kind: candidate.kind, color: candidate.color, isTarget: false)
+                GameObjectView(round: round, kind: candidate.kind, color: candidate.color, count: candidate.count, position: candidate.position, isTarget: false)
                     .scaleEffect(displayScale)
                     .padding(objectPadding)
 
@@ -520,6 +541,10 @@ private struct CandidateButton: View {
         switch round.mode {
         case .shape:
             max(30, size * 0.22)
+        case .count:
+            max(10, size * 0.10)
+        case .position:
+            max(8, size * 0.08)
         case .size:
             max(14, size * 0.13)
         default:
@@ -532,12 +557,20 @@ private struct GameObjectView: View {
     let round: GameRound
     let kind: FriendKind
     let color: Color
+    let count: Int
+    let position: SpatialPosition
     let isTarget: Bool
 
     var body: some View {
         switch round.mode {
         case .color:
-            ColorFriendTarget(color: color)
+            ColorLearningObjectView(kind: kind, color: color)
+        case .count:
+            CountClusterView(kind: kind, color: color, count: count)
+        case .category:
+            FriendShape(kind: kind, color: color, isShadow: false)
+        case .position:
+            PositionStageView(kind: kind, color: color, position: position)
         case .shape, .size:
             FriendShape(kind: kind, color: color, isShadow: false)
         case .shadow:
@@ -545,6 +578,267 @@ private struct GameObjectView: View {
         case .animal, .sound:
             FriendShape(kind: kind, color: color, isShadow: false)
         }
+    }
+}
+
+private struct CountClusterView: View {
+    let kind: FriendKind
+    let color: Color
+    let count: Int
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(0..<max(count, 1), id: \.self) { itemIndex in
+                    FriendShape(kind: kind, color: color, isShadow: false)
+                        .padding(itemPadding(in: geometry.size))
+                        .frame(width: itemSize(in: geometry.size), height: itemSize(in: geometry.size))
+                        .background(.white.opacity(0.58), in: Circle())
+                        .shadow(color: Color(red: 0.72, green: 0.50, blue: 0.24).opacity(0.08), radius: 8, y: 5)
+                        .position(position(for: itemIndex, in: geometry.size))
+                }
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+    }
+
+    private func itemSize(in size: CGSize) -> CGFloat {
+        let shortSide = min(size.width, size.height)
+        switch count {
+        case 1:
+            return shortSide * 0.72
+        case 2:
+            return shortSide * 0.58
+        default:
+            return shortSide * 0.46
+        }
+    }
+
+    private func itemPadding(in size: CGSize) -> CGFloat {
+        max(3, itemSize(in: size) * 0.08)
+    }
+
+    private func position(for itemIndex: Int, in size: CGSize) -> CGPoint {
+        let positions: [CGPoint]
+        switch count {
+        case 1:
+            positions = [CGPoint(x: 0.5, y: 0.5)]
+        case 2:
+            positions = [
+                CGPoint(x: 0.34, y: 0.52),
+                CGPoint(x: 0.66, y: 0.48)
+            ]
+        case 3:
+            positions = [
+                CGPoint(x: 0.5, y: 0.32),
+                CGPoint(x: 0.34, y: 0.68),
+                CGPoint(x: 0.66, y: 0.68)
+            ]
+        default:
+            positions = [
+                CGPoint(x: 0.35, y: 0.34),
+                CGPoint(x: 0.65, y: 0.34),
+                CGPoint(x: 0.35, y: 0.68),
+                CGPoint(x: 0.65, y: 0.68)
+            ]
+        }
+        let unitPoint = positions[min(itemIndex, positions.count - 1)]
+        return CGPoint(x: unitPoint.x * size.width, y: unitPoint.y * size.height)
+    }
+}
+
+private struct CategoryTargetView: View {
+    let category: FriendCategory
+    let sampleKind: FriendKind
+    let color: Color
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.72), color.opacity(0.18)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(color.opacity(0.24), lineWidth: 2)
+                )
+
+            VStack(spacing: 10) {
+                HStack(spacing: 8) {
+                    ForEach(sampleKinds.prefix(3), id: \.self) { kind in
+                        FriendShape(kind: kind, color: categoryColor(for: kind), isShadow: false)
+                            .padding(6)
+                            .frame(width: 42, height: 42)
+                            .background(.white.opacity(0.68), in: Circle())
+                    }
+                }
+
+                Text(category.childPromptTitle)
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.24, green: 0.26, blue: 0.30))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+            }
+            .padding(14)
+        }
+    }
+
+    private var sampleKinds: [FriendKind] {
+        switch category {
+        case .animal:
+            return [sampleKind, .cat, .dog, .fish].uniqued()
+        case .vehicle:
+            return [sampleKind, .car, .bus, .train].uniqued()
+        case .fruit:
+            return [sampleKind, .apple, .banana, .watermelon].uniqued()
+        case .shape:
+            return [sampleKind, .circle, .star, .triangle].uniqued()
+        case .object:
+            return [sampleKind, .balloon, .book, .umbrella].uniqued()
+        }
+    }
+
+    private func categoryColor(for kind: FriendKind) -> Color {
+        switch kind.category {
+        case .animal:
+            return Color(red: 1.0, green: 0.62, blue: 0.30)
+        case .vehicle:
+            return Color(red: 0.22, green: 0.65, blue: 0.94)
+        case .fruit:
+            return Color(red: 0.96, green: 0.32, blue: 0.34)
+        case .shape:
+            return Color(red: 0.61, green: 0.45, blue: 0.91)
+        case .object:
+            return Color(red: 0.14, green: 0.66, blue: 0.54)
+        }
+    }
+}
+
+private struct PositionTargetView: View {
+    let position: SpatialPosition
+    let kind: FriendKind
+    let color: Color
+    let accentColor: Color
+
+    var body: some View {
+        ZStack {
+            PositionStageView(kind: kind, color: color, position: position)
+                .opacity(0.28)
+                .padding(4)
+
+            VStack(spacing: 8) {
+                Text(position.name)
+                    .font(.system(size: 26, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.24, green: 0.26, blue: 0.30))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+
+                DirectionGlyph(position: position)
+                    .fill(accentColor)
+                    .frame(width: 42, height: 42)
+                    .shadow(color: accentColor.opacity(0.22), radius: 8, y: 4)
+            }
+            .padding(18)
+            .background(.white.opacity(0.78), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+    }
+}
+
+private struct PositionStageView: View {
+    let kind: FriendKind
+    let color: Color
+    let position: SpatialPosition
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                RoundedRectangle(cornerRadius: min(28, min(geometry.size.width, geometry.size.height) * 0.20), style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [.white.opacity(0.72), Color(red: 0.91, green: 0.96, blue: 1.0).opacity(0.62)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay {
+                        PositionGuideLines()
+                            .stroke(Color(red: 0.38, green: 0.49, blue: 0.68).opacity(0.18), style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [6, 8]))
+                            .padding(8)
+                    }
+
+                Circle()
+                    .fill(Color(red: 0.36, green: 0.55, blue: 0.95).opacity(0.12))
+                    .frame(width: itemSize(in: geometry.size) * 1.12, height: itemSize(in: geometry.size) * 1.12)
+                    .position(point(for: position, in: geometry.size))
+
+                FriendShape(kind: kind, color: color, isShadow: false)
+                    .padding(max(4, itemSize(in: geometry.size) * 0.08))
+                    .frame(width: itemSize(in: geometry.size), height: itemSize(in: geometry.size))
+                    .position(point(for: position, in: geometry.size))
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+    }
+
+    private func itemSize(in size: CGSize) -> CGFloat {
+        min(size.width, size.height) * 0.46
+    }
+
+    private func point(for position: SpatialPosition, in size: CGSize) -> CGPoint {
+        switch position {
+        case .top:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.25)
+        case .bottom:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.75)
+        case .left:
+            return CGPoint(x: size.width * 0.27, y: size.height * 0.5)
+        case .right:
+            return CGPoint(x: size.width * 0.73, y: size.height * 0.5)
+        }
+    }
+}
+
+private struct PositionGuideLines: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        return path
+    }
+}
+
+private struct DirectionGlyph: Shape {
+    let position: SpatialPosition
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let tip: CGPoint
+        switch position {
+        case .top:
+            tip = CGPoint(x: rect.midX, y: rect.minY)
+            path.move(to: tip)
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.midX + rect.width * 0.16, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.midX + rect.width * 0.16, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.midX - rect.width * 0.16, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.midX - rect.width * 0.16, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.midY))
+        case .bottom:
+            path = DirectionGlyph(position: .top).path(in: rect).applying(CGAffineTransform(translationX: -center.x, y: -center.y).rotated(by: .pi).translatedBy(x: center.x, y: center.y))
+        case .left:
+            path = DirectionGlyph(position: .top).path(in: rect).applying(CGAffineTransform(translationX: -center.x, y: -center.y).rotated(by: -.pi / 2).translatedBy(x: center.x, y: center.y))
+        case .right:
+            path = DirectionGlyph(position: .top).path(in: rect).applying(CGAffineTransform(translationX: -center.x, y: -center.y).rotated(by: .pi / 2).translatedBy(x: center.x, y: center.y))
+        }
+        path.closeSubpath()
+        return path
     }
 }
 
@@ -972,6 +1266,12 @@ private struct SettingsScreen: View {
             return "大小"
         case .shadow:
             return "影子"
+        case .count:
+            return "数量"
+        case .category:
+            return "分类"
+        case .position:
+            return "位置"
         }
     }
 
@@ -989,6 +1289,12 @@ private struct SettingsScreen: View {
             return "arrow.up.left.and.arrow.down.right"
         case .shadow:
             return "moon.fill"
+        case .count:
+            return "number.circle.fill"
+        case .category:
+            return "square.grid.2x2.fill"
+        case .position:
+            return "location.fill"
         }
     }
 }
@@ -1140,6 +1446,13 @@ private struct SettingsToggle: View {
         .toggleStyle(.switch)
         .tint(Color(red: 0.95, green: 0.26, blue: 0.24))
         .padding(.vertical, isCompact ? 6 : 8)
+    }
+}
+
+private extension Array where Element: Hashable {
+    func uniqued() -> [Element] {
+        var seen = Set<Element>()
+        return filter { seen.insert($0).inserted }
     }
 }
 

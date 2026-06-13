@@ -64,6 +64,9 @@ enum GameMode: String, CaseIterable {
     case shape
     case size
     case shadow
+    case count
+    case category
+    case position
 
     var title: String {
         switch self {
@@ -79,6 +82,12 @@ enum GameMode: String, CaseIterable {
             return "大小朋友"
         case .shadow:
             return "影子朋友"
+        case .count:
+            return "数量朋友"
+        case .category:
+            return "分类朋友"
+        case .position:
+            return "位置朋友"
         }
     }
 
@@ -96,6 +105,12 @@ enum GameMode: String, CaseIterable {
             return "帮六六找一样大的朋友"
         case .shadow:
             return "帮六六找这个影子"
+        case .count:
+            return "帮六六找一样多的朋友"
+        case .category:
+            return "帮六六找同一类朋友"
+        case .position:
+            return "帮六六找上下左右"
         }
     }
 
@@ -103,10 +118,12 @@ enum GameMode: String, CaseIterable {
         switch self {
         case .animal, .sound:
             return .starter18Months
-        case .color, .shape:
+        case .color, .shape, .category, .position:
             return .explorer24Months
         case .size, .shadow:
             return .matcher30Months
+        case .count:
+            return .preschool36Months
         }
     }
 
@@ -116,7 +133,7 @@ enum GameMode: String, CaseIterable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .color, .shape, .size, .shadow:
+        case .color, .shape, .size, .shadow, .count, .category, .position:
             return true
         case .animal, .sound:
             return false
@@ -137,6 +154,32 @@ enum GameMode: String, CaseIterable {
             return Color(red: 0.61, green: 0.45, blue: 0.91)
         case .shadow:
             return Color(red: 0.31, green: 0.27, blue: 0.23)
+        case .count:
+            return Color(red: 0.98, green: 0.54, blue: 0.16)
+        case .category:
+            return Color(red: 0.14, green: 0.66, blue: 0.54)
+        case .position:
+            return Color(red: 0.36, green: 0.55, blue: 0.95)
+        }
+    }
+}
+
+enum SpatialPosition: String, CaseIterable {
+    case top
+    case bottom
+    case left
+    case right
+
+    var name: String {
+        switch self {
+        case .top:
+            return "上面"
+        case .bottom:
+            return "下面"
+        case .left:
+            return "左边"
+        case .right:
+            return "右边"
         }
     }
 }
@@ -160,6 +203,21 @@ enum FriendCategory: String, CaseIterable {
             return "形状"
         case .object:
             return "生活"
+        }
+    }
+
+    var childPromptTitle: String {
+        switch self {
+        case .animal:
+            return "动物朋友"
+        case .vehicle:
+            return "车车朋友"
+        case .fruit:
+            return "水果朋友"
+        case .shape:
+            return "形状朋友"
+        case .object:
+            return "生活朋友"
         }
     }
 }
@@ -794,13 +852,17 @@ struct FriendCandidate: Identifiable {
     let color: Color
     let isCorrect: Bool
     let sizeScale: CGFloat
+    let count: Int
+    let position: SpatialPosition
 
-    init(id: UUID = UUID(), kind: FriendKind, color: Color, isCorrect: Bool, sizeScale: CGFloat = 1) {
+    init(id: UUID = UUID(), kind: FriendKind, color: Color, isCorrect: Bool, sizeScale: CGFloat = 1, count: Int = 1, position: SpatialPosition = .top) {
         self.id = id
         self.kind = kind
         self.color = color
         self.isCorrect = isCorrect
         self.sizeScale = sizeScale
+        self.count = count
+        self.position = position
     }
 }
 
@@ -810,6 +872,9 @@ struct GameRound: Identifiable {
     let targetKind: FriendKind
     let targetColor: Color
     let targetSizeScale: CGFloat
+    let targetCount: Int
+    let targetCategory: FriendCategory?
+    let targetPosition: SpatialPosition
     let candidates: [FriendCandidate]
 
     init(
@@ -818,6 +883,9 @@ struct GameRound: Identifiable {
         targetKind: FriendKind,
         targetColor: Color,
         targetSizeScale: CGFloat = 1,
+        targetCount: Int = 1,
+        targetCategory: FriendCategory? = nil,
+        targetPosition: SpatialPosition = .top,
         candidates: [FriendCandidate]
     ) {
         self.id = id
@@ -825,6 +893,9 @@ struct GameRound: Identifiable {
         self.targetKind = targetKind
         self.targetColor = targetColor
         self.targetSizeScale = targetSizeScale
+        self.targetCount = targetCount
+        self.targetCategory = targetCategory
+        self.targetPosition = targetPosition
         self.candidates = candidates
     }
 
@@ -842,6 +913,12 @@ struct GameRound: Identifiable {
             return "找一样大的\(targetKind.name)"
         case .shadow:
             return "找\(targetKind.name)的影子"
+        case .count:
+            return "找\(targetCount.cnNumberName)个\(targetKind.name)"
+        case .category:
+            return "找\(targetCategory?.childPromptTitle ?? targetKind.category.childPromptTitle)"
+        case .position:
+            return "找在\(targetPosition.name)的\(targetKind.name)"
         }
     }
 
@@ -849,6 +926,12 @@ struct GameRound: Identifiable {
         switch mode {
         case .color:
             return "\(targetColor.speechName)，找到了"
+        case .count:
+            return "\(targetCount.cnNumberName)个\(targetKind.name)，找到了"
+        case .category:
+            return "\(targetKind.name)，是\(targetKind.category.childPromptTitle)"
+        case .position:
+            return "\(targetKind.name)在\(targetPosition.name)，找到了"
         default:
             return "\(targetKind.name)，找到了"
         }
@@ -931,4 +1014,31 @@ func colorDistance(
     _ second: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
 ) -> CGFloat {
     abs(first.red - second.red) + abs(first.green - second.green) + abs(first.blue - second.blue)
+}
+
+extension Int {
+    var cnNumberName: String {
+        switch self {
+        case 1:
+            return "一"
+        case 2:
+            return "二"
+        case 3:
+            return "三"
+        case 4:
+            return "四"
+        case 5:
+            return "五"
+        case 6:
+            return "六"
+        case 7:
+            return "七"
+        case 8:
+            return "八"
+        case 9:
+            return "九"
+        default:
+            return "\(self)"
+        }
+    }
 }

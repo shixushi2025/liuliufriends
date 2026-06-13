@@ -346,6 +346,12 @@ final class GameViewModel: ObservableObject {
             return "找一样大的\(displayName(for: round.targetKind))"
         case .shadow:
             return "找\(displayName(for: round.targetKind))的影子"
+        case .count:
+            return "找\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))"
+        case .category:
+            return "找\(round.targetCategory?.childPromptTitle ?? round.targetKind.category.childPromptTitle)"
+        case .position:
+            return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
         }
     }
 
@@ -353,6 +359,12 @@ final class GameViewModel: ObservableObject {
         switch round.mode {
         case .color:
             return "\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))，找到了"
+        case .count:
+            return "\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))，找到了"
+        case .category:
+            return "\(displayName(for: round.targetKind))，是\(round.targetKind.category.childPromptTitle)"
+        case .position:
+            return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
         default:
             return "\(displayName(for: round.targetKind))，找到了"
         }

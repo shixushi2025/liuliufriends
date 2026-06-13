@@ -449,6 +449,132 @@ struct ColorFriendTarget: View {
     }
 }
 
+struct ColorLearningObjectView: View {
+    let kind: FriendKind
+    let color: Color
+
+    var body: some View {
+        ZStack {
+            switch kind {
+            case .balloon:
+                VStack(spacing: -2) {
+                    ColorFriendTarget(color: color)
+                        .frame(width: 108, height: 108)
+                    Triangle()
+                        .fill(color)
+                        .frame(width: 26, height: 22)
+                        .rotationEffect(.degrees(180))
+                        .opacity(0.9)
+                }
+            case .ball:
+                ZStack {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [.white.opacity(0.58), color],
+                                center: .topLeading,
+                                startRadius: 8,
+                                endRadius: 84
+                            )
+                        )
+                    Circle()
+                        .stroke(.white.opacity(0.72), lineWidth: 7)
+                        .padding(18)
+                    Path { path in
+                        path.move(to: CGPoint(x: 26, y: 72))
+                        path.addQuadCurve(to: CGPoint(x: 112, y: 46), control: CGPoint(x: 66, y: 26))
+                    }
+                    .stroke(.white.opacity(0.72), style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                }
+                .frame(width: 128, height: 128)
+            case .book:
+                ZStack {
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [.white.opacity(0.42), color],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(.white.opacity(0.68), lineWidth: 6)
+                        .padding(12)
+                    Rectangle()
+                        .fill(.white.opacity(0.44))
+                        .frame(width: 6)
+                }
+                .frame(width: 126, height: 104)
+            case .cup:
+                ZStack {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [.white.opacity(0.52), color],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 92, height: 106)
+                    Circle()
+                        .stroke(color.opacity(0.82), lineWidth: 12)
+                        .frame(width: 46, height: 46)
+                        .offset(x: 48, y: -4)
+                    Capsule()
+                        .fill(.white.opacity(0.34))
+                        .frame(width: 56, height: 12)
+                        .offset(y: -28)
+                }
+                .frame(width: 132, height: 124)
+            case .flower:
+                ZStack {
+                    ForEach(0..<6, id: \.self) { petalIndex in
+                        Capsule()
+                            .fill(color)
+                            .frame(width: 38, height: 66)
+                            .offset(y: -34)
+                            .rotationEffect(.degrees(Double(petalIndex) * 60))
+                    }
+                    Circle()
+                        .fill(Color(red: 1.0, green: 0.82, blue: 0.25))
+                        .frame(width: 48, height: 48)
+                    Circle()
+                        .fill(.white.opacity(0.32))
+                        .frame(width: 18, height: 18)
+                        .offset(x: -10, y: -10)
+                }
+                .frame(width: 132, height: 132)
+            case .umbrella:
+                ZStack {
+                    SemiCircle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.white.opacity(0.44), color],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 132, height: 76)
+                        .offset(y: -18)
+                    Capsule()
+                        .fill(Color(red: 0.58, green: 0.42, blue: 0.30))
+                        .frame(width: 8, height: 76)
+                        .offset(y: 24)
+                    Circle()
+                        .trim(from: 0.52, to: 0.95)
+                        .stroke(Color(red: 0.58, green: 0.42, blue: 0.30), style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .frame(width: 42, height: 42)
+                        .offset(x: 17, y: 58)
+                }
+                .frame(width: 144, height: 132)
+            default:
+                ColorFriendTarget(color: color)
+            }
+        }
+        .shadow(color: color.opacity(0.18), radius: 12, y: 7)
+    }
+}
+
 struct SoundBubble: View {
     let text: String
 
@@ -984,6 +1110,16 @@ private struct Triangle: Shape {
         path.move(to: CGPoint(x: rect.midX, y: rect.minY))
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
         path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+private struct SemiCircle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addQuadCurve(to: CGPoint(x: rect.maxX, y: rect.maxY), control: CGPoint(x: rect.midX, y: rect.minY))
         path.closeSubpath()
         return path
     }
