@@ -34,10 +34,23 @@ final class GameViewModel: ObservableObject {
     private var pendingHintWorkItem: DispatchWorkItem?
     private var pendingHintClearWorkItem: DispatchWorkItem?
     private var pendingPromptWorkItem: DispatchWorkItem?
+    private var roundHadWrongAttempt = false
+    private var reviewQueue: [ReviewRound] = []
+
+    private static let adaptiveWarmupCompletionCount = 8
+    private static let adaptiveWarmupAgeBands: Set<LearningAgeBand> = [.starter18Months, .explorer24Months]
+    private static let reviewDelayInCompletedRounds = 3
 
     private var activeRounds: [GameRound] {
-        let filteredRounds = rounds.filter { settings.enabledGameModes.contains($0.mode) }
-        return filteredRounds.isEmpty ? rounds : filteredRounds
+        let stageRounds = rounds.filter { $0.mode.ageBand.isIncluded(in: settings.maximumAgeBand) }
+        let enabledRounds = stageRounds.filter { settings.enabledGameModes.contains($0.mode) }
+        let baseRounds = enabledRounds.isEmpty ? (stageRounds.isEmpty ? rounds : stageRounds) : enabledRounds
+        guard completedRounds < Self.adaptiveWarmupCompletionCount else {
+            return baseRounds
+        }
+
+        let warmupRounds = baseRounds.filter { Self.isAdaptiveWarmupMode($0.mode) }
+        return warmupRounds.isEmpty ? baseRounds : warmupRounds
     }
 
     init(
@@ -74,7 +87,7 @@ final class GameViewModel: ObservableObject {
             defaults.set(0, forKey: Self.dailyUsageSecondsKey)
         }
         dismissedDailyLimitDate = defaults.string(forKey: Self.dismissedDailyLimitDateKey)
-        round = rounds[0]
+        round = rounds.first { Self.isAdaptiveWarmupMode($0.mode) } ?? rounds[0]
     }
 
     func playInitialPromptIfNeeded() {
@@ -133,11 +146,15 @@ final class GameViewModel: ObservableObject {
         if candidate.isCorrect {
             cancelPendingRetryClear()
             cancelPendingHint()
+            let shouldScheduleReview = roundHadWrongAttempt
             wrongCandidateID = nil
             hintCandidateID = nil
             completedCandidateID = candidate.id
             celebrationSeed += 1
             completedRounds += 1
+            if shouldScheduleReview {
+                scheduleReview(for: round)
+            }
             feedbackPlayer.playCorrect(text: successSpeechText(for: round), recordingID: round.voicePromptID, settings: settings)
 
             if settings.autoAdvanceEnabled {
@@ -145,6 +162,7 @@ final class GameViewModel: ObservableObject {
             }
             return .correct
         } else {
+            roundHadWrongAttempt = true
             wrongCandidateID = candidate.id
             hintCandidateID = nil
             feedbackPlayer.playRetry(settings: settings)
@@ -184,9 +202,10 @@ final class GameViewModel: ObservableObject {
         completedCandidateID = nil
         wrongCandidateID = nil
         hintCandidateID = nil
+        roundHadWrongAttempt = false
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-            round = availableRounds[roundIndex]
+            round = nextReviewRound(from: availableRounds) ?? availableRounds[roundIndex]
         }
         playPromptAfterDelay(promptDelay)
     }
@@ -207,6 +226,13 @@ final class GameViewModel: ObservableObject {
         settings.enabledGameModes = enabledModes
 
         guard !enabledModes.contains(round.mode) else { return }
+        moveToFirstActiveRound()
+    }
+
+    func setMaximumAgeBand(_ ageBand: LearningAgeBand) {
+        settings.maximumAgeBand = ageBand
+
+        guard !round.mode.ageBand.isIncluded(in: ageBand) else { return }
         moveToFirstActiveRound()
     }
 
@@ -253,9 +279,11 @@ final class GameViewModel: ObservableObject {
         completedCandidateID = nil
         wrongCandidateID = nil
         hintCandidateID = nil
+        roundHadWrongAttempt = false
         celebrationSeed = 0
         sessionUsage = 0
         breakReminder = nil
+        reviewQueue.removeAll()
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             round = activeRounds[0]
@@ -272,12 +300,53 @@ final class GameViewModel: ObservableObject {
         completedCandidateID = nil
         wrongCandidateID = nil
         hintCandidateID = nil
+        roundHadWrongAttempt = false
+        pruneReviewQueue()
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             round = activeRounds[0]
         }
         if hasStartedPlaying {
             playPrompt(for: round)
+        }
+    }
+
+    private static func isAdaptiveWarmupMode(_ mode: GameMode) -> Bool {
+        adaptiveWarmupAgeBands.contains(mode.ageBand)
+    }
+
+    private func scheduleReview(for round: GameRound) {
+        guard round.mode.ageBand.isIncluded(in: settings.maximumAgeBand) else { return }
+        guard settings.enabledGameModes.contains(round.mode) else { return }
+        guard !reviewQueue.contains(where: { $0.roundID == round.id }) else { return }
+
+        reviewQueue.append(
+            ReviewRound(
+                roundID: round.id,
+                availableAfterCompletedRounds: completedRounds + Self.reviewDelayInCompletedRounds
+            )
+        )
+    }
+
+    private func nextReviewRound(from availableRounds: [GameRound]) -> GameRound? {
+        pruneReviewQueue()
+        guard let reviewIndex = reviewQueue.firstIndex(where: { $0.availableAfterCompletedRounds <= completedRounds }) else {
+            return nil
+        }
+
+        let review = reviewQueue.remove(at: reviewIndex)
+        guard let reviewRound = availableRounds.first(where: { $0.id == review.roundID }), reviewRound.id != round.id else {
+            return nil
+        }
+
+        roundIndex = availableRounds.firstIndex { $0.id == reviewRound.id } ?? roundIndex
+        return reviewRound
+    }
+
+    private func pruneReviewQueue() {
+        reviewQueue.removeAll { review in
+            guard let reviewRound = rounds.first(where: { $0.id == review.roundID }) else { return true }
+            return !settings.enabledGameModes.contains(reviewRound.mode) || !reviewRound.mode.ageBand.isIncluded(in: settings.maximumAgeBand)
         }
     }
 

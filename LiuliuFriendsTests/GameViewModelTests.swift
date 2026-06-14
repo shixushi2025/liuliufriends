@@ -58,6 +58,15 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(FutureLearningModule.nurseryRhymes.recommendedAgeBand, .preschool36Months)
     }
 
+    func testLearningAgeBandsHaveStableProgressionOrder() {
+        XCTAssertTrue(LearningAgeBand.starter18Months.isIncluded(in: .starter18Months))
+        XCTAssertTrue(LearningAgeBand.starter18Months.isIncluded(in: .explorer24Months))
+        XCTAssertTrue(LearningAgeBand.explorer24Months.isIncluded(in: .matcher30Months))
+        XCTAssertTrue(LearningAgeBand.matcher30Months.isIncluded(in: .preschool36Months))
+        XCTAssertFalse(LearningAgeBand.preschool36Months.isIncluded(in: .matcher30Months))
+        XCTAssertFalse(LearningAgeBand.matcher30Months.isIncluded(in: .explorer24Months))
+    }
+
     func testPurposeRoundsHaveExplicitPurposeTargets() {
         let purposeRounds = GameContent.rounds.filter { $0.mode == .purpose }
 
@@ -98,6 +107,55 @@ final class GameViewModelTests: XCTestCase {
         let warmupModes = GameContent.sessionRounds().prefix(4).map(\.mode)
 
         XCTAssertEqual(Array(warmupModes), [.animal, .sound, .color, .shape])
+    }
+
+    func testAdaptiveWarmupKeepsEarlyRoundsSimple() {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+        let simpleAgeBands: Set<LearningAgeBand> = [.starter18Months, .explorer24Months]
+
+        for _ in 0..<10 {
+            XCTAssertTrue(simpleAgeBands.contains(viewModel.round.mode.ageBand), "\(viewModel.round.mode.title) should not appear during early warmup.")
+            viewModel.nextRound()
+        }
+    }
+
+    func testAdaptiveWarmupUnlocksHarderRoundsAfterProgress() {
+        let hardRound = GameContent.rounds.first { $0.mode == .purpose }!
+        let easyRound = GameContent.rounds.first { $0.mode == .animal }!
+        let viewModel = GameViewModel(rounds: [hardRound, easyRound], feedbackPlayer: TestFeedbackPlayer())
+
+        XCTAssertEqual(viewModel.round.mode, .animal)
+        viewModel.nextRound()
+        XCTAssertEqual(viewModel.round.mode, .animal)
+
+        viewModel.completedRounds = 8
+        viewModel.nextRound()
+
+        XCTAssertEqual(viewModel.round.mode, .purpose)
+    }
+
+    func testMaximumAgeBandFiltersHarderRounds() {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+        viewModel.setMaximumAgeBand(.explorer24Months)
+        viewModel.completedRounds = 8
+
+        for _ in 0..<30 {
+            XCTAssertTrue(viewModel.round.mode.ageBand.isIncluded(in: .explorer24Months), "\(viewModel.round.mode.title) should be filtered by the selected learning stage.")
+            viewModel.nextRound()
+        }
+    }
+
+    func testChangingMaximumAgeBandMovesAwayFromHardCurrentRound() {
+        let easyRound = GameContent.rounds.first { $0.mode == .animal }!
+        let hardRound = GameContent.rounds.first { $0.mode == .purpose }!
+        let viewModel = GameViewModel(rounds: [easyRound, hardRound], feedbackPlayer: TestFeedbackPlayer())
+        viewModel.completedRounds = 8
+        viewModel.nextRound()
+
+        XCTAssertEqual(viewModel.round.mode, .purpose)
+        viewModel.setMaximumAgeBand(.explorer24Months)
+
+        XCTAssertEqual(viewModel.round.mode, .animal)
     }
 
     func testContentUsesAllFriendKinds() {
@@ -169,6 +227,53 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.hintCandidateID, correct.id)
     }
 
+    func testWrongThenCorrectRoundReturnsForGentleReview() async throws {
+        let rounds = makeAnimalReviewRounds()
+        let viewModel = GameViewModel(rounds: rounds, feedbackPlayer: TestFeedbackPlayer(), autoAdvanceDelay: 60)
+        let firstRoundID = viewModel.round.id
+
+        viewModel.choose(viewModel.round.candidates.first { !$0.isCorrect }!)
+        try await Task.sleep(nanoseconds: 900_000_000)
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        XCTAssertNotEqual(viewModel.round.id, firstRoundID)
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        XCTAssertNotEqual(viewModel.round.id, firstRoundID)
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        XCTAssertNotEqual(viewModel.round.id, firstRoundID)
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+
+        XCTAssertEqual(viewModel.round.id, firstRoundID)
+    }
+
+    func testResetProgressClearsQueuedReview() async throws {
+        let rounds = makeAnimalReviewRounds()
+        let viewModel = GameViewModel(rounds: rounds, feedbackPlayer: TestFeedbackPlayer(), autoAdvanceDelay: 60)
+
+        viewModel.nextRound()
+        let reviewedRoundID = viewModel.round.id
+        viewModel.choose(viewModel.round.candidates.first { !$0.isCorrect }!)
+        try await Task.sleep(nanoseconds: 900_000_000)
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+        viewModel.resetProgress()
+
+        for _ in 0..<4 {
+            viewModel.nextRound()
+            viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+        }
+
+        viewModel.nextRound()
+
+        XCTAssertNotEqual(viewModel.round.id, reviewedRoundID, "Reset should clear pending review rounds instead of jumping back to the reviewed round.")
+    }
+
     func testNextRoundCyclesThroughContent() {
         let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
         let firstRoundID = viewModel.round.id
@@ -210,15 +315,6 @@ final class GameViewModelTests: XCTestCase {
     func testDisablingCurrentModeMovesToEnabledRound() {
         let rounds = [
             GameRound(
-                mode: .shadow,
-                targetKind: .truck,
-                targetColor: .gray,
-                candidates: [
-                    FriendCandidate(kind: .truck, color: .gray, isCorrect: true),
-                    FriendCandidate(kind: .bus, color: .gray, isCorrect: false)
-                ]
-            ),
-            GameRound(
                 mode: .animal,
                 targetKind: .cat,
                 targetColor: .red,
@@ -226,9 +322,20 @@ final class GameViewModelTests: XCTestCase {
                     FriendCandidate(kind: .cat, color: .red, isCorrect: true),
                     FriendCandidate(kind: .dog, color: .red, isCorrect: false)
                 ]
+            ),
+            GameRound(
+                mode: .shadow,
+                targetKind: .truck,
+                targetColor: .gray,
+                candidates: [
+                    FriendCandidate(kind: .truck, color: .gray, isCorrect: true),
+                    FriendCandidate(kind: .bus, color: .gray, isCorrect: false)
+                ]
             )
         ]
         let viewModel = GameViewModel(rounds: rounds, feedbackPlayer: TestFeedbackPlayer())
+        viewModel.completedRounds = 8
+        viewModel.nextRound()
 
         XCTAssertEqual(viewModel.round.mode, .shadow)
         viewModel.setGameMode(.shadow, enabled: false)
@@ -451,6 +558,56 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertNil(viewModel.wrongCandidateID)
         XCTAssertEqual(viewModel.completedCandidateID, correct.id)
+    }
+
+    private func makeAnimalReviewRounds() -> [GameRound] {
+        [
+            GameRound(
+                mode: .animal,
+                targetKind: .cat,
+                targetColor: .orange,
+                candidates: [
+                    FriendCandidate(kind: .cat, color: .orange, isCorrect: true),
+                    FriendCandidate(kind: .dog, color: .brown, isCorrect: false)
+                ]
+            ),
+            GameRound(
+                mode: .animal,
+                targetKind: .dog,
+                targetColor: .brown,
+                candidates: [
+                    FriendCandidate(kind: .dog, color: .brown, isCorrect: true),
+                    FriendCandidate(kind: .duck, color: .yellow, isCorrect: false)
+                ]
+            ),
+            GameRound(
+                mode: .animal,
+                targetKind: .duck,
+                targetColor: .yellow,
+                candidates: [
+                    FriendCandidate(kind: .duck, color: .yellow, isCorrect: true),
+                    FriendCandidate(kind: .rabbit, color: .white, isCorrect: false)
+                ]
+            ),
+            GameRound(
+                mode: .animal,
+                targetKind: .rabbit,
+                targetColor: .white,
+                candidates: [
+                    FriendCandidate(kind: .rabbit, color: .white, isCorrect: true),
+                    FriendCandidate(kind: .cat, color: .orange, isCorrect: false)
+                ]
+            ),
+            GameRound(
+                mode: .animal,
+                targetKind: .fish,
+                targetColor: .blue,
+                candidates: [
+                    FriendCandidate(kind: .fish, color: .blue, isCorrect: true),
+                    FriendCandidate(kind: .cat, color: .orange, isCorrect: false)
+                ]
+            )
+        ]
     }
 }
 

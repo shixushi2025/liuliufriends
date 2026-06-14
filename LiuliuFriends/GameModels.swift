@@ -15,6 +15,23 @@ enum LearningAgeBand: String, CaseIterable {
     case matcher30Months
     case preschool36Months
 
+    var order: Int {
+        switch self {
+        case .starter18Months:
+            return 0
+        case .explorer24Months:
+            return 1
+        case .matcher30Months:
+            return 2
+        case .preschool36Months:
+            return 3
+        }
+    }
+
+    func isIncluded(in maximumAgeBand: LearningAgeBand) -> Bool {
+        order <= maximumAgeBand.order
+    }
+
     var label: String {
         switch self {
         case .starter18Months:
@@ -1118,7 +1135,13 @@ struct GameSettings: Equatable {
     var restReminderEnabled: Bool = true
     var eyeComfortEnabled: Bool = true
     var reducedMotion: Bool = false
+    var maximumAgeBand: LearningAgeBand = .preschool36Months
     var enabledGameModes: Set<GameMode> = Set(GameMode.allCases)
+}
+
+struct ReviewRound: Equatable {
+    let roundID: UUID
+    let availableAfterCompletedRounds: Int
 }
 
 enum SelectionResult: Equatable {

@@ -1293,14 +1293,22 @@ private struct SettingsScreen: View {
                                 ))
                             }
 
-                            SettingsGroupTitle(text: "开启玩法", isCompact: true)
+                            LearningStageSelector(viewModel: viewModel, isCompact: true)
+
+                            SettingsGroupTitle(text: "开启玩法（阶段外暂不出现）", isCompact: true)
                             VStack(spacing: 12) {
                                 ForEach(modeGroups) { group in
                                     VStack(alignment: .leading, spacing: 8) {
                                         SettingsGroupTitle(text: group.title, isCompact: true)
                                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                                             ForEach(group.modes, id: \.self) { mode in
-                                                SettingsTile(title: shortModeTitle(for: mode), systemName: modeIcon(for: mode), isOn: gameModeBinding(for: mode))
+                                                SettingsTile(
+                                                    title: shortModeTitle(for: mode),
+                                                    systemName: modeIcon(for: mode),
+                                                    isOn: gameModeBinding(for: mode),
+                                                    isEnabled: isModeAvailableInSelectedStage(mode),
+                                                    statusText: modeStatusText(for: mode)
+                                                )
                                             }
                                         }
                                     }
@@ -1346,10 +1354,12 @@ private struct SettingsScreen: View {
                                 isCompact: false
                             )
 
+                            LearningStageSelector(viewModel: viewModel, isCompact: false)
+
                             Divider()
                                 .padding(.vertical, 4)
 
-                            SettingsGroupTitle(text: "开启玩法", isCompact: false)
+                            SettingsGroupTitle(text: "开启玩法（阶段外暂不出现）", isCompact: false)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             ForEach(modeGroups) { group in
@@ -1362,7 +1372,9 @@ private struct SettingsScreen: View {
                                             title: mode.title,
                                             systemName: modeIcon(for: mode),
                                             isOn: gameModeBinding(for: mode),
-                                            isCompact: false
+                                            isCompact: false,
+                                            isEnabled: isModeAvailableInSelectedStage(mode),
+                                            detail: modeStatusText(for: mode)
                                         )
                                     }
                                 }
@@ -1406,6 +1418,14 @@ private struct SettingsScreen: View {
             get: { viewModel.settings.enabledGameModes.contains(mode) },
             set: { viewModel.setGameMode(mode, enabled: $0) }
         )
+    }
+
+    private func isModeAvailableInSelectedStage(_ mode: GameMode) -> Bool {
+        mode.ageBand.isIncluded(in: viewModel.settings.maximumAgeBand)
+    }
+
+    private func modeStatusText(for mode: GameMode) -> String {
+        isModeAvailableInSelectedStage(mode) ? mode.ageLabel : "阶段外"
     }
 
     private var modeGroups: [ModeSettingsGroup] {
@@ -1570,31 +1590,51 @@ private struct SettingsTile: View {
     let title: String
     let systemName: String
     @Binding var isOn: Bool
+    var isEnabled: Bool = true
+    var statusText: String? = nil
 
     var body: some View {
         Button {
+            guard isEnabled else { return }
             isOn.toggle()
         } label: {
             VStack(spacing: 10) {
                 Image(systemName: systemName)
                     .font(.system(size: 24, weight: .heavy))
-                    .foregroundStyle(isOn ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.55, green: 0.50, blue: 0.46))
+                    .foregroundStyle(iconColor)
                     .frame(width: 44, height: 44)
-                    .background((isOn ? Color(red: 1.0, green: 0.86, blue: 0.76) : Color.white).opacity(0.72), in: Circle())
+                    .background(iconBackground.opacity(0.72), in: Circle())
 
                 Text(title)
                     .font(.system(size: 17, weight: .heavy, design: .rounded))
                     .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
 
-                Text(isOn ? "开" : "关")
+                Text(statusText ?? (isOn ? "开" : "关"))
                     .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundStyle(isOn ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.55, green: 0.50, blue: 0.46))
+                    .foregroundStyle(statusColor)
             }
             .frame(maxWidth: .infinity, minHeight: 112)
             .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
+            .opacity(isEnabled ? 1 : 0.56)
         }
         .buttonStyle(.plain)
+        .accessibilityHint(isEnabled ? "" : "当前启蒙阶段暂不出现")
+    }
+
+    private var iconColor: Color {
+        guard isEnabled else { return Color(red: 0.62, green: 0.58, blue: 0.54) }
+        return isOn ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.55, green: 0.50, blue: 0.46)
+    }
+
+    private var iconBackground: Color {
+        guard isEnabled else { return Color(red: 0.92, green: 0.90, blue: 0.86) }
+        return isOn ? Color(red: 1.0, green: 0.86, blue: 0.76) : Color.white
+    }
+
+    private var statusColor: Color {
+        guard isEnabled else { return Color(red: 0.62, green: 0.58, blue: 0.54) }
+        return isOn ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.55, green: 0.50, blue: 0.46)
     }
 }
 
@@ -1610,21 +1650,130 @@ private struct SettingsGroupTitle: View {
     }
 }
 
+private struct LearningStageSelector: View {
+    @ObservedObject var viewModel: GameViewModel
+    let isCompact: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: isCompact ? 10 : 12) {
+            HStack {
+                Label("启蒙阶段", systemImage: "slider.horizontal.3")
+                    .font(.system(size: isCompact ? 17 : 20, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+
+                Spacer()
+
+                Text(viewModel.settings.maximumAgeBand.label)
+                    .font(.system(size: isCompact ? 15 : 17, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.95, green: 0.26, blue: 0.24))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color(red: 1.0, green: 0.86, blue: 0.76), in: Capsule())
+            }
+
+            if isCompact {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                    ForEach(LearningAgeBand.allCases, id: \.self) { ageBand in
+                        stageButton(for: ageBand)
+                    }
+                }
+            } else {
+                HStack(spacing: 10) {
+                    ForEach(LearningAgeBand.allCases, id: \.self) { ageBand in
+                        stageButton(for: ageBand)
+                    }
+                }
+            }
+
+            Text(viewModel.settings.maximumAgeBand.focus)
+                .font(.system(size: isCompact ? 13 : 15, weight: .bold, design: .rounded))
+                .foregroundStyle(Color(red: 0.50, green: 0.42, blue: 0.35))
+                .lineLimit(2)
+                .minimumScaleFactor(0.78)
+        }
+        .padding(isCompact ? 14 : 18)
+        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: isCompact ? 20 : 22, style: .continuous))
+        .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
+    }
+
+    private func stageButton(for ageBand: LearningAgeBand) -> some View {
+        let isSelected = viewModel.settings.maximumAgeBand == ageBand
+        return Button {
+            viewModel.setMaximumAgeBand(ageBand)
+        } label: {
+            VStack(spacing: 4) {
+                Text(ageBand.label)
+                    .font(.system(size: isCompact ? 18 : 17, weight: .black, design: .rounded))
+                Text(shortFocus(for: ageBand))
+                    .font(.system(size: isCompact ? 12 : 13, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+            }
+            .foregroundStyle(isSelected ? .white : Color(red: 0.42, green: 0.34, blue: 0.27))
+            .frame(maxWidth: .infinity, minHeight: isCompact ? 58 : 56)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(isSelected ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color.white.opacity(0.74))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(isSelected ? Color(red: 1.0, green: 0.78, blue: 0.26) : Color(red: 1.0, green: 0.88, blue: 0.66).opacity(0.35), lineWidth: isSelected ? 2 : 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("启蒙阶段 \(ageBand.label)")
+    }
+
+    private func shortFocus(for ageBand: LearningAgeBand) -> String {
+        switch ageBand {
+        case .starter18Months:
+            return "识物"
+        case .explorer24Months:
+            return "颜色形状"
+        case .matcher30Months:
+            return "匹配关系"
+        case .preschool36Months:
+            return "全部内容"
+        }
+    }
+}
+
 private struct SettingsToggle: View {
     let title: String
     let systemName: String
     @Binding var isOn: Bool
     let isCompact: Bool
+    var isEnabled: Bool = true
+    var detail: String? = nil
 
     var body: some View {
-        Toggle(isOn: $isOn) {
-            Label(title, systemImage: systemName)
-                .font(.system(size: isCompact ? 19 : 22, weight: .bold, design: .rounded))
-                .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+        Toggle(isOn: Binding(
+            get: { isOn },
+            set: { newValue in
+                guard isEnabled else { return }
+                isOn = newValue
+            }
+        )) {
+            HStack(spacing: 10) {
+                Label(title, systemImage: systemName)
+                    .font(.system(size: isCompact ? 19 : 22, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+
+                if let detail {
+                    Text(detail)
+                        .font(.system(size: isCompact ? 13 : 15, weight: .heavy, design: .rounded))
+                        .foregroundStyle(isEnabled ? Color(red: 0.95, green: 0.26, blue: 0.24) : Color(red: 0.62, green: 0.58, blue: 0.54))
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4)
+                        .background((isEnabled ? Color(red: 1.0, green: 0.86, blue: 0.76) : Color(red: 0.92, green: 0.90, blue: 0.86)), in: Capsule())
+                }
+            }
         }
         .toggleStyle(.switch)
         .tint(Color(red: 0.95, green: 0.26, blue: 0.24))
         .padding(.vertical, isCompact ? 6 : 8)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.58)
     }
 }
 
