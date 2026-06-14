@@ -59,6 +59,20 @@ final class GameViewModel: ObservableObject {
         return warmupRounds.isEmpty ? baseRounds : warmupRounds
     }
 
+    var stageGameModes: [GameMode] {
+        GameMode.allCases.filter { $0.ageBand.isIncluded(in: settings.maximumAgeBand) }
+    }
+
+    var playableGameModes: [GameMode] {
+        let enabledModes = stageGameModes.filter { settings.enabledGameModes.contains($0) }
+        return enabledModes.isEmpty ? stageGameModes : enabledModes
+    }
+
+    var playableRoundCount: Int {
+        let playableModes = Set(playableGameModes)
+        return rounds.filter { playableModes.contains($0.mode) }.count
+    }
+
     init(
         rounds: [GameRound] = GameContent.sessionRounds(),
         voiceStore: VoicePromptStore = .shared,

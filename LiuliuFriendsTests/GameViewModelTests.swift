@@ -733,6 +733,50 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertFalse(secondViewModel.settings.enabledGameModes.contains(.animal))
     }
 
+    func testPlayableSummaryFollowsStageAndEnabledModes() {
+        let defaults = UserDefaults(suiteName: "liuliufriends.tests.playable.summary")!
+        defaults.removePersistentDomain(forName: "liuliufriends.tests.playable.summary")
+        let rounds = [
+            GameRound(
+                mode: .animal,
+                targetKind: .cat,
+                targetColor: .red,
+                candidates: [
+                    FriendCandidate(kind: .cat, color: .red, isCorrect: true),
+                    FriendCandidate(kind: .dog, color: .red, isCorrect: false)
+                ]
+            ),
+            GameRound(
+                mode: .sound,
+                targetKind: .dog,
+                targetColor: .blue,
+                candidates: [
+                    FriendCandidate(kind: .dog, color: .blue, isCorrect: true),
+                    FriendCandidate(kind: .cat, color: .blue, isCorrect: false)
+                ]
+            ),
+            GameRound(
+                mode: .color,
+                targetKind: .ball,
+                targetColor: .yellow,
+                candidates: [
+                    FriendCandidate(kind: .ball, color: .yellow, isCorrect: true),
+                    FriendCandidate(kind: .ball, color: .blue, isCorrect: false)
+                ]
+            )
+        ]
+        let viewModel = GameViewModel(rounds: rounds, feedbackPlayer: TestFeedbackPlayer(), defaults: defaults)
+
+        viewModel.setMaximumAgeBand(.starter18Months)
+        XCTAssertEqual(Set(viewModel.stageGameModes), [.animal, .sound])
+        XCTAssertEqual(Set(viewModel.playableGameModes), [.animal, .sound])
+        XCTAssertEqual(viewModel.playableRoundCount, 2)
+
+        viewModel.setGameMode(.sound, enabled: false)
+        XCTAssertEqual(viewModel.playableGameModes, [.animal])
+        XCTAssertEqual(viewModel.playableRoundCount, 1)
+    }
+
     func testCorruptSavedGameSettingsFallsBackToDefaults() {
         let defaults = UserDefaults(suiteName: "liuliufriends.tests.settings.corrupt")!
         defaults.removePersistentDomain(forName: "liuliufriends.tests.settings.corrupt")

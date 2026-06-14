@@ -2177,7 +2177,7 @@ private struct SettingsScreen: View {
                         .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
                     }
 
-                    ParentSummarySection(isCompact: isCompact)
+                    ParentSummarySection(viewModel: viewModel, isCompact: isCompact)
 
                     Button {
                         viewModel.resetProgress()
@@ -2339,6 +2339,7 @@ private struct ModeSettingsGroup: Identifiable {
 }
 
 private struct ParentSummarySection: View {
+    @ObservedObject var viewModel: GameViewModel
     let isCompact: Bool
 
     var body: some View {
@@ -2361,19 +2362,23 @@ private struct ParentSummarySection: View {
 
             if isCompact {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                    ParentInfoTile(icon: "slider.horizontal.3", title: "阶段", value: viewModel.settings.maximumAgeBand.label)
+                    ParentInfoTile(icon: "checkmark.circle.fill", title: "已开", value: "\(viewModel.playableGameModes.count)/\(viewModel.stageGameModes.count)")
+                    ParentInfoTile(icon: "square.grid.2x2.fill", title: "题目", value: "\(viewModel.playableRoundCount) 轮")
                     ParentInfoTile(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁")
                     ParentInfoTile(icon: "wifi.slash", title: "网络", value: "无联网")
                     ParentInfoTile(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集")
                     ParentInfoTile(icon: "megaphone.fill", title: "广告", value: "无广告")
-                    ParentInfoTile(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮")
                     ParentInfoTile(icon: "cart.badge.minus", title: "内购", value: "无内购")
                 }
             } else {
+                InfoRow(icon: "slider.horizontal.3", title: "阶段", value: "\(viewModel.settings.maximumAgeBand.label)：\(viewModel.settings.maximumAgeBand.focus)", isCompact: false)
+                InfoRow(icon: "checkmark.circle.fill", title: "玩法", value: "当前实际开启 \(viewModel.playableGameModes.count) / \(viewModel.stageGameModes.count) 个玩法", isCompact: false)
+                InfoRow(icon: "square.grid.2x2.fill", title: "题目", value: "当前阶段可用 \(viewModel.playableRoundCount) 轮，单次最多 \(GameContent.sessionRoundTotalLimit) 轮", isCompact: false)
                 InfoRow(icon: "hand.tap.fill", title: "适龄", value: "1.5-3 岁，轻点为主", isCompact: false)
                 InfoRow(icon: "wifi.slash", title: "网络", value: "当前版本无网络请求", isCompact: false)
                 InfoRow(icon: "person.crop.circle.badge.xmark", title: "隐私", value: "不收集账号、位置或通讯录", isCompact: false)
                 InfoRow(icon: "megaphone.fill", title: "广告", value: "无广告、无内购入口", isCompact: false)
-                InfoRow(icon: "square.grid.2x2.fill", title: "内容", value: "\(GameContent.rounds.count) 轮循环启蒙互动", isCompact: false)
             }
         }
         .frame(maxWidth: isCompact ? .infinity : 640, alignment: .leading)
