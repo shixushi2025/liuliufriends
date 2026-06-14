@@ -47,10 +47,57 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.sound.ageBand, .starter18Months)
         XCTAssertEqual(GameMode.color.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.shape.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.category.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.position.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.size.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.shadow.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.purpose.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.scene.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.count.ageBand, .preschool36Months)
         XCTAssertEqual(FutureLearningModule.numbers.recommendedAgeBand, .preschool36Months)
         XCTAssertEqual(FutureLearningModule.nurseryRhymes.recommendedAgeBand, .preschool36Months)
+    }
+
+    func testPurposeRoundsHaveExplicitPurposeTargets() {
+        let purposeRounds = GameContent.rounds.filter { $0.mode == .purpose }
+
+        XCTAssertFalse(purposeRounds.isEmpty)
+        XCTAssertEqual(Set(purposeRounds.compactMap(\.targetPurpose)), Set(FriendPurpose.allCases))
+        for round in purposeRounds {
+            XCTAssertNotNil(round.targetPurpose)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetPurpose!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了") || round.successSpeechText.contains(round.targetPurpose!.speechTitle))
+        }
+    }
+
+    func testSceneRoundsHaveExplicitSceneTargets() {
+        let sceneRounds = GameContent.rounds.filter { $0.mode == .scene }
+
+        XCTAssertFalse(sceneRounds.isEmpty)
+        XCTAssertEqual(Set(sceneRounds.compactMap(\.targetScene)), Set(FriendScene.allCases))
+        for round in sceneRounds {
+            XCTAssertNotNil(round.targetScene)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetScene!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testSessionRoundsLimitLargeModesAndKeepAllModesVisible() {
+        let sessionRounds = GameContent.sessionRounds()
+        let countsByMode = Dictionary(grouping: sessionRounds, by: \.mode).mapValues(\.count)
+
+        XCTAssertEqual(Set(countsByMode.keys), Set(GameMode.allCases))
+        for mode in GameMode.allCases {
+            XCTAssertLessThanOrEqual(countsByMode[mode, default: 0], 12, "\(mode.title) should not dominate one session.")
+        }
+    }
+
+    func testSessionStartsWithBasicWarmupModes() {
+        let warmupModes = GameContent.sessionRounds().prefix(4).map(\.mode)
+
+        XCTAssertEqual(Array(warmupModes), [.animal, .sound, .color, .shape])
     }
 
     func testContentUsesAllFriendKinds() {

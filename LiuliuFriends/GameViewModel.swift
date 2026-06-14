@@ -352,6 +352,10 @@ final class GameViewModel: ObservableObject {
             return "找\(round.targetCategory?.childPromptTitle ?? round.targetKind.category.childPromptTitle)"
         case .position:
             return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
+        case .purpose:
+            return "找\(round.targetPurpose?.speechTitle ?? displayName(for: round.targetKind))"
+        case .scene:
+            return "找\(round.targetScene?.speechTitle ?? displayName(for: round.targetKind))"
         }
     }
 
@@ -365,6 +369,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))，是\(round.targetKind.category.childPromptTitle)"
         case .position:
             return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
+        case .purpose:
+            return "\(displayName(for: round.targetKind))，找到了"
         default:
             return "\(displayName(for: round.targetKind))，找到了"
         }

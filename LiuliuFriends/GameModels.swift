@@ -67,6 +67,8 @@ enum GameMode: String, CaseIterable {
     case count
     case category
     case position
+    case purpose
+    case scene
 
     var title: String {
         switch self {
@@ -88,6 +90,10 @@ enum GameMode: String, CaseIterable {
             return "分类朋友"
         case .position:
             return "位置朋友"
+        case .purpose:
+            return "用途朋友"
+        case .scene:
+            return "场景朋友"
         }
     }
 
@@ -111,6 +117,10 @@ enum GameMode: String, CaseIterable {
             return "帮六六找同一类朋友"
         case .position:
             return "帮六六找上下左右"
+        case .purpose:
+            return "帮六六找有用的朋友"
+        case .scene:
+            return "帮六六找在哪儿"
         }
     }
 
@@ -120,7 +130,7 @@ enum GameMode: String, CaseIterable {
             return .starter18Months
         case .color, .shape, .category, .position:
             return .explorer24Months
-        case .size, .shadow:
+        case .size, .shadow, .purpose, .scene:
             return .matcher30Months
         case .count:
             return .preschool36Months
@@ -133,7 +143,7 @@ enum GameMode: String, CaseIterable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .color, .shape, .size, .shadow, .count, .category, .position:
+        case .color, .shape, .size, .shadow, .count, .category, .position, .purpose, .scene:
             return true
         case .animal, .sound:
             return false
@@ -160,6 +170,10 @@ enum GameMode: String, CaseIterable {
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         case .position:
             return Color(red: 0.36, green: 0.55, blue: 0.95)
+        case .purpose:
+            return Color(red: 0.96, green: 0.48, blue: 0.20)
+        case .scene:
+            return Color(red: 0.18, green: 0.63, blue: 0.74)
         }
     }
 }
@@ -180,6 +194,140 @@ enum SpatialPosition: String, CaseIterable {
             return "左边"
         case .right:
             return "右边"
+        }
+    }
+}
+
+enum FriendPurpose: String, CaseIterable {
+    case drink
+    case read
+    case rain
+    case fly
+    case ride
+    case eat
+    case play
+    case plant
+
+    var promptTitle: String {
+        switch self {
+        case .drink:
+            return "喝水"
+        case .read:
+            return "看书"
+        case .rain:
+            return "遮雨"
+        case .fly:
+            return "飞上天"
+        case .ride:
+            return "坐车"
+        case .eat:
+            return "吃水果"
+        case .play:
+            return "玩一玩"
+        case .plant:
+            return "种在土里"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .drink:
+            return "可以喝水的"
+        case .read:
+            return "可以看书的"
+        case .rain:
+            return "可以遮雨的"
+        case .fly:
+            return "会飞上天的"
+        case .ride:
+            return "可以坐的车"
+        case .eat:
+            return "可以吃的水果"
+        case .play:
+            return "可以玩的"
+        case .plant:
+            return "种在土里的"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .drink:
+            return "drop.fill"
+        case .read:
+            return "book.fill"
+        case .rain:
+            return "umbrella.fill"
+        case .fly:
+            return "airplane"
+        case .ride:
+            return "bus.fill"
+        case .eat:
+            return "fork.knife"
+        case .play:
+            return "gamecontroller.fill"
+        case .plant:
+            return "leaf.fill"
+        }
+    }
+}
+
+enum FriendScene: String, CaseIterable {
+    case sea
+    case sky
+    case road
+    case home
+    case garden
+    case rainyDay
+
+    var promptTitle: String {
+        switch self {
+        case .sea:
+            return "海里"
+        case .sky:
+            return "天空"
+        case .road:
+            return "路上"
+        case .home:
+            return "家里"
+        case .garden:
+            return "花园"
+        case .rainyDay:
+            return "雨天"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .sea:
+            return "在海里的"
+        case .sky:
+            return "在天空的"
+        case .road:
+            return "在路上的"
+        case .home:
+            return "在家里的"
+        case .garden:
+            return "在花园里的"
+        case .rainyDay:
+            return "雨天用的"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .sea:
+            return "drop.fill"
+        case .sky:
+            return "cloud.sun.fill"
+        case .road:
+            return "car.fill"
+        case .home:
+            return "house.fill"
+        case .garden:
+            return "leaf.fill"
+        case .rainyDay:
+            return "cloud.rain.fill"
         }
     }
 }
@@ -875,6 +1023,8 @@ struct GameRound: Identifiable {
     let targetCount: Int
     let targetCategory: FriendCategory?
     let targetPosition: SpatialPosition
+    let targetPurpose: FriendPurpose?
+    let targetScene: FriendScene?
     let candidates: [FriendCandidate]
 
     init(
@@ -886,6 +1036,8 @@ struct GameRound: Identifiable {
         targetCount: Int = 1,
         targetCategory: FriendCategory? = nil,
         targetPosition: SpatialPosition = .top,
+        targetPurpose: FriendPurpose? = nil,
+        targetScene: FriendScene? = nil,
         candidates: [FriendCandidate]
     ) {
         self.id = id
@@ -896,6 +1048,8 @@ struct GameRound: Identifiable {
         self.targetCount = targetCount
         self.targetCategory = targetCategory
         self.targetPosition = targetPosition
+        self.targetPurpose = targetPurpose
+        self.targetScene = targetScene
         self.candidates = candidates
     }
 
@@ -919,6 +1073,10 @@ struct GameRound: Identifiable {
             return "找\(targetCategory?.childPromptTitle ?? targetKind.category.childPromptTitle)"
         case .position:
             return "找在\(targetPosition.name)的\(targetKind.name)"
+        case .purpose:
+            return "找\(targetPurpose?.speechTitle ?? targetKind.name)"
+        case .scene:
+            return "找\(targetScene?.speechTitle ?? targetKind.name)"
         }
     }
 
@@ -932,6 +1090,10 @@ struct GameRound: Identifiable {
             return "\(targetKind.name)，是\(targetKind.category.childPromptTitle)"
         case .position:
             return "\(targetKind.name)在\(targetPosition.name)，找到了"
+        case .purpose:
+            return "\(targetKind.name)，\(targetPurpose?.speechTitle ?? "找到了")"
+        case .scene:
+            return "\(targetKind.name)，找到了"
         default:
             return "\(targetKind.name)，找到了"
         }

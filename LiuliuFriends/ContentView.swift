@@ -449,6 +449,20 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .purpose:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    PurposeTargetView(purpose: round.targetPurpose ?? .drink, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetPurpose?.speechTitle ?? "有用的朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .scene:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    SceneTargetView(scene: round.targetScene ?? .home, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetScene?.speechTitle ?? "场景朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             }
 
         }
@@ -480,6 +494,9 @@ private struct TargetCaption: View {
             Text(title)
                 .font(.system(size: 22, weight: .black, design: .rounded))
                 .foregroundStyle(Color(red: 0.30, green: 0.32, blue: 0.38))
+                .lineLimit(1)
+                .minimumScaleFactor(0.68)
+                .multilineTextAlignment(.center)
         }
     }
 }
@@ -571,7 +588,7 @@ private struct GameObjectView: View {
             FriendShape(kind: kind, color: color, isShadow: false)
         case .position:
             PositionStageView(kind: kind, color: color, position: position)
-        case .shape, .size:
+        case .shape, .size, .purpose, .scene:
             FriendShape(kind: kind, color: color, isShadow: false)
         case .shadow:
             FriendShape(kind: kind, color: color, isShadow: isTarget)
@@ -744,6 +761,130 @@ private struct PositionTargetView: View {
             }
             .padding(18)
             .background(.white.opacity(0.78), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+    }
+}
+
+private struct PurposeTargetView: View {
+    let purpose: FriendPurpose
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: purpose.promptTitle,
+            subtitle: "做什么",
+            systemName: purpose.iconName,
+            accentColor: accentColor,
+            motif: .spark
+        )
+    }
+}
+
+private struct SceneTargetView: View {
+    let scene: FriendScene
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: scene.promptTitle,
+            subtitle: "在哪里",
+            systemName: scene.iconName,
+            accentColor: accentColor,
+            motif: .bubble
+        )
+    }
+}
+
+private struct ConceptTargetCard: View {
+    enum Motif {
+        case spark
+        case bubble
+    }
+
+    let title: String
+    let subtitle: String
+    let systemName: String
+    let accentColor: Color
+    let motif: Motif
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
+                )
+
+            decorativeMotif
+                .opacity(0.22)
+                .padding(10)
+
+            VStack(spacing: 8) {
+                Text(subtitle)
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(accentColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.14), in: Capsule())
+
+                Image(systemName: systemName)
+                    .font(.system(size: 38, weight: .heavy))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(accentColor)
+                    .frame(width: 58, height: 46)
+                    .shadow(color: accentColor.opacity(0.18), radius: 8, y: 4)
+
+                Text(title)
+                    .font(.system(size: 24, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.24, green: 0.26, blue: 0.30))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+            }
+            .padding(14)
+        }
+    }
+
+    @ViewBuilder
+    private var decorativeMotif: some View {
+        switch motif {
+        case .spark:
+            ZStack {
+                Circle()
+                    .fill(accentColor)
+                    .frame(width: 28, height: 28)
+                    .offset(x: -48, y: -34)
+                Circle()
+                    .fill(accentColor)
+                    .frame(width: 16, height: 16)
+                    .offset(x: 46, y: 38)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(accentColor)
+                    .frame(width: 38, height: 12)
+                    .rotationEffect(.degrees(-24))
+                    .offset(x: 42, y: -36)
+            }
+        case .bubble:
+            ZStack {
+                Circle()
+                    .stroke(accentColor, lineWidth: 5)
+                    .frame(width: 50, height: 50)
+                    .offset(x: -48, y: 36)
+                Circle()
+                    .fill(accentColor)
+                    .frame(width: 20, height: 20)
+                    .offset(x: 50, y: -36)
+                Capsule()
+                    .fill(accentColor)
+                    .frame(width: 46, height: 14)
+                    .offset(x: 34, y: 38)
+            }
         }
     }
 }
@@ -1153,9 +1294,16 @@ private struct SettingsScreen: View {
                             }
 
                             SettingsGroupTitle(text: "开启玩法", isCompact: true)
-                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                                ForEach(GameMode.allCases, id: \.self) { mode in
-                                    SettingsTile(title: shortModeTitle(for: mode), systemName: modeIcon(for: mode), isOn: gameModeBinding(for: mode))
+                            VStack(spacing: 12) {
+                                ForEach(modeGroups) { group in
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        SettingsGroupTitle(text: group.title, isCompact: true)
+                                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                            ForEach(group.modes, id: \.self) { mode in
+                                                SettingsTile(title: shortModeTitle(for: mode), systemName: modeIcon(for: mode), isOn: gameModeBinding(for: mode))
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1204,13 +1352,21 @@ private struct SettingsScreen: View {
                             SettingsGroupTitle(text: "开启玩法", isCompact: false)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                            ForEach(GameMode.allCases, id: \.self) { mode in
-                                SettingsToggle(
-                                    title: mode.title,
-                                    systemName: modeIcon(for: mode),
-                                    isOn: gameModeBinding(for: mode),
-                                    isCompact: false
-                                )
+                            ForEach(modeGroups) { group in
+                                VStack(alignment: .leading, spacing: 6) {
+                                    SettingsGroupTitle(text: group.title, isCompact: false)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                                    ForEach(group.modes, id: \.self) { mode in
+                                        SettingsToggle(
+                                            title: mode.title,
+                                            systemName: modeIcon(for: mode),
+                                            isOn: gameModeBinding(for: mode),
+                                            isCompact: false
+                                        )
+                                    }
+                                }
+                                .padding(.vertical, 4)
                             }
                         }
                         .frame(maxWidth: 640, alignment: .leading)
@@ -1252,6 +1408,14 @@ private struct SettingsScreen: View {
         )
     }
 
+    private var modeGroups: [ModeSettingsGroup] {
+        [
+            ModeSettingsGroup(title: "基础识物", modes: [.animal, .sound, .color, .shape]),
+            ModeSettingsGroup(title: "观察匹配", modes: [.size, .shadow, .count, .position]),
+            ModeSettingsGroup(title: "理解关系", modes: [.category, .purpose, .scene])
+        ]
+    }
+
     private func shortModeTitle(for mode: GameMode) -> String {
         switch mode {
         case .animal:
@@ -1272,6 +1436,10 @@ private struct SettingsScreen: View {
             return "分类"
         case .position:
             return "位置"
+        case .purpose:
+            return "用途"
+        case .scene:
+            return "场景"
         }
     }
 
@@ -1295,8 +1463,19 @@ private struct SettingsScreen: View {
             return "square.grid.2x2.fill"
         case .position:
             return "location.fill"
+        case .purpose:
+            return "lightbulb.fill"
+        case .scene:
+            return "map.fill"
         }
     }
+}
+
+private struct ModeSettingsGroup: Identifiable {
+    let title: String
+    let modes: [GameMode]
+
+    var id: String { title }
 }
 
 private struct ParentSummarySection: View {
