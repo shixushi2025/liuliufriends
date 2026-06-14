@@ -73,6 +73,10 @@ final class GameViewModel: ObservableObject {
         return rounds.filter { playableModes.contains($0.mode) }.count
     }
 
+    var showsManualNextRoundControl: Bool {
+        completedCandidateID != nil && !settings.autoAdvanceEnabled && breakReminder == nil
+    }
+
     init(
         rounds: [GameRound] = GameContent.sessionRounds(),
         voiceStore: VoicePromptStore = .shared,

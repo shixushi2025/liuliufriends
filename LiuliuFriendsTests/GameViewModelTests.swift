@@ -420,6 +420,33 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.celebrationSeed, 1)
         XCTAssertEqual(feedback.correctCount, 1)
         XCTAssertEqual(feedback.correctRecordingID, viewModel.round.voicePromptID)
+        XCTAssertTrue(viewModel.showsManualNextRoundControl)
+    }
+
+    func testManualNextControlAdvancesWhenAutoAdvanceDisabled() {
+        let feedback = TestFeedbackPlayer()
+        let viewModel = GameViewModel(feedbackPlayer: feedback, initialPromptDelay: 60)
+        viewModel.settings.autoAdvanceEnabled = false
+        let firstRoundID = viewModel.round.id
+
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+        XCTAssertEqual(viewModel.choose(correct), .correct)
+        XCTAssertTrue(viewModel.showsManualNextRoundControl)
+
+        viewModel.nextRound()
+
+        XCTAssertNotEqual(viewModel.round.id, firstRoundID)
+        XCTAssertNil(viewModel.completedCandidateID)
+        XCTAssertFalse(viewModel.showsManualNextRoundControl)
+    }
+
+    func testManualNextControlHiddenWhenAutoAdvanceEnabled() {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), autoAdvanceDelay: 60)
+
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+        XCTAssertEqual(viewModel.choose(correct), .correct)
+
+        XCTAssertFalse(viewModel.showsManualNextRoundControl)
     }
 
     func testWrongSelectionMarksRetryAndDoesNotAdvanceProgress() {

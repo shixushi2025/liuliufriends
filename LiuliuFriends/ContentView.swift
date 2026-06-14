@@ -294,6 +294,16 @@ private struct PlayPanel: View {
                     .transition(.scale(scale: 0.78).combined(with: .opacity))
                     .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.62), value: viewModel.celebrationSeed)
             }
+
+            if viewModel.showsManualNextRoundControl {
+                ManualNextRoundButton(isCompact: metrics.isCompact) {
+                    viewModel.nextRound()
+                }
+                .padding(.trailing, metrics.isCompact ? 10 : 22)
+                .padding(.bottom, metrics.isCompact ? 10 : 18)
+                .transition(.scale(scale: 0.88).combined(with: .opacity))
+                .zIndex(4)
+            }
         }
     }
 
@@ -357,6 +367,35 @@ private struct PlayPanel: View {
                 viewModel.choose(candidate)
             }
         }
+    }
+}
+
+private struct ManualNextRoundButton: View {
+    let isCompact: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label("下一题", systemImage: "arrow.right.circle.fill")
+                .font(.system(size: isCompact ? 18 : 22, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white)
+                .padding(.horizontal, isCompact ? 18 : 24)
+                .padding(.vertical, isCompact ? 12 : 15)
+                .background(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.95, green: 0.26, blue: 0.24),
+                            Color(red: 1.0, green: 0.62, blue: 0.22)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    in: Capsule()
+                )
+                .shadow(color: Color(red: 0.95, green: 0.26, blue: 0.24).opacity(0.25), radius: 16, y: 8)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("下一题")
     }
 }
 
