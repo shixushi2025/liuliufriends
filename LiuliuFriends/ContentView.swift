@@ -466,6 +466,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .vegetable:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .size:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
@@ -759,7 +766,7 @@ private struct GameObjectView: View {
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .shape, .body, .clothing, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
+        case .shape, .body, .clothing, .vegetable, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -912,6 +919,8 @@ private struct CategoryTargetView: View {
             return [sampleKind, .eye, .ear, .hand].uniqued()
         case .clothing:
             return [sampleKind, .hat, .shirt, .shoes].uniqued()
+        case .vegetable:
+            return [sampleKind, .carrot, .tomato, .corn].uniqued()
         case .object:
             return [sampleKind, .balloon, .book, .umbrella].uniqued()
         }
@@ -931,6 +940,8 @@ private struct CategoryTargetView: View {
             return Color(red: 0.96, green: 0.46, blue: 0.54)
         case .clothing:
             return Color(red: 0.36, green: 0.55, blue: 0.90)
+        case .vegetable:
+            return Color(red: 0.28, green: 0.70, blue: 0.38)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -996,6 +1007,8 @@ private struct DifferenceTargetView: View {
             return [.eye, .hand]
         case .clothing:
             return [.hat, .shirt]
+        case .vegetable:
+            return [.carrot, .tomato]
         case .object:
             return [.book, .umbrella]
         }
@@ -1015,6 +1028,8 @@ private struct DifferenceTargetView: View {
             return Color(red: 0.96, green: 0.46, blue: 0.54)
         case .clothing:
             return Color(red: 0.36, green: 0.55, blue: 0.90)
+        case .vegetable:
+            return Color(red: 0.28, green: 0.70, blue: 0.38)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -1388,6 +1403,8 @@ private struct PatternTargetView: View {
             return Color(red: 0.96, green: 0.46, blue: 0.54)
         case .clothing:
             return Color(red: 0.36, green: 0.55, blue: 0.90)
+        case .vegetable:
+            return Color(red: 0.28, green: 0.70, blue: 0.38)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -2356,6 +2373,8 @@ private struct SettingsScreen: View {
             return "身体"
         case .clothing:
             return "衣物"
+        case .vegetable:
+            return "蔬菜"
         case .size:
             return "大小"
         case .shadow:
@@ -2413,6 +2432,8 @@ private struct SettingsScreen: View {
             return "figure.child"
         case .clothing:
             return "tshirt.fill"
+        case .vegetable:
+            return "carrot.fill"
         case .size:
             return "arrow.up.left.and.arrow.down.right"
         case .shadow:
