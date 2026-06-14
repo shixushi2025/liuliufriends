@@ -436,6 +436,8 @@ final class GameViewModel: ObservableObject {
         switch round.mode {
         case .animal:
             return "找\(displayName(for: round.targetKind))"
+        case .vehicle:
+            return "找\(displayName(for: round.targetKind))"
         case .sound:
             return soundRoundPrompt(for: round.targetKind)
         case .color:
@@ -523,6 +525,8 @@ final class GameViewModel: ObservableObject {
 
     private func successSpeechText(for round: GameRound) -> String {
         switch round.mode {
+        case .vehicle:
+            return "\(displayName(for: round.targetKind))，找到了"
         case .color:
             return "\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))，找到了"
         case .body:
