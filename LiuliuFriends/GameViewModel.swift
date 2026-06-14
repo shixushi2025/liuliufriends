@@ -9,7 +9,11 @@ final class GameViewModel: ObservableObject {
     @Published var celebrationSeed = 0
     @Published var completedRounds = 0
     @Published var screen: AppScreen = .play
-    @Published var settings = GameSettings()
+    @Published var settings = GameSettings() {
+        didSet {
+            persistSettings()
+        }
+    }
     @Published var breakReminder: BreakReminder?
     @Published var hasStartedPlaying = false
 
@@ -89,6 +93,7 @@ final class GameViewModel: ObservableObject {
             defaults.set(0, forKey: Self.dailyUsageSecondsKey)
         }
         dismissedDailyLimitDate = defaults.string(forKey: Self.dismissedDailyLimitDateKey)
+        settings = Self.loadSettings(from: defaults)
         round = rounds.first { Self.isAdaptiveWarmupMode($0.mode) } ?? rounds[0]
     }
 
@@ -552,6 +557,31 @@ final class GameViewModel: ObservableObject {
 
     private static var dismissedDailyLimitDateKey: String {
         "liuliufriends.dismissedDailyLimitDate"
+    }
+
+    private static var settingsKey: String {
+        "liuliufriends.gameSettings.v1"
+    }
+
+    private static func loadSettings(from defaults: UserDefaults) -> GameSettings {
+        guard let data = defaults.data(forKey: settingsKey) else {
+            return GameSettings()
+        }
+
+        do {
+            var settings = try JSONDecoder().decode(GameSettings.self, from: data)
+            if settings.enabledGameModes.isEmpty {
+                settings.enabledGameModes = Set(GameMode.allCases)
+            }
+            return settings
+        } catch {
+            return GameSettings()
+        }
+    }
+
+    private func persistSettings() {
+        guard let data = try? JSONEncoder().encode(settings) else { return }
+        defaults.set(data, forKey: Self.settingsKey)
     }
 
     private static func todayKey() -> String {

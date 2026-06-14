@@ -4,6 +4,11 @@ import SwiftUI
 @testable import LiuliuFriends
 
 final class GameViewModelTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        UserDefaults.standard.removeObject(forKey: "liuliufriends.gameSettings.v1")
+    }
+
     func testRoundsHaveExactlyOneCorrectCandidate() {
         for round in GameContent.rounds {
             let correctCount = round.candidates.filter { $0.isCorrect }.count
@@ -708,6 +713,34 @@ final class GameViewModelTests: XCTestCase {
 
     func testEyeComfortDefaultsToEnabled() {
         XCTAssertTrue(GameSettings().eyeComfortEnabled)
+    }
+
+    func testGameSettingsPersistAcrossViewModelInstances() {
+        let defaults = UserDefaults(suiteName: "liuliufriends.tests.settings")!
+        defaults.removePersistentDomain(forName: "liuliufriends.tests.settings")
+
+        let firstViewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), defaults: defaults)
+        firstViewModel.settings.eyeComfortEnabled = false
+        firstViewModel.settings.voicePromptEnabled = false
+        firstViewModel.setMaximumAgeBand(.explorer24Months)
+        firstViewModel.setGameMode(.animal, enabled: false)
+
+        let secondViewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), defaults: defaults)
+
+        XCTAssertFalse(secondViewModel.settings.eyeComfortEnabled)
+        XCTAssertFalse(secondViewModel.settings.voicePromptEnabled)
+        XCTAssertEqual(secondViewModel.settings.maximumAgeBand, .explorer24Months)
+        XCTAssertFalse(secondViewModel.settings.enabledGameModes.contains(.animal))
+    }
+
+    func testCorruptSavedGameSettingsFallsBackToDefaults() {
+        let defaults = UserDefaults(suiteName: "liuliufriends.tests.settings.corrupt")!
+        defaults.removePersistentDomain(forName: "liuliufriends.tests.settings.corrupt")
+        defaults.set(Data("not-json".utf8), forKey: "liuliufriends.gameSettings.v1")
+
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer(), defaults: defaults)
+
+        XCTAssertEqual(viewModel.settings, GameSettings())
     }
 
     func testUsageTickShowsSessionBreakReminder() {

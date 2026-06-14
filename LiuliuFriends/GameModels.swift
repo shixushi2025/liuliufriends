@@ -9,7 +9,7 @@ enum AppScreen: Equatable {
     case settings
 }
 
-enum LearningAgeBand: String, CaseIterable {
+enum LearningAgeBand: String, CaseIterable, Codable {
     case starter18Months
     case explorer24Months
     case matcher30Months
@@ -71,7 +71,7 @@ enum FutureLearningModule: String, CaseIterable {
     }
 }
 
-enum GameMode: String, CaseIterable {
+enum GameMode: String, CaseIterable, Codable {
     case animal
     case sound
     case color
@@ -1926,7 +1926,7 @@ struct GameRound: Identifiable {
     }
 }
 
-struct GameSettings: Equatable {
+struct GameSettings: Equatable, Codable {
     var soundEnabled: Bool = true
     var voicePromptEnabled: Bool = true
     var customVoiceEnabled: Bool = false
