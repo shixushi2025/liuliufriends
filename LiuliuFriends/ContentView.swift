@@ -515,6 +515,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .nature:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .size:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
@@ -808,7 +815,7 @@ private struct GameObjectView: View {
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
+        case .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -975,6 +982,8 @@ private struct CategoryTargetView: View {
             return [sampleKind, .drum, .guitar, .bell].uniqued()
         case .toy:
             return [sampleKind, .blocks, .doll, .kite].uniqued()
+        case .nature:
+            return [sampleKind, .sun, .cloud, .tree].uniqued()
         case .object:
             return [sampleKind, .balloon, .book, .umbrella].uniqued()
         }
@@ -1008,6 +1017,8 @@ private struct CategoryTargetView: View {
             return Color(red: 0.88, green: 0.46, blue: 0.68)
         case .toy:
             return Color(red: 0.94, green: 0.54, blue: 0.22)
+        case .nature:
+            return Color(red: 0.26, green: 0.68, blue: 0.44)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -1087,6 +1098,8 @@ private struct DifferenceTargetView: View {
             return [.drum, .bell]
         case .toy:
             return [.blocks, .kite]
+        case .nature:
+            return [.sun, .tree]
         case .object:
             return [.book, .umbrella]
         }
@@ -1120,6 +1133,8 @@ private struct DifferenceTargetView: View {
             return Color(red: 0.88, green: 0.46, blue: 0.68)
         case .toy:
             return Color(red: 0.94, green: 0.54, blue: 0.22)
+        case .nature:
+            return Color(red: 0.26, green: 0.68, blue: 0.44)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -1507,6 +1522,8 @@ private struct PatternTargetView: View {
             return Color(red: 0.88, green: 0.46, blue: 0.68)
         case .toy:
             return Color(red: 0.94, green: 0.54, blue: 0.22)
+        case .nature:
+            return Color(red: 0.26, green: 0.68, blue: 0.44)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -2489,6 +2506,8 @@ private struct SettingsScreen: View {
             return "乐器"
         case .toy:
             return "玩具"
+        case .nature:
+            return "自然"
         case .size:
             return "大小"
         case .shadow:
@@ -2560,6 +2579,8 @@ private struct SettingsScreen: View {
             return "music.note"
         case .toy:
             return "shippingbox.fill"
+        case .nature:
+            return "leaf.fill"
         case .size:
             return "arrow.up.left.and.arrow.down.right"
         case .shadow:

@@ -160,6 +160,7 @@ enum GameContent {
         .tree: .leafGreen,
         .sun: .sunYellow,
         .cloud: .softGray,
+        .rainbow: .skyBlue,
         .umbrella: .purple,
         .ball: .coral,
         .book: .skyBlue,
@@ -210,6 +211,10 @@ enum GameContent {
         FriendKind.allCases.filter { $0.category == .toy }
     }
 
+    private static var natureItems: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .nature }
+    }
+
     private static var visibleKinds: [FriendKind] {
         FriendKind.allCases
     }
@@ -249,7 +254,8 @@ enum GameContent {
         .stationery: [.pencil, .crayon, .eraser, .ruler, .notebook, .schoolbag],
         .instrument: [.drum, .piano, .guitar, .trumpet, .bell, .microphone],
         .toy: [.blocks, .doll, .kite, .puzzle, .rattle, .bucket],
-        .object: [.balloon, .flower, .tree, .umbrella, .ball, .book]
+        .nature: [.sun, .cloud, .moon, .flower, .tree, .rainbow],
+        .object: [.balloon, .umbrella, .ball, .book, .cup]
     ]
 
     private static let differencePracticePairs: [(category: FriendCategory, same: FriendKind, different: FriendKind)] = [
@@ -273,6 +279,8 @@ enum GameContent {
         (.instrument, .bell, .truck),
         (.toy, .blocks, .fish),
         (.toy, .kite, .tomato),
+        (.nature, .sun, .cup),
+        (.nature, .tree, .bus),
         (.object, .book, .rabbit),
         (.object, .umbrella, .banana)
     ]
@@ -455,6 +463,10 @@ enum GameContent {
 
         result += toyItems.enumerated().map { index, kind in
             matchingRound(.toy, kind, color(for: kind), distractor(for: kind, in: toyItems, offset: 2), color(for: distractor(for: kind, in: toyItems, offset: 2)), correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += natureItems.enumerated().map { index, kind in
+            matchingRound(.nature, kind, color(for: kind), distractor(for: kind, in: natureItems, offset: 2), color(for: distractor(for: kind, in: natureItems, offset: 2)), correctFirst: index.isMultiple(of: 2))
         }
 
         result += visibleKinds.enumerated().flatMap { index, kind in
