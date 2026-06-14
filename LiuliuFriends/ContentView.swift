@@ -726,6 +726,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetAnimalFood?.speechTitle ?? "动物爱吃的")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .itemHome:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    ItemHomeTargetView(itemHome: round.targetItemHome ?? .pencilSchoolbag, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.16, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetItemHome?.speechTitle ?? "放好的")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .opposite:
                 VStack(spacing: metrics.targetContentSpacing) {
                     OppositeTargetView(opposite: round.targetOpposite ?? .dayNight, accentColor: round.mode.accentColor)
@@ -937,7 +944,7 @@ private struct GameObjectView: View {
             InsideOutsideStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .frontBack:
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1550,6 +1557,21 @@ private struct AnimalFoodTargetView: View {
             }
             .padding(12)
         }
+    }
+}
+
+private struct ItemHomeTargetView: View {
+    let itemHome: FriendItemHome
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: itemHome.promptTitle,
+            subtitle: "放在哪里",
+            systemName: itemHome.iconName,
+            accentColor: accentColor,
+            motif: .bubble
+        )
     }
 }
 
@@ -2900,6 +2922,8 @@ private struct SettingsScreen: View {
             return "宝宝"
         case .animalFood:
             return "食物"
+        case .itemHome:
+            return "回家"
         case .opposite:
             return "相反"
         case .rhythm:
@@ -2999,6 +3023,8 @@ private struct SettingsScreen: View {
             return "heart.circle.fill"
         case .animalFood:
             return "fork.knife.circle.fill"
+        case .itemHome:
+            return "shippingbox.fill"
         case .opposite:
             return "arrow.left.arrow.right.circle.fill"
         case .rhythm:
