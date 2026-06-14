@@ -246,6 +246,17 @@ enum GameContent {
         (.rough, .tree, .cup)
     ]
 
+    private static let tastePracticePairs: [(taste: FriendTaste, correct: FriendKind, wrong: FriendKind)] = [
+        (.sweet, .strawberry, .lemon),
+        (.sweet, .cherry, .pear),
+        (.sour, .lemon, .banana),
+        (.sour, .orange, .watermelon),
+        (.juicy, .watermelon, .book),
+        (.juicy, .orange, .ball),
+        (.bland, .pear, .pineapple),
+        (.bland, .cup, .strawberry)
+    ]
+
     private static let oppositePracticePairs: [(target: FriendOpposite, distractor: FriendOpposite, correct: FriendKind, wrong: FriendKind)] = [
         (.dayNight, .hotCold, .moon, .sun),
         (.upDown, .openClosed, .cloud, .book),
@@ -370,6 +381,10 @@ enum GameContent {
 
         result += texturePracticePairs.enumerated().map { index, pair in
             texture(pair.texture, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += tastePracticePairs.enumerated().map { index, pair in
+            taste(pair.taste, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
         result += FriendPairing.allCases.enumerated().map { index, pairing in
@@ -642,6 +657,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetTexture: texture,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func taste(
+        _ taste: FriendTaste,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .taste,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetTaste: taste,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }

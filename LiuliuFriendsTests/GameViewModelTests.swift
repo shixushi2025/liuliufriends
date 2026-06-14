@@ -64,6 +64,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.weather.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.action.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.texture.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.taste.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.pairing.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.opposite.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.difference.ageBand, .matcher30Months)
@@ -90,7 +91,7 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
         XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .sound, .color, .shape])
-        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .pairing, .opposite])
+        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .opposite])
         XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .shadow, .position, .difference])
         XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.count, .quantityCompare, .rhythm, .sequence, .pattern])
     }
@@ -184,6 +185,19 @@ final class GameViewModelTests: XCTestCase {
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(round.targetTexture!.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("摸起来"))
+        }
+    }
+
+    func testTasteRoundsHaveExplicitTasteTargets() {
+        let tasteRounds = GameContent.rounds.filter { $0.mode == .taste }
+
+        XCTAssertFalse(tasteRounds.isEmpty)
+        XCTAssertEqual(Set(tasteRounds.compactMap(\.targetTaste)), Set(FriendTaste.allCases))
+        for round in tasteRounds {
+            XCTAssertNotNil(round.targetTaste)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetTaste!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("尝起来"))
         }
     }
 

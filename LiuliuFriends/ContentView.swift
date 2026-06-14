@@ -551,6 +551,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetTexture?.speechTitle ?? "触感朋友")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .taste:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    TasteTargetView(taste: round.targetTaste ?? .sweet, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetTaste?.speechTitle ?? "味道朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .pairing:
                 VStack(spacing: metrics.targetContentSpacing) {
                     PairingTargetView(pairing: round.targetPairing ?? .beeFlower, cueColor: targetCueColor(for: round.targetPairing?.cueKind ?? .bee), accentColor: round.mode.accentColor)
@@ -738,7 +745,7 @@ private struct GameObjectView: View {
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .shape, .size, .purpose, .scene, .weather, .routine, .action, .texture, .pairing, .pattern, .difference:
+        case .shape, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1119,6 +1126,21 @@ private struct TextureTargetView: View {
     }
 }
 
+private struct TasteTargetView: View {
+    let taste: FriendTaste
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: taste.promptTitle,
+            subtitle: "尝起来",
+            systemName: taste.iconName,
+            accentColor: accentColor,
+            motif: .taste
+        )
+    }
+}
+
 private struct PairingTargetView: View {
     let pairing: FriendPairing
     let cueColor: Color
@@ -1479,6 +1501,7 @@ private struct ConceptTargetCard: View {
         case motion
         case quantity
         case texture
+        case taste
         case rhythm
         case sequence
     }
@@ -1663,6 +1686,24 @@ private struct ConceptTargetCard: View {
                     .frame(width: 84, height: 52)
                     .rotationEffect(.degrees(-12))
                     .offset(x: 24, y: 20)
+            }
+        case .taste:
+            ZStack {
+                Image(systemName: "drop.fill")
+                    .font(.system(size: 42, weight: .black))
+                    .foregroundStyle(accentColor)
+                    .offset(x: -46, y: -30)
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .fill(accentColor)
+                        .frame(width: CGFloat(18 + index * 5), height: CGFloat(18 + index * 5))
+                        .offset(x: CGFloat(index * 28 - 22), y: CGFloat(index * 18 - 2))
+                }
+                Image(systemName: "leaf.fill")
+                    .font(.system(size: 34, weight: .heavy))
+                    .foregroundStyle(accentColor)
+                    .rotationEffect(.degrees(-22))
+                    .offset(x: 48, y: -36)
             }
         case .rhythm:
             ZStack {
@@ -2305,6 +2346,8 @@ private struct SettingsScreen: View {
             return "动作"
         case .texture:
             return "触感"
+        case .taste:
+            return "味道"
         case .pairing:
             return "搭配"
         case .opposite:
@@ -2356,6 +2399,8 @@ private struct SettingsScreen: View {
             return "figure.run"
         case .texture:
             return "hand.raised.fill"
+        case .taste:
+            return "fork.knife.circle.fill"
         case .pairing:
             return "link.circle.fill"
         case .opposite:
