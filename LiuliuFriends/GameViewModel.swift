@@ -36,10 +36,12 @@ final class GameViewModel: ObservableObject {
     private var pendingPromptWorkItem: DispatchWorkItem?
     private var roundHadWrongAttempt = false
     private var reviewQueue: [ReviewRound] = []
+    private var nextReviewAllowedAfterCompletedRounds = 0
 
     private static let adaptiveWarmupCompletionCount = 8
     private static let adaptiveWarmupAgeBands: Set<LearningAgeBand> = [.starter18Months, .explorer24Months]
     private static let reviewDelayInCompletedRounds = 3
+    private static let completedRoundsBetweenReviews = 1
 
     private var activeRounds: [GameRound] {
         let stageRounds = rounds.filter { $0.mode.ageBand.isIncluded(in: settings.maximumAgeBand) }
@@ -284,6 +286,7 @@ final class GameViewModel: ObservableObject {
         sessionUsage = 0
         breakReminder = nil
         reviewQueue.removeAll()
+        nextReviewAllowedAfterCompletedRounds = 0
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             round = activeRounds[0]
@@ -302,6 +305,7 @@ final class GameViewModel: ObservableObject {
         hintCandidateID = nil
         roundHadWrongAttempt = false
         pruneReviewQueue()
+        nextReviewAllowedAfterCompletedRounds = completedRounds
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
             round = activeRounds[0]
@@ -330,6 +334,9 @@ final class GameViewModel: ObservableObject {
 
     private func nextReviewRound(from availableRounds: [GameRound]) -> GameRound? {
         pruneReviewQueue()
+        guard completedRounds >= nextReviewAllowedAfterCompletedRounds else {
+            return nil
+        }
         guard let reviewIndex = reviewQueue.firstIndex(where: { $0.availableAfterCompletedRounds <= completedRounds }) else {
             return nil
         }
@@ -340,6 +347,7 @@ final class GameViewModel: ObservableObject {
         }
 
         roundIndex = availableRounds.firstIndex { $0.id == reviewRound.id } ?? roundIndex
+        nextReviewAllowedAfterCompletedRounds = completedRounds + Self.completedRoundsBetweenReviews + 1
         return reviewRound
     }
 
@@ -417,6 +425,8 @@ final class GameViewModel: ObservableObject {
             return "找\(displayName(for: round.targetKind))的影子"
         case .count:
             return "找\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))"
+        case .quantityCompare:
+            return "找\(round.targetQuantityCompare?.speechTitle ?? "多的")"
         case .category:
             return "找\(round.targetCategory?.childPromptTitle ?? round.targetKind.category.childPromptTitle)"
         case .difference:
@@ -435,6 +445,12 @@ final class GameViewModel: ObservableObject {
             return "找\(round.targetEmotion?.speechTitle ?? displayName(for: round.targetKind))"
         case .action:
             return "找\(round.targetAction?.speechTitle ?? displayName(for: round.targetKind))"
+        case .texture:
+            return "找\(round.targetTexture?.speechTitle ?? displayName(for: round.targetKind))"
+        case .pairing:
+            return "找\(round.targetPairing?.speechTitle ?? displayName(for: round.targetKind))"
+        case .opposite:
+            return "找\(round.targetOpposite?.speechTitle ?? displayName(for: round.targetKind))"
         case .rhythm:
             return "找\(round.targetRhythm?.speechTitle ?? displayName(for: round.targetKind))"
         case .sequence:
@@ -450,6 +466,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))，找到了"
         case .count:
             return "\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))，找到了"
+        case .quantityCompare:
+            return "\(round.targetQuantityCompare?.promptTitle ?? "多的")，找到了"
         case .category:
             return "\(displayName(for: round.targetKind))，是\(round.targetKind.category.childPromptTitle)"
         case .difference:
@@ -460,6 +478,12 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))，找到了"
         case .emotion:
             return "\(round.targetEmotion?.promptTitle ?? displayName(for: round.targetKind))，找到了"
+        case .texture:
+            return "\(displayName(for: round.targetKind))，摸起来\(round.targetTexture?.promptTitle ?? "找到了")"
+        case .pairing:
+            return "\(displayName(for: round.targetKind))，是好搭档"
+        case .opposite:
+            return "\(round.targetOpposite?.answerTitle ?? displayName(for: round.targetKind))，找到了"
         case .rhythm:
             return "\(round.targetRhythm?.promptTitle ?? displayName(for: round.targetKind))，找到了"
         case .sequence:

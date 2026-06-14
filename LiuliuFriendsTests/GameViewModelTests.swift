@@ -34,6 +34,7 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertEqual(colorRounds.count, VoicePromptTarget.colorTargets.count)
         XCTAssertEqual(Set(colorPromptIDs), Set(VoicePromptTarget.colorTargets.map(\.id)))
+        XCTAssertEqual(Set(colorPromptIDs).count, colorPromptIDs.count)
     }
 
     func testContentCoversCoreFriendCategories() {
@@ -57,8 +58,12 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.scene.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.weather.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.action.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.texture.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.pairing.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.opposite.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.difference.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.count.ageBand, .preschool36Months)
+        XCTAssertEqual(GameMode.quantityCompare.ageBand, .preschool36Months)
         XCTAssertEqual(GameMode.rhythm.ageBand, .preschool36Months)
         XCTAssertEqual(GameMode.sequence.ageBand, .preschool36Months)
         XCTAssertEqual(GameMode.pattern.ageBand, .preschool36Months)
@@ -80,9 +85,9 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
         XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .sound, .color, .shape])
-        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action])
+        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .pairing, .opposite])
         XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .shadow, .position, .difference])
-        XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.count, .rhythm, .sequence, .pattern])
+        XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.count, .quantityCompare, .rhythm, .sequence, .pattern])
     }
 
     func testPurposeRoundsHaveExplicitPurposeTargets() {
@@ -160,6 +165,71 @@ final class GameViewModelTests: XCTestCase {
             XCTAssertNotNil(round.targetAction)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(round.targetAction!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testTextureRoundsHaveExplicitTextureTargets() {
+        let textureRounds = GameContent.rounds.filter { $0.mode == .texture }
+
+        XCTAssertFalse(textureRounds.isEmpty)
+        XCTAssertEqual(Set(textureRounds.compactMap(\.targetTexture)), Set(FriendTexture.allCases))
+        for round in textureRounds {
+            XCTAssertNotNil(round.targetTexture)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetTexture!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("摸起来"))
+        }
+    }
+
+    func testQuantityCompareRoundsCompareMoreAndFewer() {
+        let compareRounds = GameContent.rounds.filter { $0.mode == .quantityCompare }
+
+        XCTAssertFalse(compareRounds.isEmpty)
+        XCTAssertEqual(Set(compareRounds.compactMap(\.targetQuantityCompare)), Set(FriendQuantityCompare.allCases))
+        for round in compareRounds {
+            let target = try! XCTUnwrap(round.targetQuantityCompare)
+            let correctCount = try! XCTUnwrap(round.candidates.first { $0.isCorrect }?.count)
+            let wrongCount = try! XCTUnwrap(round.candidates.first { !$0.isCorrect }?.count)
+
+            switch target {
+            case .more:
+                XCTAssertGreaterThan(correctCount, wrongCount)
+            case .fewer:
+                XCTAssertLessThan(correctCount, wrongCount)
+            }
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(target.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testPairingRoundsHaveExplicitPairingTargets() {
+        let pairingRounds = GameContent.rounds.filter { $0.mode == .pairing }
+
+        XCTAssertFalse(pairingRounds.isEmpty)
+        XCTAssertEqual(Set(pairingRounds.compactMap(\.targetPairing)), Set(FriendPairing.allCases))
+        for round in pairingRounds {
+            let pairing = try! XCTUnwrap(round.targetPairing)
+            XCTAssertEqual(round.targetKind, pairing.answerKind)
+            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.kind, pairing.answerKind)
+            XCTAssertTrue(round.candidates.contains { $0.kind == pairing.distractorKind })
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(pairing.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("好搭档"))
+        }
+    }
+
+    func testOppositeRoundsHaveExplicitOppositeTargets() {
+        let oppositeRounds = GameContent.rounds.filter { $0.mode == .opposite }
+
+        XCTAssertFalse(oppositeRounds.isEmpty)
+        XCTAssertEqual(Set(oppositeRounds.compactMap(\.targetOpposite)), Set(FriendOpposite.allCases))
+        for round in oppositeRounds {
+            XCTAssertNotNil(round.targetOpposite)
+            XCTAssertTrue(round.candidates.allSatisfy { $0.opposite != nil })
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetOpposite!.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))
         }
     }
@@ -248,7 +318,11 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .animal), 10)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .routine), 7)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .action), 5)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .texture), 5)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .pairing), 5)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .opposite), 5)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .count), 4)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .quantityCompare), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .rhythm), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .sequence), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .pattern), 4)
@@ -402,6 +476,40 @@ final class GameViewModelTests: XCTestCase {
         viewModel.nextRound()
 
         XCTAssertEqual(viewModel.round.id, firstRoundID)
+    }
+
+    func testQueuedReviewRoundsAreSeparatedByNormalPlay() async throws {
+        let rounds = makeAnimalReviewRounds()
+        let viewModel = GameViewModel(rounds: rounds, feedbackPlayer: TestFeedbackPlayer(), autoAdvanceDelay: 60)
+        let firstRoundID = viewModel.round.id
+
+        viewModel.choose(viewModel.round.candidates.first { !$0.isCorrect }!)
+        try await Task.sleep(nanoseconds: 900_000_000)
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        let secondRoundID = viewModel.round.id
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        let thirdRoundID = viewModel.round.id
+        viewModel.choose(viewModel.round.candidates.first { !$0.isCorrect }!)
+        try await Task.sleep(nanoseconds: 900_000_000)
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        XCTAssertEqual(viewModel.round.id, firstRoundID)
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        XCTAssertEqual(viewModel.round.id, secondRoundID, "A normal round should separate queued review rounds.")
+        viewModel.choose(viewModel.round.candidates.first { $0.isCorrect }!)
+
+        viewModel.nextRound()
+        XCTAssertEqual(viewModel.round.id, thirdRoundID)
     }
 
     func testResetProgressClearsQueuedReview() async throws {

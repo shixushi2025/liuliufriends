@@ -79,6 +79,7 @@ enum GameMode: String, CaseIterable {
     case size
     case shadow
     case count
+    case quantityCompare
     case category
     case position
     case purpose
@@ -87,6 +88,9 @@ enum GameMode: String, CaseIterable {
     case routine
     case emotion
     case action
+    case texture
+    case pairing
+    case opposite
     case rhythm
     case sequence
     case pattern
@@ -108,6 +112,8 @@ enum GameMode: String, CaseIterable {
             return "影子朋友"
         case .count:
             return "数量朋友"
+        case .quantityCompare:
+            return "多少朋友"
         case .category:
             return "分类朋友"
         case .position:
@@ -124,6 +130,12 @@ enum GameMode: String, CaseIterable {
             return "情绪朋友"
         case .action:
             return "动作朋友"
+        case .texture:
+            return "触感朋友"
+        case .pairing:
+            return "搭配朋友"
+        case .opposite:
+            return "相反朋友"
         case .rhythm:
             return "节奏朋友"
         case .sequence:
@@ -151,6 +163,8 @@ enum GameMode: String, CaseIterable {
             return "帮六六找这个影子"
         case .count:
             return "帮六六找一样多的朋友"
+        case .quantityCompare:
+            return "帮六六找多和少"
         case .category:
             return "帮六六找同一类朋友"
         case .position:
@@ -167,6 +181,12 @@ enum GameMode: String, CaseIterable {
             return "帮六六找表情"
         case .action:
             return "帮六六找会怎么动"
+        case .texture:
+            return "帮六六找摸起来的感觉"
+        case .pairing:
+            return "帮六六找好搭档"
+        case .opposite:
+            return "帮六六找相反的朋友"
         case .rhythm:
             return "帮六六找节奏动作"
         case .sequence:
@@ -184,9 +204,9 @@ enum GameMode: String, CaseIterable {
             return .starter18Months
         case .color, .shape, .category, .position, .routine, .emotion:
             return .explorer24Months
-        case .size, .shadow, .purpose, .scene, .weather, .action, .difference:
+        case .size, .shadow, .purpose, .scene, .weather, .action, .texture, .pairing, .opposite, .difference:
             return .matcher30Months
-        case .count, .rhythm, .sequence, .pattern:
+        case .count, .quantityCompare, .rhythm, .sequence, .pattern:
             return .preschool36Months
         }
     }
@@ -199,11 +219,11 @@ enum GameMode: String, CaseIterable {
         switch self {
         case .animal, .sound, .color, .shape:
             return "基础识物"
-        case .category, .routine, .emotion, .purpose, .scene, .weather, .action:
+        case .category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .pairing, .opposite:
             return "生活关系"
         case .size, .shadow, .position, .difference:
             return "观察匹配"
-        case .count, .rhythm, .sequence, .pattern:
+        case .count, .quantityCompare, .rhythm, .sequence, .pattern:
             return "进阶思维"
         }
     }
@@ -217,7 +237,7 @@ enum GameMode: String, CaseIterable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .color, .shape, .size, .shadow, .count, .category, .position, .purpose, .scene, .weather, .routine, .emotion, .action, .rhythm, .sequence, .pattern, .difference:
+        case .color, .shape, .size, .shadow, .count, .quantityCompare, .category, .position, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .pairing, .opposite, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -240,6 +260,8 @@ enum GameMode: String, CaseIterable {
             return Color(red: 0.31, green: 0.27, blue: 0.23)
         case .count:
             return Color(red: 0.98, green: 0.54, blue: 0.16)
+        case .quantityCompare:
+            return Color(red: 0.92, green: 0.50, blue: 0.20)
         case .category:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         case .position:
@@ -256,6 +278,12 @@ enum GameMode: String, CaseIterable {
             return Color(red: 0.94, green: 0.42, blue: 0.58)
         case .action:
             return Color(red: 0.45, green: 0.48, blue: 0.92)
+        case .texture:
+            return Color(red: 0.74, green: 0.50, blue: 0.34)
+        case .pairing:
+            return Color(red: 0.22, green: 0.64, blue: 0.58)
+        case .opposite:
+            return Color(red: 0.96, green: 0.46, blue: 0.30)
         case .rhythm:
             return Color(red: 0.90, green: 0.42, blue: 0.74)
         case .sequence:
@@ -623,6 +651,247 @@ enum FriendAction: String, CaseIterable {
             return "car.fill"
         case .grow:
             return "leaf.fill"
+        }
+    }
+}
+
+enum FriendQuantityCompare: String, CaseIterable {
+    case more
+    case fewer
+
+    var promptTitle: String {
+        switch self {
+        case .more:
+            return "多的"
+        case .fewer:
+            return "少的"
+        }
+    }
+
+    var speechTitle: String {
+        promptTitle
+    }
+
+    var iconName: String {
+        switch self {
+        case .more:
+            return "plus.circle.fill"
+        case .fewer:
+            return "minus.circle.fill"
+        }
+    }
+}
+
+enum FriendTexture: String, CaseIterable {
+    case soft
+    case hard
+    case smooth
+    case rough
+
+    var promptTitle: String {
+        switch self {
+        case .soft:
+            return "软软的"
+        case .hard:
+            return "硬硬的"
+        case .smooth:
+            return "滑滑的"
+        case .rough:
+            return "粗粗的"
+        }
+    }
+
+    var speechTitle: String {
+        promptTitle
+    }
+
+    var iconName: String {
+        switch self {
+        case .soft:
+            return "circle.fill"
+        case .hard:
+            return "cube.fill"
+        case .smooth:
+            return "sparkles"
+        case .rough:
+            return "circle.grid.cross.fill"
+        }
+    }
+}
+
+enum FriendPairing: String, CaseIterable {
+    case beeFlower
+    case butterflyFlower
+    case monkeyBanana
+    case umbrellaCloud
+    case fishBoat
+    case cupBook
+
+    var cueKind: FriendKind {
+        switch self {
+        case .beeFlower:
+            return .bee
+        case .butterflyFlower:
+            return .butterfly
+        case .monkeyBanana:
+            return .monkey
+        case .umbrellaCloud:
+            return .umbrella
+        case .fishBoat:
+            return .fish
+        case .cupBook:
+            return .cup
+        }
+    }
+
+    var answerKind: FriendKind {
+        switch self {
+        case .beeFlower, .butterflyFlower:
+            return .flower
+        case .monkeyBanana:
+            return .banana
+        case .umbrellaCloud:
+            return .cloud
+        case .fishBoat:
+            return .boat
+        case .cupBook:
+            return .book
+        }
+    }
+
+    var distractorKind: FriendKind {
+        switch self {
+        case .beeFlower:
+            return .truck
+        case .butterflyFlower:
+            return .cup
+        case .monkeyBanana:
+            return .umbrella
+        case .umbrellaCloud:
+            return .apple
+        case .fishBoat:
+            return .car
+        case .cupBook:
+            return .ball
+        }
+    }
+
+    var promptTitle: String {
+        "\(cueKind.name)的好搭档"
+    }
+
+    var speechTitle: String {
+        "\(cueKind.name)的好搭档"
+    }
+}
+
+enum FriendOpposite: String, CaseIterable {
+    case dayNight
+    case upDown
+    case hotCold
+    case fullEmpty
+    case openClosed
+    case fastSlow
+
+    var promptTitle: String {
+        switch self {
+        case .dayNight:
+            return "白天和夜晚"
+        case .upDown:
+            return "上面和下面"
+        case .hotCold:
+            return "热和冷"
+        case .fullEmpty:
+            return "满满和空空"
+        case .openClosed:
+            return "打开和关上"
+        case .fastSlow:
+            return "快和慢"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .dayNight:
+            return "夜晚的朋友"
+        case .upDown:
+            return "下面的朋友"
+        case .hotCold:
+            return "凉凉的朋友"
+        case .fullEmpty:
+            return "空空的朋友"
+        case .openClosed:
+            return "关上的朋友"
+        case .fastSlow:
+            return "慢慢的朋友"
+        }
+    }
+
+    var cueTitle: String {
+        switch self {
+        case .dayNight:
+            return "白天"
+        case .upDown:
+            return "上面"
+        case .hotCold:
+            return "热热"
+        case .fullEmpty:
+            return "满满"
+        case .openClosed:
+            return "打开"
+        case .fastSlow:
+            return "快快"
+        }
+    }
+
+    var answerTitle: String {
+        switch self {
+        case .dayNight:
+            return "夜晚"
+        case .upDown:
+            return "下面"
+        case .hotCold:
+            return "凉凉"
+        case .fullEmpty:
+            return "空空"
+        case .openClosed:
+            return "关上"
+        case .fastSlow:
+            return "慢慢"
+        }
+    }
+
+    var cueIconName: String {
+        switch self {
+        case .dayNight:
+            return "sun.max.fill"
+        case .upDown:
+            return "arrow.up.circle.fill"
+        case .hotCold:
+            return "flame.fill"
+        case .fullEmpty:
+            return "circle.fill"
+        case .openClosed:
+            return "lock.open.fill"
+        case .fastSlow:
+            return "hare.fill"
+        }
+    }
+
+    var answerIconName: String {
+        switch self {
+        case .dayNight:
+            return "moon.stars.fill"
+        case .upDown:
+            return "arrow.down.circle.fill"
+        case .hotCold:
+            return "snowflake"
+        case .fullEmpty:
+            return "circle"
+        case .openClosed:
+            return "lock.fill"
+        case .fastSlow:
+            return "tortoise.fill"
         }
     }
 }
@@ -1462,10 +1731,11 @@ struct FriendCandidate: Identifiable {
     let count: Int
     let position: SpatialPosition
     let emotion: FriendEmotion?
+    let opposite: FriendOpposite?
     let rhythm: FriendRhythm?
     let sequence: FriendSequence?
 
-    init(id: UUID = UUID(), kind: FriendKind, color: Color, isCorrect: Bool, sizeScale: CGFloat = 1, count: Int = 1, position: SpatialPosition = .top, emotion: FriendEmotion? = nil, rhythm: FriendRhythm? = nil, sequence: FriendSequence? = nil) {
+    init(id: UUID = UUID(), kind: FriendKind, color: Color, isCorrect: Bool, sizeScale: CGFloat = 1, count: Int = 1, position: SpatialPosition = .top, emotion: FriendEmotion? = nil, opposite: FriendOpposite? = nil, rhythm: FriendRhythm? = nil, sequence: FriendSequence? = nil) {
         self.id = id
         self.kind = kind
         self.color = color
@@ -1474,6 +1744,7 @@ struct FriendCandidate: Identifiable {
         self.count = count
         self.position = position
         self.emotion = emotion
+        self.opposite = opposite
         self.rhythm = rhythm
         self.sequence = sequence
     }
@@ -1486,6 +1757,7 @@ struct GameRound: Identifiable {
     let targetColor: Color
     let targetSizeScale: CGFloat
     let targetCount: Int
+    let targetQuantityCompare: FriendQuantityCompare?
     let targetCategory: FriendCategory?
     let targetPosition: SpatialPosition
     let targetPurpose: FriendPurpose?
@@ -1494,6 +1766,9 @@ struct GameRound: Identifiable {
     let targetRoutine: FriendRoutine?
     let targetEmotion: FriendEmotion?
     let targetAction: FriendAction?
+    let targetTexture: FriendTexture?
+    let targetPairing: FriendPairing?
+    let targetOpposite: FriendOpposite?
     let targetRhythm: FriendRhythm?
     let targetSequence: FriendSequence?
     let targetPattern: FriendPattern?
@@ -1506,6 +1781,7 @@ struct GameRound: Identifiable {
         targetColor: Color,
         targetSizeScale: CGFloat = 1,
         targetCount: Int = 1,
+        targetQuantityCompare: FriendQuantityCompare? = nil,
         targetCategory: FriendCategory? = nil,
         targetPosition: SpatialPosition = .top,
         targetPurpose: FriendPurpose? = nil,
@@ -1514,6 +1790,9 @@ struct GameRound: Identifiable {
         targetRoutine: FriendRoutine? = nil,
         targetEmotion: FriendEmotion? = nil,
         targetAction: FriendAction? = nil,
+        targetTexture: FriendTexture? = nil,
+        targetPairing: FriendPairing? = nil,
+        targetOpposite: FriendOpposite? = nil,
         targetRhythm: FriendRhythm? = nil,
         targetSequence: FriendSequence? = nil,
         targetPattern: FriendPattern? = nil,
@@ -1525,6 +1804,7 @@ struct GameRound: Identifiable {
         self.targetColor = targetColor
         self.targetSizeScale = targetSizeScale
         self.targetCount = targetCount
+        self.targetQuantityCompare = targetQuantityCompare
         self.targetCategory = targetCategory
         self.targetPosition = targetPosition
         self.targetPurpose = targetPurpose
@@ -1533,6 +1813,9 @@ struct GameRound: Identifiable {
         self.targetRoutine = targetRoutine
         self.targetEmotion = targetEmotion
         self.targetAction = targetAction
+        self.targetTexture = targetTexture
+        self.targetPairing = targetPairing
+        self.targetOpposite = targetOpposite
         self.targetRhythm = targetRhythm
         self.targetSequence = targetSequence
         self.targetPattern = targetPattern
@@ -1555,6 +1838,8 @@ struct GameRound: Identifiable {
             return "找\(targetKind.name)的影子"
         case .count:
             return "找\(targetCount.cnNumberName)个\(targetKind.name)"
+        case .quantityCompare:
+            return "找\(targetQuantityCompare?.speechTitle ?? "多的")"
         case .category:
             return "找\(targetCategory?.childPromptTitle ?? targetKind.category.childPromptTitle)"
         case .position:
@@ -1571,6 +1856,12 @@ struct GameRound: Identifiable {
             return "找\(targetEmotion?.speechTitle ?? targetKind.name)"
         case .action:
             return "找\(targetAction?.speechTitle ?? targetKind.name)"
+        case .texture:
+            return "找\(targetTexture?.speechTitle ?? targetKind.name)"
+        case .pairing:
+            return "找\(targetPairing?.speechTitle ?? targetKind.name)"
+        case .opposite:
+            return "找\(targetOpposite?.speechTitle ?? targetKind.name)"
         case .rhythm:
             return "找\(targetRhythm?.speechTitle ?? targetKind.name)"
         case .sequence:
@@ -1588,6 +1879,8 @@ struct GameRound: Identifiable {
             return "\(targetColor.speechName)，找到了"
         case .count:
             return "\(targetCount.cnNumberName)个\(targetKind.name)，找到了"
+        case .quantityCompare:
+            return "\(targetQuantityCompare?.promptTitle ?? "多的")，找到了"
         case .category:
             return "\(targetKind.name)，是\(targetKind.category.childPromptTitle)"
         case .position:
@@ -1604,6 +1897,12 @@ struct GameRound: Identifiable {
             return "\(targetEmotion?.promptTitle ?? targetKind.name)，找到了"
         case .action:
             return "\(targetKind.name)，找到了"
+        case .texture:
+            return "\(targetKind.name)，摸起来\(targetTexture?.promptTitle ?? "找到了")"
+        case .pairing:
+            return "\(targetKind.name)，是好搭档"
+        case .opposite:
+            return "\(targetOpposite?.answerTitle ?? targetKind.name)，找到了"
         case .rhythm:
             return "\(targetRhythm?.promptTitle ?? targetKind.name)，找到了"
         case .sequence:

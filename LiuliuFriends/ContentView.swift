@@ -435,6 +435,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetCount.cnNumberName)个", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .quantityCompare:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    QuantityCompareTargetView(target: round.targetQuantityCompare ?? .more, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetQuantityCompare?.speechTitle ?? "多的")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .category:
                 VStack(spacing: metrics.targetContentSpacing) {
                     CategoryTargetView(category: round.targetCategory ?? round.targetKind.category, sampleKind: round.targetKind, color: round.mode.accentColor)
@@ -498,6 +505,27 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetAction?.speechTitle ?? "动作朋友")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .texture:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    TextureTargetView(texture: round.targetTexture ?? .soft, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetTexture?.speechTitle ?? "触感朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .pairing:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    PairingTargetView(pairing: round.targetPairing ?? .beeFlower, cueColor: targetCueColor(for: round.targetPairing?.cueKind ?? .bee), accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.22, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetPairing?.speechTitle ?? "好搭档")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .opposite:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    OppositeTargetView(opposite: round.targetOpposite ?? .dayNight, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetOpposite?.speechTitle ?? "相反的朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .rhythm:
                 VStack(spacing: metrics.targetContentSpacing) {
                     RhythmTargetView(rhythm: round.targetRhythm ?? .clap, accentColor: round.mode.accentColor)
@@ -528,6 +556,23 @@ private struct TargetArea: View {
         }
         .accessibilityAddTraits(.isButton)
         .accessibilityHint("重新播放本轮提示")
+    }
+
+    private func targetCueColor(for kind: FriendKind) -> Color {
+        switch kind {
+        case .bee:
+            return Color(red: 1.0, green: 0.75, blue: 0.18)
+        case .butterfly:
+            return Color(red: 0.61, green: 0.45, blue: 0.91)
+        case .monkey, .cup:
+            return Color(red: 0.70, green: 0.48, blue: 0.30)
+        case .umbrella:
+            return Color(red: 0.61, green: 0.45, blue: 0.91)
+        case .fish:
+            return Color(red: 0.22, green: 0.65, blue: 0.94)
+        default:
+            return round.mode.accentColor
+        }
     }
 }
 
@@ -648,16 +693,18 @@ private struct GameObjectView: View {
         switch round.mode {
         case .color:
             ColorLearningObjectView(kind: candidate.kind, color: candidate.color)
-        case .count:
+        case .count, .quantityCompare:
             CountClusterView(kind: candidate.kind, color: candidate.color, count: candidate.count)
         case .category:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .shape, .size, .purpose, .scene, .weather, .routine, .action, .pattern, .difference:
+        case .shape, .size, .purpose, .scene, .weather, .routine, .action, .texture, .pairing, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
+        case .opposite:
+            OppositeChoiceView(opposite: candidate.opposite ?? .dayNight, accentColor: round.mode.accentColor)
         case .rhythm:
             RhythmChoiceView(rhythm: candidate.rhythm ?? .clap, accentColor: round.mode.accentColor)
         case .sequence:
@@ -733,6 +780,21 @@ private struct CountClusterView: View {
         }
         let unitPoint = positions[min(itemIndex, positions.count - 1)]
         return CGPoint(x: unitPoint.x * size.width, y: unitPoint.y * size.height)
+    }
+}
+
+private struct QuantityCompareTargetView: View {
+    let target: FriendQuantityCompare
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: target.promptTitle,
+            subtitle: "比一比",
+            systemName: target.iconName,
+            accentColor: accentColor,
+            motif: .quantity
+        )
     }
 }
 
@@ -1003,6 +1065,148 @@ private struct ActionTargetView: View {
     }
 }
 
+private struct TextureTargetView: View {
+    let texture: FriendTexture
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: texture.promptTitle,
+            subtitle: "摸起来",
+            systemName: texture.iconName,
+            accentColor: accentColor,
+            motif: .texture
+        )
+    }
+}
+
+private struct PairingTargetView: View {
+    let pairing: FriendPairing
+    let cueColor: Color
+    let accentColor: Color
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
+                )
+
+            VStack(spacing: 8) {
+                Text("好搭档")
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(accentColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.14), in: Capsule())
+
+                HStack(spacing: 10) {
+                    FriendShape(kind: pairing.cueKind, color: cueColor, isShadow: false)
+                        .padding(5)
+                        .frame(width: 52, height: 52)
+                        .background(.white.opacity(0.74), in: Circle())
+
+                    Image(systemName: "plus")
+                        .font(.system(size: 18, weight: .black))
+                        .foregroundStyle(accentColor)
+                        .frame(width: 34, height: 34)
+                        .background(accentColor.opacity(0.12), in: Circle())
+
+                    Text("?")
+                        .font(.system(size: 30, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                        .frame(width: 52, height: 52)
+                        .background(accentColor, in: Circle())
+                        .shadow(color: accentColor.opacity(0.22), radius: 10, y: 6)
+                }
+            }
+            .padding(14)
+        }
+    }
+}
+
+private struct OppositeTargetView: View {
+    let opposite: FriendOpposite
+    let accentColor: Color
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
+                )
+
+            HStack(spacing: 10) {
+                OppositeConceptPill(
+                    title: opposite.cueTitle,
+                    systemName: opposite.cueIconName,
+                    accentColor: accentColor,
+                    isEmphasized: false
+                )
+
+                Image(systemName: "arrow.left.arrow.right")
+                    .font(.system(size: 26, weight: .black))
+                    .foregroundStyle(accentColor)
+                    .padding(8)
+                    .background(accentColor.opacity(0.12), in: Circle())
+
+                OppositeConceptPill(
+                    title: "?",
+                    systemName: opposite.answerIconName,
+                    accentColor: accentColor,
+                    isEmphasized: true
+                )
+            }
+            .padding(14)
+        }
+    }
+}
+
+private struct OppositeConceptPill: View {
+    let title: String
+    let systemName: String
+    let accentColor: Color
+    let isEmphasized: Bool
+
+    var body: some View {
+        VStack(spacing: 7) {
+            Image(systemName: systemName)
+                .font(.system(size: isEmphasized ? 34 : 30, weight: .heavy))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(isEmphasized ? .white : accentColor)
+                .frame(width: 48, height: 40)
+
+            Text(title)
+                .font(.system(size: 18, weight: .black, design: .rounded))
+                .foregroundStyle(isEmphasized ? .white : Color(red: 0.24, green: 0.26, blue: 0.30))
+                .lineLimit(1)
+                .minimumScaleFactor(0.70)
+        }
+        .frame(width: 72, height: 88)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(isEmphasized ? accentColor : .white.opacity(0.76))
+        )
+        .shadow(color: accentColor.opacity(isEmphasized ? 0.22 : 0.10), radius: 10, y: 6)
+    }
+}
+
 private struct RhythmTargetView: View {
     let rhythm: FriendRhythm
     let accentColor: Color
@@ -1131,6 +1335,34 @@ private struct EmotionChoiceView: View {
     }
 }
 
+private struct OppositeChoiceView: View {
+    let opposite: FriendOpposite
+    let accentColor: Color
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: opposite.answerIconName)
+                .font(.system(size: 52, weight: .heavy))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(accentColor)
+                .frame(width: 96, height: 80)
+                .background(
+                    Circle()
+                        .fill(accentColor.opacity(0.12))
+                        .frame(width: 108, height: 108)
+                )
+                .shadow(color: accentColor.opacity(0.20), radius: 12, y: 8)
+
+            Text(opposite.answerTitle)
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color(red: 0.48, green: 0.28, blue: 0.16))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.74), in: Capsule())
+        }
+    }
+}
+
 private struct RhythmChoiceView: View {
     let rhythm: FriendRhythm
     let accentColor: Color
@@ -1206,6 +1438,8 @@ private struct ConceptTargetCard: View {
         case clock
         case heart
         case motion
+        case quantity
+        case texture
         case rhythm
         case sequence
     }
@@ -1363,6 +1597,33 @@ private struct ConceptTargetCard: View {
                     .font(.system(size: 34, weight: .black))
                     .foregroundStyle(accentColor)
                     .offset(x: 46, y: -34)
+            }
+        case .quantity:
+            ZStack {
+                ForEach(0..<4, id: \.self) { index in
+                    Circle()
+                        .fill(accentColor)
+                        .frame(width: CGFloat(18 + index * 4), height: CGFloat(18 + index * 4))
+                        .offset(x: CGFloat(index * 24 - 40), y: CGFloat(index * 8 - 20))
+                }
+                Image(systemName: "arrow.up.arrow.down")
+                    .font(.system(size: 38, weight: .black))
+                    .foregroundStyle(accentColor)
+                    .offset(x: 44, y: 28)
+            }
+        case .texture:
+            ZStack {
+                ForEach(0..<5, id: \.self) { index in
+                    Circle()
+                        .fill(accentColor)
+                        .frame(width: CGFloat(12 + index * 3), height: CGFloat(12 + index * 3))
+                        .offset(x: CGFloat(index * 22 - 44), y: CGFloat((index % 2) * 34 - 18))
+                }
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(accentColor, style: StrokeStyle(lineWidth: 6, lineCap: .round, dash: [12, 10]))
+                    .frame(width: 84, height: 52)
+                    .rotationEffect(.degrees(-12))
+                    .offset(x: 24, y: 20)
             }
         case .rhythm:
             ZStack {
@@ -1983,6 +2244,8 @@ private struct SettingsScreen: View {
             return "影子"
         case .count:
             return "数量"
+        case .quantityCompare:
+            return "多少"
         case .category:
             return "分类"
         case .difference:
@@ -2001,6 +2264,12 @@ private struct SettingsScreen: View {
             return "情绪"
         case .action:
             return "动作"
+        case .texture:
+            return "触感"
+        case .pairing:
+            return "搭配"
+        case .opposite:
+            return "相反"
         case .rhythm:
             return "节奏"
         case .sequence:
@@ -2026,6 +2295,8 @@ private struct SettingsScreen: View {
             return "moon.fill"
         case .count:
             return "number.circle.fill"
+        case .quantityCompare:
+            return "plusminus.circle.fill"
         case .category:
             return "square.grid.2x2.fill"
         case .difference:
@@ -2044,6 +2315,12 @@ private struct SettingsScreen: View {
             return "face.smiling.fill"
         case .action:
             return "figure.run"
+        case .texture:
+            return "hand.raised.fill"
+        case .pairing:
+            return "link.circle.fill"
+        case .opposite:
+            return "arrow.left.arrow.right.circle.fill"
         case .rhythm:
             return "music.note"
         case .sequence:

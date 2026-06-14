@@ -135,6 +135,17 @@ enum GameContent {
         .car
     ]
 
+    private static let quantityComparePracticePairs: [(kind: FriendKind, target: FriendQuantityCompare, correctCount: Int, wrongCount: Int)] = [
+        (.apple, .more, 4, 2),
+        (.banana, .fewer, 1, 3),
+        (.fish, .more, 3, 1),
+        (.ball, .fewer, 2, 4),
+        (.flower, .more, 4, 1),
+        (.book, .fewer, 1, 4),
+        (.car, .more, 3, 2),
+        (.cup, .fewer, 2, 3)
+    ]
+
     private static let categoryPracticeGroups: [FriendCategory: [FriendKind]] = [
         .animal: [.cat, .dog, .duck, .rabbit, .fish, .bird],
         .vehicle: [.car, .bus, .train, .truck, .airplane, .boat],
@@ -224,6 +235,26 @@ enum GameContent {
         (.grow, .tree, .truck)
     ]
 
+    private static let texturePracticePairs: [(texture: FriendTexture, correct: FriendKind, wrong: FriendKind)] = [
+        (.soft, .sheep, .book),
+        (.soft, .rabbit, .cup),
+        (.hard, .turtle, .balloon),
+        (.hard, .book, .sheep),
+        (.smooth, .ball, .pineapple),
+        (.smooth, .cup, .tree),
+        (.rough, .pineapple, .ball),
+        (.rough, .tree, .cup)
+    ]
+
+    private static let oppositePracticePairs: [(target: FriendOpposite, distractor: FriendOpposite, correct: FriendKind, wrong: FriendKind)] = [
+        (.dayNight, .hotCold, .moon, .sun),
+        (.upDown, .openClosed, .cloud, .book),
+        (.hotCold, .dayNight, .umbrella, .sun),
+        (.fullEmpty, .fastSlow, .cup, .bus),
+        (.openClosed, .upDown, .book, .cloud),
+        (.fastSlow, .fullEmpty, .turtle, .cup)
+    ]
+
     private static let rhythmPracticePairs: [(target: FriendRhythm, distractor: FriendRhythm)] = [
         (.clap, .step),
         (.step, .shake),
@@ -284,6 +315,10 @@ enum GameContent {
             ]
         }
 
+        result += quantityComparePracticePairs.enumerated().map { index, pair in
+            quantityCompare(pair.kind, color(for: pair.kind), target: pair.target, correctCount: pair.correctCount, wrongCount: pair.wrongCount, correctFirst: index.isMultiple(of: 2))
+        }
+
         let categoryRounds = categoryPracticeGroups.keys.sorted { $0.rawValue < $1.rawValue }.flatMap { category in
             categoryPracticeGroups[category, default: []].enumerated().map { index, kind in
                 categoryRound(
@@ -331,6 +366,18 @@ enum GameContent {
 
         result += actionPracticePairs.enumerated().map { index, pair in
             action(pair.action, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += texturePracticePairs.enumerated().map { index, pair in
+            texture(pair.texture, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += FriendPairing.allCases.enumerated().map { index, pairing in
+            pairingRound(pairing, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += oppositePracticePairs.enumerated().map { index, pair in
+            opposite(pair.target, distractor: pair.distractor, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
         }
 
         result += rhythmPracticePairs.enumerated().map { index, pair in
@@ -405,6 +452,26 @@ enum GameContent {
             targetKind: kind,
             targetColor: color,
             targetCount: targetCount,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func quantityCompare(
+        _ kind: FriendKind,
+        _ color: Color,
+        target: FriendQuantityCompare,
+        correctCount: Int,
+        wrongCount: Int,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: kind, color: color, isCorrect: true, count: correctCount)
+        let wrong = FriendCandidate(kind: kind, color: color, isCorrect: false, count: wrongCount)
+        return GameRound(
+            mode: .quantityCompare,
+            targetKind: kind,
+            targetColor: color,
+            targetCount: correctCount,
+            targetQuantityCompare: target,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
@@ -558,6 +625,56 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetAction: action,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func texture(
+        _ texture: FriendTexture,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .texture,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetTexture: texture,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func pairingRound(
+        _ pairing: FriendPairing,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: pairing.answerKind, color: color(for: pairing.answerKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: pairing.distractorKind, color: color(for: pairing.distractorKind), isCorrect: false)
+        return GameRound(
+            mode: .pairing,
+            targetKind: pairing.answerKind,
+            targetColor: color(for: pairing.answerKind),
+            targetPairing: pairing,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func opposite(
+        _ target: FriendOpposite,
+        distractor: FriendOpposite,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true, opposite: target)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false, opposite: distractor)
+        return GameRound(
+            mode: .opposite,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetOpposite: target,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
