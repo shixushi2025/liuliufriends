@@ -1098,7 +1098,7 @@ private struct SymbolFriendShape: View {
             return 78
         case .animal:
             return 76
-        case .shape:
+        case .shape, .body:
             return 86
         }
     }
