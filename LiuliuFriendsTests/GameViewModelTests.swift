@@ -49,10 +49,14 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.shape.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.category.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.position.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.routine.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.emotion.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.size.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.shadow.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.purpose.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.scene.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.weather.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.action.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.count.ageBand, .preschool36Months)
         XCTAssertEqual(FutureLearningModule.numbers.recommendedAgeBand, .preschool36Months)
         XCTAssertEqual(FutureLearningModule.nurseryRhymes.recommendedAgeBand, .preschool36Months)
@@ -93,14 +97,74 @@ final class GameViewModelTests: XCTestCase {
         }
     }
 
+    func testWeatherRoundsHaveExplicitWeatherTargets() {
+        let weatherRounds = GameContent.rounds.filter { $0.mode == .weather }
+
+        XCTAssertFalse(weatherRounds.isEmpty)
+        XCTAssertEqual(Set(weatherRounds.compactMap(\.targetWeather)), Set(FriendWeather.allCases))
+        for round in weatherRounds {
+            XCTAssertNotNil(round.targetWeather)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetWeather!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testRoutineRoundsHaveExplicitRoutineTargets() {
+        let routineRounds = GameContent.rounds.filter { $0.mode == .routine }
+
+        XCTAssertFalse(routineRounds.isEmpty)
+        XCTAssertEqual(Set(routineRounds.compactMap(\.targetRoutine)), Set(FriendRoutine.allCases))
+        for round in routineRounds {
+            XCTAssertNotNil(round.targetRoutine)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetRoutine!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testEmotionRoundsHaveExplicitEmotionTargets() {
+        let emotionRounds = GameContent.rounds.filter { $0.mode == .emotion }
+
+        XCTAssertFalse(emotionRounds.isEmpty)
+        XCTAssertEqual(Set(emotionRounds.compactMap(\.targetEmotion)), Set(FriendEmotion.allCases))
+        for round in emotionRounds {
+            XCTAssertNotNil(round.targetEmotion)
+            XCTAssertTrue(round.candidates.allSatisfy { $0.emotion != nil })
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetEmotion!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testActionRoundsHaveExplicitActionTargets() {
+        let actionRounds = GameContent.rounds.filter { $0.mode == .action }
+
+        XCTAssertFalse(actionRounds.isEmpty)
+        XCTAssertEqual(Set(actionRounds.compactMap(\.targetAction)), Set(FriendAction.allCases))
+        for round in actionRounds {
+            XCTAssertNotNil(round.targetAction)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetAction!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
     func testSessionRoundsLimitLargeModesAndKeepAllModesVisible() {
         let sessionRounds = GameContent.sessionRounds()
         let countsByMode = Dictionary(grouping: sessionRounds, by: \.mode).mapValues(\.count)
 
         XCTAssertEqual(Set(countsByMode.keys), Set(GameMode.allCases))
         for mode in GameMode.allCases {
-            XCTAssertLessThanOrEqual(countsByMode[mode, default: 0], 12, "\(mode.title) should not dominate one session.")
+            XCTAssertLessThanOrEqual(countsByMode[mode, default: 0], GameContent.sessionRoundLimit(for: mode), "\(mode.title) should not dominate one session.")
         }
+    }
+
+    func testSessionRoundLimitsGetShorterForHarderAgeBands() {
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .animal), 10)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .routine), 7)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .action), 5)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .count), 4)
     }
 
     func testSessionStartsWithBasicWarmupModes() {

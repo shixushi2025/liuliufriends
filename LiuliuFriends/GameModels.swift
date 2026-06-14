@@ -62,14 +62,11 @@ enum LearningAgeBand: String, CaseIterable {
 enum FutureLearningModule: String, CaseIterable {
     case numbers
     case nurseryRhymes
-    case dailyRoutines
 
     var recommendedAgeBand: LearningAgeBand {
         switch self {
         case .numbers, .nurseryRhymes:
             return .preschool36Months
-        case .dailyRoutines:
-            return .explorer24Months
         }
     }
 }
@@ -86,6 +83,10 @@ enum GameMode: String, CaseIterable {
     case position
     case purpose
     case scene
+    case weather
+    case routine
+    case emotion
+    case action
 
     var title: String {
         switch self {
@@ -111,6 +112,14 @@ enum GameMode: String, CaseIterable {
             return "用途朋友"
         case .scene:
             return "场景朋友"
+        case .weather:
+            return "天气朋友"
+        case .routine:
+            return "作息朋友"
+        case .emotion:
+            return "情绪朋友"
+        case .action:
+            return "动作朋友"
         }
     }
 
@@ -138,6 +147,14 @@ enum GameMode: String, CaseIterable {
             return "帮六六找有用的朋友"
         case .scene:
             return "帮六六找在哪儿"
+        case .weather:
+            return "帮六六找天气朋友"
+        case .routine:
+            return "帮六六找每天做的事"
+        case .emotion:
+            return "帮六六找表情"
+        case .action:
+            return "帮六六找会怎么动"
         }
     }
 
@@ -145,9 +162,9 @@ enum GameMode: String, CaseIterable {
         switch self {
         case .animal, .sound:
             return .starter18Months
-        case .color, .shape, .category, .position:
+        case .color, .shape, .category, .position, .routine, .emotion:
             return .explorer24Months
-        case .size, .shadow, .purpose, .scene:
+        case .size, .shadow, .purpose, .scene, .weather, .action:
             return .matcher30Months
         case .count:
             return .preschool36Months
@@ -160,7 +177,7 @@ enum GameMode: String, CaseIterable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .color, .shape, .size, .shadow, .count, .category, .position, .purpose, .scene:
+        case .color, .shape, .size, .shadow, .count, .category, .position, .purpose, .scene, .weather, .routine, .emotion, .action:
             return true
         case .animal, .sound:
             return false
@@ -191,6 +208,14 @@ enum GameMode: String, CaseIterable {
             return Color(red: 0.96, green: 0.48, blue: 0.20)
         case .scene:
             return Color(red: 0.18, green: 0.63, blue: 0.74)
+        case .weather:
+            return Color(red: 0.27, green: 0.58, blue: 0.92)
+        case .routine:
+            return Color(red: 0.88, green: 0.52, blue: 0.24)
+        case .emotion:
+            return Color(red: 0.94, green: 0.42, blue: 0.58)
+        case .action:
+            return Color(red: 0.45, green: 0.48, blue: 0.92)
         }
     }
 }
@@ -345,6 +370,211 @@ enum FriendScene: String, CaseIterable {
             return "leaf.fill"
         case .rainyDay:
             return "cloud.rain.fill"
+        }
+    }
+}
+
+enum FriendWeather: String, CaseIterable {
+    case sunny
+    case rainy
+    case cloudy
+    case windy
+
+    var promptTitle: String {
+        switch self {
+        case .sunny:
+            return "晴天"
+        case .rainy:
+            return "雨天"
+        case .cloudy:
+            return "多云"
+        case .windy:
+            return "有风"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .sunny:
+            return "晴天的"
+        case .rainy:
+            return "雨天用的"
+        case .cloudy:
+            return "云朵多的"
+        case .windy:
+            return "会被风吹的"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .sunny:
+            return "sun.max.fill"
+        case .rainy:
+            return "cloud.rain.fill"
+        case .cloudy:
+            return "cloud.fill"
+        case .windy:
+            return "wind"
+        }
+    }
+}
+
+enum FriendRoutine: String, CaseIterable {
+    case morning
+    case drinkWater
+    case reading
+    case playing
+    case goingOut
+    case bedtime
+
+    var promptTitle: String {
+        switch self {
+        case .morning:
+            return "早上"
+        case .drinkWater:
+            return "喝水"
+        case .reading:
+            return "看书"
+        case .playing:
+            return "玩耍"
+        case .goingOut:
+            return "出门"
+        case .bedtime:
+            return "睡觉"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .morning:
+            return "早上看到的"
+        case .drinkWater:
+            return "喝水用的"
+        case .reading:
+            return "看书用的"
+        case .playing:
+            return "玩的时候用的"
+        case .goingOut:
+            return "出门坐的"
+        case .bedtime:
+            return "睡觉前看到的"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .morning:
+            return "sunrise.fill"
+        case .drinkWater:
+            return "drop.fill"
+        case .reading:
+            return "book.fill"
+        case .playing:
+            return "figure.play"
+        case .goingOut:
+            return "car.fill"
+        case .bedtime:
+            return "moon.fill"
+        }
+    }
+}
+
+enum FriendEmotion: String, CaseIterable {
+    case happy
+    case calm
+    case encouraged
+
+    var promptTitle: String {
+        switch self {
+        case .happy:
+            return "开心"
+        case .calm:
+            return "安静"
+        case .encouraged:
+            return "加油"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .happy:
+            return "开心的表情"
+        case .calm:
+            return "安静的表情"
+        case .encouraged:
+            return "加油的表情"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .happy:
+            return "face.smiling.fill"
+        case .calm:
+            return "moon.stars.fill"
+        case .encouraged:
+            return "hands.sparkles.fill"
+        }
+    }
+}
+
+enum FriendAction: String, CaseIterable {
+    case fly
+    case swim
+    case roll
+    case jump
+    case drive
+    case grow
+
+    var promptTitle: String {
+        switch self {
+        case .fly:
+            return "会飞"
+        case .swim:
+            return "会游"
+        case .roll:
+            return "会滚"
+        case .jump:
+            return "会跳"
+        case .drive:
+            return "会开走"
+        case .grow:
+            return "会长大"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .fly:
+            return "会飞的"
+        case .swim:
+            return "会游的"
+        case .roll:
+            return "会滚的"
+        case .jump:
+            return "会跳的"
+        case .drive:
+            return "会开走的"
+        case .grow:
+            return "会长大的"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .fly:
+            return "bird.fill"
+        case .swim:
+            return "water.waves"
+        case .roll:
+            return "circle.dashed"
+        case .jump:
+            return "figure.jump"
+        case .drive:
+            return "car.fill"
+        case .grow:
+            return "leaf.fill"
         }
     }
 }
@@ -1019,8 +1249,9 @@ struct FriendCandidate: Identifiable {
     let sizeScale: CGFloat
     let count: Int
     let position: SpatialPosition
+    let emotion: FriendEmotion?
 
-    init(id: UUID = UUID(), kind: FriendKind, color: Color, isCorrect: Bool, sizeScale: CGFloat = 1, count: Int = 1, position: SpatialPosition = .top) {
+    init(id: UUID = UUID(), kind: FriendKind, color: Color, isCorrect: Bool, sizeScale: CGFloat = 1, count: Int = 1, position: SpatialPosition = .top, emotion: FriendEmotion? = nil) {
         self.id = id
         self.kind = kind
         self.color = color
@@ -1028,6 +1259,7 @@ struct FriendCandidate: Identifiable {
         self.sizeScale = sizeScale
         self.count = count
         self.position = position
+        self.emotion = emotion
     }
 }
 
@@ -1042,6 +1274,10 @@ struct GameRound: Identifiable {
     let targetPosition: SpatialPosition
     let targetPurpose: FriendPurpose?
     let targetScene: FriendScene?
+    let targetWeather: FriendWeather?
+    let targetRoutine: FriendRoutine?
+    let targetEmotion: FriendEmotion?
+    let targetAction: FriendAction?
     let candidates: [FriendCandidate]
 
     init(
@@ -1055,6 +1291,10 @@ struct GameRound: Identifiable {
         targetPosition: SpatialPosition = .top,
         targetPurpose: FriendPurpose? = nil,
         targetScene: FriendScene? = nil,
+        targetWeather: FriendWeather? = nil,
+        targetRoutine: FriendRoutine? = nil,
+        targetEmotion: FriendEmotion? = nil,
+        targetAction: FriendAction? = nil,
         candidates: [FriendCandidate]
     ) {
         self.id = id
@@ -1067,6 +1307,10 @@ struct GameRound: Identifiable {
         self.targetPosition = targetPosition
         self.targetPurpose = targetPurpose
         self.targetScene = targetScene
+        self.targetWeather = targetWeather
+        self.targetRoutine = targetRoutine
+        self.targetEmotion = targetEmotion
+        self.targetAction = targetAction
         self.candidates = candidates
     }
 
@@ -1094,6 +1338,14 @@ struct GameRound: Identifiable {
             return "找\(targetPurpose?.speechTitle ?? targetKind.name)"
         case .scene:
             return "找\(targetScene?.speechTitle ?? targetKind.name)"
+        case .weather:
+            return "找\(targetWeather?.speechTitle ?? targetKind.name)"
+        case .routine:
+            return "找\(targetRoutine?.speechTitle ?? targetKind.name)"
+        case .emotion:
+            return "找\(targetEmotion?.speechTitle ?? targetKind.name)"
+        case .action:
+            return "找\(targetAction?.speechTitle ?? targetKind.name)"
         }
     }
 
@@ -1110,6 +1362,14 @@ struct GameRound: Identifiable {
         case .purpose:
             return "\(targetKind.name)，\(targetPurpose?.speechTitle ?? "找到了")"
         case .scene:
+            return "\(targetKind.name)，找到了"
+        case .weather:
+            return "\(targetKind.name)，找到了"
+        case .routine:
+            return "\(targetKind.name)，找到了"
+        case .emotion:
+            return "\(targetEmotion?.promptTitle ?? targetKind.name)，找到了"
+        case .action:
             return "\(targetKind.name)，找到了"
         default:
             return "\(targetKind.name)，找到了"

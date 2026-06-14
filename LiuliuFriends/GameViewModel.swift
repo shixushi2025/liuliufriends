@@ -425,6 +425,14 @@ final class GameViewModel: ObservableObject {
             return "找\(round.targetPurpose?.speechTitle ?? displayName(for: round.targetKind))"
         case .scene:
             return "找\(round.targetScene?.speechTitle ?? displayName(for: round.targetKind))"
+        case .weather:
+            return "找\(round.targetWeather?.speechTitle ?? displayName(for: round.targetKind))"
+        case .routine:
+            return "找\(round.targetRoutine?.speechTitle ?? displayName(for: round.targetKind))"
+        case .emotion:
+            return "找\(round.targetEmotion?.speechTitle ?? displayName(for: round.targetKind))"
+        case .action:
+            return "找\(round.targetAction?.speechTitle ?? displayName(for: round.targetKind))"
         }
     }
 
@@ -440,6 +448,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
         case .purpose:
             return "\(displayName(for: round.targetKind))，找到了"
+        case .emotion:
+            return "\(round.targetEmotion?.promptTitle ?? displayName(for: round.targetKind))，找到了"
         default:
             return "\(displayName(for: round.targetKind))，找到了"
         }

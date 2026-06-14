@@ -2,11 +2,23 @@ import SwiftUI
 
 enum GameContent {
     static let rounds: [GameRound] = makeRounds()
-    private static let sessionRoundLimitPerMode = 12
     private static let warmupModes: [GameMode] = [.animal, .sound, .color, .shape]
 
     static func sessionRounds() -> [GameRound] {
         warmupFirst(balancedShuffled(limitedForSession(rounds)))
+    }
+
+    static func sessionRoundLimit(for mode: GameMode) -> Int {
+        switch mode.ageBand {
+        case .starter18Months:
+            return 10
+        case .explorer24Months:
+            return 7
+        case .matcher30Months:
+            return 5
+        case .preschool36Months:
+            return 4
+        }
     }
 
     private static let palette: [Color] = [
@@ -158,6 +170,48 @@ enum GameContent {
         (.rainyDay, .umbrella, .sun)
     ]
 
+    private static let weatherPracticePairs: [(weather: FriendWeather, correct: FriendKind, wrong: FriendKind)] = [
+        (.sunny, .sun, .umbrella),
+        (.sunny, .sun, .cloud),
+        (.rainy, .umbrella, .sun),
+        (.rainy, .cloud, .ball),
+        (.cloudy, .cloud, .apple),
+        (.cloudy, .cloud, .book),
+        (.windy, .balloon, .cup),
+        (.windy, .balloon, .tree)
+    ]
+
+    private static let routinePracticePairs: [(routine: FriendRoutine, correct: FriendKind, wrong: FriendKind)] = [
+        (.morning, .sun, .moon),
+        (.morning, .sun, .book),
+        (.drinkWater, .cup, .ball),
+        (.reading, .book, .banana),
+        (.playing, .ball, .cup),
+        (.goingOut, .car, .flower),
+        (.bedtime, .moon, .sun),
+        (.bedtime, .moon, .bus)
+    ]
+
+    private static let emotionPracticePairs: [(target: FriendEmotion, distractor: FriendEmotion)] = [
+        (.happy, .calm),
+        (.calm, .happy),
+        (.encouraged, .calm),
+        (.happy, .encouraged),
+        (.calm, .encouraged),
+        (.encouraged, .happy)
+    ]
+
+    private static let actionPracticePairs: [(action: FriendAction, correct: FriendKind, wrong: FriendKind)] = [
+        (.fly, .bird, .fish),
+        (.fly, .airplane, .cup),
+        (.swim, .fish, .car),
+        (.roll, .ball, .book),
+        (.jump, .frog, .tree),
+        (.drive, .bus, .banana),
+        (.drive, .car, .flower),
+        (.grow, .tree, .truck)
+    ]
+
     private static func makeRounds() -> [GameRound] {
         var result: [GameRound] = []
 
@@ -227,6 +281,22 @@ enum GameContent {
 
         result += scenePracticePairs.enumerated().map { index, pair in
             scene(pair.scene, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += weatherPracticePairs.enumerated().map { index, pair in
+            weather(pair.weather, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += routinePracticePairs.enumerated().map { index, pair in
+            routine(pair.routine, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += emotionPracticePairs.enumerated().map { index, pair in
+            emotion(pair.target, distractor: pair.distractor, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += actionPracticePairs.enumerated().map { index, pair in
+            action(pair.action, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
         return result
@@ -362,6 +432,73 @@ enum GameContent {
         )
     }
 
+    private static func weather(
+        _ weather: FriendWeather,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .weather,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetWeather: weather,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func routine(
+        _ routine: FriendRoutine,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .routine,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetRoutine: routine,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func emotion(
+        _ target: FriendEmotion,
+        distractor: FriendEmotion,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: .cat, color: .coral, isCorrect: true, emotion: target)
+        let wrong = FriendCandidate(kind: .dog, color: .skyBlue, isCorrect: false, emotion: distractor)
+        return GameRound(
+            mode: .emotion,
+            targetKind: .cat,
+            targetColor: .coral,
+            targetEmotion: target,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func action(
+        _ action: FriendAction,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .action,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetAction: action,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
     private static func matchingRound(
         _ mode: GameMode,
         _ target: FriendKind,
@@ -438,8 +575,8 @@ enum GameContent {
 
     private static func limitedForSession(_ sourceRounds: [GameRound]) -> [GameRound] {
         Dictionary(grouping: sourceRounds, by: \.mode)
-            .flatMap { _, rounds in
-                Array(rounds.shuffled().prefix(sessionRoundLimitPerMode))
+            .flatMap { mode, rounds in
+                Array(rounds.shuffled().prefix(sessionRoundLimit(for: mode)))
             }
     }
 

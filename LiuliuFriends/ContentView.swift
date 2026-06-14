@@ -463,6 +463,34 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetScene?.speechTitle ?? "场景朋友")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .weather:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    WeatherTargetView(weather: round.targetWeather ?? .sunny, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetWeather?.speechTitle ?? "天气朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .routine:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    RoutineTargetView(routine: round.targetRoutine ?? .morning, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetRoutine?.speechTitle ?? "作息朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .emotion:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    EmotionTargetView(emotion: round.targetEmotion ?? .happy, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetEmotion?.speechTitle ?? "情绪朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .action:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    ActionTargetView(action: round.targetAction ?? .fly, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetAction?.speechTitle ?? "动作朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             }
 
         }
@@ -530,7 +558,7 @@ private struct CandidateButton: View {
                     .shadow(color: Color(red: 0.72, green: 0.50, blue: 0.24).opacity(isCompleted ? 0.18 : 0.08), radius: isCompleted ? 22 : 12, y: isCompleted ? 14 : 8)
                     .shadow(color: Color(red: 1.0, green: 0.78, blue: 0.28).opacity(isCompleted || isHinted ? 0.38 : 0), radius: isCompleted ? 24 : 16)
 
-                GameObjectView(round: round, kind: candidate.kind, color: candidate.color, count: candidate.count, position: candidate.position, isTarget: false)
+                GameObjectView(round: round, candidate: candidate, isTarget: false)
                     .scaleEffect(displayScale)
                     .padding(objectPadding)
 
@@ -547,7 +575,7 @@ private struct CandidateButton: View {
         }
         .buttonStyle(.plain)
         .disabled(isCompleted || isLocked)
-        .accessibilityLabel(candidate.kind.name)
+        .accessibilityLabel(accessibilityLabel)
     }
 
     private var displayScale: CGFloat {
@@ -568,32 +596,38 @@ private struct CandidateButton: View {
             max(14, size * 0.13)
         }
     }
+
+    private var accessibilityLabel: String {
+        if round.mode == .emotion, let emotion = candidate.emotion {
+            return emotion.promptTitle
+        }
+        return candidate.kind.name
+    }
 }
 
 private struct GameObjectView: View {
     let round: GameRound
-    let kind: FriendKind
-    let color: Color
-    let count: Int
-    let position: SpatialPosition
+    let candidate: FriendCandidate
     let isTarget: Bool
 
     var body: some View {
         switch round.mode {
         case .color:
-            ColorLearningObjectView(kind: kind, color: color)
+            ColorLearningObjectView(kind: candidate.kind, color: candidate.color)
         case .count:
-            CountClusterView(kind: kind, color: color, count: count)
+            CountClusterView(kind: candidate.kind, color: candidate.color, count: candidate.count)
         case .category:
-            FriendShape(kind: kind, color: color, isShadow: false)
+            FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
-            PositionStageView(kind: kind, color: color, position: position)
-        case .shape, .size, .purpose, .scene:
-            FriendShape(kind: kind, color: color, isShadow: false)
+            PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
+        case .shape, .size, .purpose, .scene, .weather, .routine, .action:
+            FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
+        case .emotion:
+            EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
         case .shadow:
-            FriendShape(kind: kind, color: color, isShadow: isTarget)
+            FriendShape(kind: candidate.kind, color: candidate.color, isShadow: isTarget)
         case .animal, .sound:
-            FriendShape(kind: kind, color: color, isShadow: false)
+            FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         }
     }
 }
@@ -795,10 +829,110 @@ private struct SceneTargetView: View {
     }
 }
 
+private struct WeatherTargetView: View {
+    let weather: FriendWeather
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: weather.promptTitle,
+            subtitle: "什么天气",
+            systemName: weather.iconName,
+            accentColor: accentColor,
+            motif: .weather
+        )
+    }
+}
+
+private struct RoutineTargetView: View {
+    let routine: FriendRoutine
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: routine.promptTitle,
+            subtitle: "每天做什么",
+            systemName: routine.iconName,
+            accentColor: accentColor,
+            motif: .clock
+        )
+    }
+}
+
+private struct EmotionTargetView: View {
+    let emotion: FriendEmotion
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: emotion.promptTitle,
+            subtitle: "什么表情",
+            systemName: emotion.iconName,
+            accentColor: accentColor,
+            motif: .heart
+        )
+    }
+}
+
+private struct ActionTargetView: View {
+    let action: FriendAction
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: action.promptTitle,
+            subtitle: "怎么动",
+            systemName: action.iconName,
+            accentColor: accentColor,
+            motif: .motion
+        )
+    }
+}
+
+private struct EmotionChoiceView: View {
+    let emotion: FriendEmotion
+    let accentColor: Color
+
+    var body: some View {
+        VStack(spacing: 8) {
+            LiuliuMascot(mood: mood)
+                .frame(width: 118, height: 132)
+                .scaleEffect(0.72)
+                .background(
+                    Circle()
+                        .fill(accentColor.opacity(0.10))
+                        .frame(width: 112, height: 112)
+                )
+
+            Text(emotion.promptTitle)
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color(red: 0.48, green: 0.28, blue: 0.16))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.74), in: Capsule())
+        }
+    }
+
+    private var mood: LiuliuMood {
+        switch emotion {
+        case .happy:
+            return .happy
+        case .calm:
+            return .waiting
+        case .encouraged:
+            return .encourage
+        }
+    }
+}
+
 private struct ConceptTargetCard: View {
     enum Motif {
         case spark
         case bubble
+        case weather
+        case clock
+        case heart
+        case motion
     }
 
     let title: String
@@ -885,7 +1019,91 @@ private struct ConceptTargetCard: View {
                     .frame(width: 46, height: 14)
                     .offset(x: 34, y: 38)
             }
+        case .weather:
+            ZStack {
+                Circle()
+                    .fill(accentColor)
+                    .frame(width: 34, height: 34)
+                    .offset(x: -48, y: -34)
+                CloudMotif()
+                    .fill(accentColor)
+                    .frame(width: 76, height: 44)
+                    .offset(x: 34, y: 34)
+                ForEach(0..<3, id: \.self) { index in
+                    Capsule()
+                        .fill(accentColor)
+                        .frame(width: 6, height: 18)
+                        .offset(x: CGFloat(index * 16 - 14), y: -6)
+                }
+            }
+        case .clock:
+            ZStack {
+                Circle()
+                    .stroke(accentColor, lineWidth: 6)
+                    .frame(width: 72, height: 72)
+                    .offset(x: -42, y: 18)
+                Capsule()
+                    .fill(accentColor)
+                    .frame(width: 8, height: 30)
+                    .offset(x: -42, y: 8)
+                Capsule()
+                    .fill(accentColor)
+                    .frame(width: 32, height: 8)
+                    .offset(x: -28, y: 20)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(accentColor)
+                    .frame(width: 42, height: 18)
+                    .rotationEffect(.degrees(18))
+                    .offset(x: 46, y: -36)
+            }
+        case .heart:
+            ZStack {
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 42, weight: .heavy))
+                    .foregroundStyle(accentColor)
+                    .offset(x: -46, y: -34)
+                Image(systemName: "face.smiling.fill")
+                    .font(.system(size: 36, weight: .heavy))
+                    .foregroundStyle(accentColor)
+                    .offset(x: 46, y: 36)
+                Circle()
+                    .fill(accentColor)
+                    .frame(width: 14, height: 14)
+                    .offset(x: 38, y: -38)
+            }
+        case .motion:
+            ZStack {
+                ForEach(0..<3, id: \.self) { index in
+                    Capsule()
+                        .fill(accentColor)
+                        .frame(width: CGFloat(54 - index * 10), height: 8)
+                        .offset(x: CGFloat(index * 12 - 42), y: CGFloat(index * 22 - 26))
+                }
+                Circle()
+                    .stroke(accentColor, style: StrokeStyle(lineWidth: 6, lineCap: .round, dash: [16, 12]))
+                    .frame(width: 74, height: 74)
+                    .rotationEffect(.degrees(-18))
+                    .offset(x: 36, y: 22)
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 34, weight: .black))
+                    .foregroundStyle(accentColor)
+                    .offset(x: 46, y: -34)
+            }
         }
+    }
+}
+
+private struct CloudMotif: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let baseY = rect.midY + rect.height * 0.14
+        path.addRoundedRect(
+            in: CGRect(x: rect.minX + rect.width * 0.14, y: baseY - rect.height * 0.20, width: rect.width * 0.74, height: rect.height * 0.34),
+            cornerSize: CGSize(width: rect.height * 0.18, height: rect.height * 0.18)
+        )
+        path.addEllipse(in: CGRect(x: rect.minX + rect.width * 0.16, y: rect.minY + rect.height * 0.28, width: rect.width * 0.34, height: rect.height * 0.42))
+        path.addEllipse(in: CGRect(x: rect.minX + rect.width * 0.40, y: rect.minY + rect.height * 0.12, width: rect.width * 0.42, height: rect.height * 0.56))
+        return path
     }
 }
 
@@ -1430,9 +1648,9 @@ private struct SettingsScreen: View {
 
     private var modeGroups: [ModeSettingsGroup] {
         [
-            ModeSettingsGroup(title: "基础识物", modes: [.animal, .sound, .color, .shape]),
+            ModeSettingsGroup(title: "基础识物", modes: [.animal, .sound, .color, .shape, .routine, .emotion]),
             ModeSettingsGroup(title: "观察匹配", modes: [.size, .shadow, .count, .position]),
-            ModeSettingsGroup(title: "理解关系", modes: [.category, .purpose, .scene])
+            ModeSettingsGroup(title: "理解关系", modes: [.category, .purpose, .scene, .weather, .action])
         ]
     }
 
@@ -1460,6 +1678,14 @@ private struct SettingsScreen: View {
             return "用途"
         case .scene:
             return "场景"
+        case .weather:
+            return "天气"
+        case .routine:
+            return "作息"
+        case .emotion:
+            return "情绪"
+        case .action:
+            return "动作"
         }
     }
 
@@ -1487,6 +1713,14 @@ private struct SettingsScreen: View {
             return "lightbulb.fill"
         case .scene:
             return "map.fill"
+        case .weather:
+            return "cloud.sun.fill"
+        case .routine:
+            return "sunrise.fill"
+        case .emotion:
+            return "face.smiling.fill"
+        case .action:
+            return "figure.run"
         }
     }
 }
