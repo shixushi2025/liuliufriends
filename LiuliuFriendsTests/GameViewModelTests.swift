@@ -671,9 +671,9 @@ final class GameViewModelTests: XCTestCase {
     }
 
     func testSessionStartsWithBasicWarmupModes() {
-        let warmupModes = GameContent.sessionRounds().prefix(4).map(\.mode)
+        let warmupModes = GameContent.sessionRounds().prefix(6).map(\.mode)
 
-        XCTAssertEqual(Array(warmupModes), [.animal, .sound, .color, .shape])
+        XCTAssertEqual(Array(warmupModes), [.animal, .vehicle, .fruit, .sound, .color, .shape])
     }
 
     func testAdaptiveWarmupKeepsEarlyRoundsSimple() {
