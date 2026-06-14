@@ -120,6 +120,12 @@ enum GameContent {
         .cucumber: .leafGreen,
         .mushroom: .milkBrown,
         .broccoli: .leafGreen,
+        .bowl: .skyBlue,
+        .spoon: .softGray,
+        .plate: .mintGreen,
+        .fork: .softGray,
+        .chopsticks: .milkBrown,
+        .bottle: .rosePink,
         .flower: .rosePink,
         .tree: .leafGreen,
         .sun: .sunYellow,
@@ -148,6 +154,10 @@ enum GameContent {
 
     private static var vegetables: [FriendKind] {
         FriendKind.allCases.filter { $0.category == .vegetable }
+    }
+
+    private static var tablewareItems: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .tableware }
     }
 
     private static var visibleKinds: [FriendKind] {
@@ -183,6 +193,7 @@ enum GameContent {
         .body: [.eye, .ear, .mouth, .hand, .foot, .nose],
         .clothing: [.hat, .shirt, .pants, .shoes, .socks, .coat],
         .vegetable: [.carrot, .corn, .tomato, .cucumber, .mushroom, .broccoli],
+        .tableware: [.bowl, .spoon, .plate, .fork, .chopsticks, .bottle],
         .object: [.balloon, .flower, .tree, .umbrella, .ball, .book]
     ]
 
@@ -195,6 +206,8 @@ enum GameContent {
         (.fruit, .watermelon, .car),
         (.vegetable, .carrot, .cat),
         (.vegetable, .tomato, .bus),
+        (.tableware, .bowl, .rabbit),
+        (.tableware, .spoon, .banana),
         (.object, .book, .rabbit),
         (.object, .umbrella, .banana)
     ]
@@ -353,6 +366,10 @@ enum GameContent {
 
         result += vegetables.enumerated().map { index, kind in
             matchingRound(.vegetable, kind, color(for: kind), distractor(for: kind, in: vegetables, offset: 2), color(for: distractor(for: kind, in: vegetables, offset: 2)), correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += tablewareItems.enumerated().map { index, kind in
+            matchingRound(.tableware, kind, color(for: kind), distractor(for: kind, in: tablewareItems, offset: 2), color(for: distractor(for: kind, in: tablewareItems, offset: 2)), correctFirst: index.isMultiple(of: 2))
         }
 
         result += visibleKinds.enumerated().flatMap { index, kind in
