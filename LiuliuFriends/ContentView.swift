@@ -473,6 +473,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .food:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .tableware:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
@@ -523,6 +530,13 @@ private struct TargetArea: View {
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .place:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .profession:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
@@ -694,7 +708,7 @@ private struct TargetArea: View {
         case .fish:
             return Color(red: 0.22, green: 0.65, blue: 0.94)
         default:
-            return round.mode.accentColor
+            return kind.category.accentColor
         }
     }
 }
@@ -822,7 +836,7 @@ private struct GameObjectView: View {
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
+        case .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -944,7 +958,7 @@ private struct CategoryTargetView: View {
             VStack(spacing: 10) {
                 HStack(spacing: 8) {
                     ForEach(sampleKinds.prefix(3), id: \.self) { kind in
-                        FriendShape(kind: kind, color: categoryColor(for: kind), isShadow: false)
+                        FriendShape(kind: kind, color: kind.category.accentColor, isShadow: false)
                             .padding(6)
                             .frame(width: 42, height: 42)
                             .background(.white.opacity(0.68), in: Circle())
@@ -962,77 +976,7 @@ private struct CategoryTargetView: View {
     }
 
     private var sampleKinds: [FriendKind] {
-        switch category {
-        case .animal:
-            return [sampleKind, .cat, .dog, .fish].uniqued()
-        case .vehicle:
-            return [sampleKind, .car, .bus, .train].uniqued()
-        case .fruit:
-            return [sampleKind, .apple, .banana, .watermelon].uniqued()
-        case .shape:
-            return [sampleKind, .circle, .star, .triangle].uniqued()
-        case .body:
-            return [sampleKind, .eye, .ear, .hand].uniqued()
-        case .clothing:
-            return [sampleKind, .hat, .shirt, .shoes].uniqued()
-        case .vegetable:
-            return [sampleKind, .carrot, .tomato, .corn].uniqued()
-        case .tableware:
-            return [sampleKind, .bowl, .spoon, .plate].uniqued()
-        case .hygiene:
-            return [sampleKind, .toothbrush, .towel, .soap].uniqued()
-        case .home:
-            return [sampleKind, .chair, .bed, .lamp].uniqued()
-        case .stationery:
-            return [sampleKind, .pencil, .notebook, .schoolbag].uniqued()
-        case .instrument:
-            return [sampleKind, .drum, .guitar, .bell].uniqued()
-        case .toy:
-            return [sampleKind, .blocks, .doll, .kite].uniqued()
-        case .nature:
-            return [sampleKind, .sun, .cloud, .tree].uniqued()
-        case .place:
-            return [sampleKind, .house, .school, .park].uniqued()
-        case .object:
-            return [sampleKind, .balloon, .book, .umbrella].uniqued()
-        }
-    }
-
-    private func categoryColor(for kind: FriendKind) -> Color {
-        switch kind.category {
-        case .animal:
-            return Color(red: 1.0, green: 0.62, blue: 0.30)
-        case .vehicle:
-            return Color(red: 0.22, green: 0.65, blue: 0.94)
-        case .fruit:
-            return Color(red: 0.96, green: 0.32, blue: 0.34)
-        case .shape:
-            return Color(red: 0.61, green: 0.45, blue: 0.91)
-        case .body:
-            return Color(red: 0.96, green: 0.46, blue: 0.54)
-        case .clothing:
-            return Color(red: 0.36, green: 0.55, blue: 0.90)
-        case .vegetable:
-            return Color(red: 0.28, green: 0.70, blue: 0.38)
-        case .tableware:
-            return Color(red: 0.26, green: 0.62, blue: 0.80)
-        case .hygiene:
-            return Color(red: 0.28, green: 0.68, blue: 0.76)
-        case .home:
-            return Color(red: 0.76, green: 0.52, blue: 0.34)
-        case .stationery:
-            return Color(red: 0.52, green: 0.47, blue: 0.88)
-        case .instrument:
-            return Color(red: 0.88, green: 0.46, blue: 0.68)
-        case .toy:
-            return Color(red: 0.94, green: 0.54, blue: 0.22)
-        case .nature:
-            return Color(red: 0.26, green: 0.68, blue: 0.44)
-        case .place:
-            return Color(red: 0.30, green: 0.58, blue: 0.88)
-        case .object:
-            return Color(red: 0.14, green: 0.66, blue: 0.54)
-        }
+        category.categoryCardSampleKinds(preferred: sampleKind)
     }
 }
 
@@ -1058,7 +1002,7 @@ private struct DifferenceTargetView: View {
             VStack(spacing: 10) {
                 HStack(spacing: 8) {
                     ForEach(sampleKinds.prefix(2), id: \.self) { kind in
-                        FriendShape(kind: kind, color: categoryColor(for: kind), isShadow: false)
+                        FriendShape(kind: kind, color: kind.category.accentColor, isShadow: false)
                             .padding(6)
                             .frame(width: 42, height: 42)
                             .background(.white.opacity(0.70), in: Circle())
@@ -1082,77 +1026,7 @@ private struct DifferenceTargetView: View {
     }
 
     private var sampleKinds: [FriendKind] {
-        switch category {
-        case .animal:
-            return [.cat, .dog]
-        case .vehicle:
-            return [.car, .bus]
-        case .fruit:
-            return [.apple, .banana]
-        case .shape:
-            return [.circle, .triangle]
-        case .body:
-            return [.eye, .hand]
-        case .clothing:
-            return [.hat, .shirt]
-        case .vegetable:
-            return [.carrot, .tomato]
-        case .tableware:
-            return [.bowl, .spoon]
-        case .hygiene:
-            return [.toothbrush, .towel]
-        case .home:
-            return [.chair, .bed]
-        case .stationery:
-            return [.pencil, .notebook]
-        case .instrument:
-            return [.drum, .bell]
-        case .toy:
-            return [.blocks, .kite]
-        case .nature:
-            return [.sun, .tree]
-        case .place:
-            return [.house, .park]
-        case .object:
-            return [.book, .umbrella]
-        }
-    }
-
-    private func categoryColor(for kind: FriendKind) -> Color {
-        switch kind.category {
-        case .animal:
-            return Color(red: 1.0, green: 0.62, blue: 0.30)
-        case .vehicle:
-            return Color(red: 0.22, green: 0.65, blue: 0.94)
-        case .fruit:
-            return Color(red: 0.96, green: 0.32, blue: 0.34)
-        case .shape:
-            return Color(red: 0.61, green: 0.45, blue: 0.91)
-        case .body:
-            return Color(red: 0.96, green: 0.46, blue: 0.54)
-        case .clothing:
-            return Color(red: 0.36, green: 0.55, blue: 0.90)
-        case .vegetable:
-            return Color(red: 0.28, green: 0.70, blue: 0.38)
-        case .tableware:
-            return Color(red: 0.26, green: 0.62, blue: 0.80)
-        case .hygiene:
-            return Color(red: 0.28, green: 0.68, blue: 0.76)
-        case .home:
-            return Color(red: 0.76, green: 0.52, blue: 0.34)
-        case .stationery:
-            return Color(red: 0.52, green: 0.47, blue: 0.88)
-        case .instrument:
-            return Color(red: 0.88, green: 0.46, blue: 0.68)
-        case .toy:
-            return Color(red: 0.94, green: 0.54, blue: 0.22)
-        case .nature:
-            return Color(red: 0.26, green: 0.68, blue: 0.44)
-        case .place:
-            return Color(red: 0.30, green: 0.58, blue: 0.88)
-        case .object:
-            return Color(red: 0.14, green: 0.66, blue: 0.54)
-        }
+        category.differenceCardSampleKinds
     }
 }
 
@@ -1492,7 +1366,7 @@ private struct PatternTargetView: View {
 
                 HStack(spacing: 8) {
                     ForEach(Array(pattern.sequencePrefix.enumerated()), id: \.offset) { _, kind in
-                        FriendShape(kind: kind, color: patternColor(for: kind), isShadow: false)
+                        FriendShape(kind: kind, color: kind.category.accentColor, isShadow: false)
                             .padding(5)
                             .frame(width: 42, height: 42)
                             .background(.white.opacity(0.70), in: Circle())
@@ -1506,43 +1380,6 @@ private struct PatternTargetView: View {
                 }
             }
             .padding(14)
-        }
-    }
-
-    private func patternColor(for kind: FriendKind) -> Color {
-        switch kind.category {
-        case .animal:
-            return Color(red: 1.0, green: 0.62, blue: 0.30)
-        case .vehicle:
-            return Color(red: 0.22, green: 0.65, blue: 0.94)
-        case .fruit:
-            return Color(red: 0.96, green: 0.32, blue: 0.34)
-        case .shape:
-            return accentColor
-        case .body:
-            return Color(red: 0.96, green: 0.46, blue: 0.54)
-        case .clothing:
-            return Color(red: 0.36, green: 0.55, blue: 0.90)
-        case .vegetable:
-            return Color(red: 0.28, green: 0.70, blue: 0.38)
-        case .tableware:
-            return Color(red: 0.26, green: 0.62, blue: 0.80)
-        case .hygiene:
-            return Color(red: 0.28, green: 0.68, blue: 0.76)
-        case .home:
-            return Color(red: 0.76, green: 0.52, blue: 0.34)
-        case .stationery:
-            return Color(red: 0.52, green: 0.47, blue: 0.88)
-        case .instrument:
-            return Color(red: 0.88, green: 0.46, blue: 0.68)
-        case .toy:
-            return Color(red: 0.94, green: 0.54, blue: 0.22)
-        case .nature:
-            return Color(red: 0.26, green: 0.68, blue: 0.44)
-        case .place:
-            return Color(red: 0.30, green: 0.58, blue: 0.88)
-        case .object:
-            return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
     }
 }
@@ -2511,6 +2348,8 @@ private struct SettingsScreen: View {
             return "衣物"
         case .vegetable:
             return "蔬菜"
+        case .food:
+            return "食物"
         case .tableware:
             return "餐具"
         case .hygiene:
@@ -2527,6 +2366,8 @@ private struct SettingsScreen: View {
             return "自然"
         case .place:
             return "地点"
+        case .profession:
+            return "职业"
         case .size:
             return "大小"
         case .shadow:
@@ -2586,6 +2427,8 @@ private struct SettingsScreen: View {
             return "tshirt.fill"
         case .vegetable:
             return "carrot.fill"
+        case .food:
+            return "fork.knife.circle.fill"
         case .tableware:
             return "fork.knife.circle.fill"
         case .hygiene:
@@ -2602,6 +2445,8 @@ private struct SettingsScreen: View {
             return "leaf.fill"
         case .place:
             return "map.fill"
+        case .profession:
+            return "person.2.fill"
         case .size:
             return "arrow.up.left.and.arrow.down.right"
         case .shadow:

@@ -448,6 +448,8 @@ final class GameViewModel: ObservableObject {
             return "找\(displayName(for: round.targetKind))"
         case .vegetable:
             return "找\(displayName(for: round.targetKind))"
+        case .food:
+            return "找\(displayName(for: round.targetKind))"
         case .tableware:
             return "找\(displayName(for: round.targetKind))"
         case .hygiene:
@@ -463,6 +465,8 @@ final class GameViewModel: ObservableObject {
         case .nature:
             return "找\(displayName(for: round.targetKind))"
         case .place:
+            return "找\(displayName(for: round.targetKind))"
+        case .profession:
             return "找\(displayName(for: round.targetKind))"
         case .size:
             return "找一样大的\(displayName(for: round.targetKind))"
@@ -517,6 +521,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))，找到了"
         case .vegetable:
             return "\(displayName(for: round.targetKind))，找到了"
+        case .food:
+            return "\(displayName(for: round.targetKind))，找到了"
         case .tableware:
             return "\(displayName(for: round.targetKind))，找到了"
         case .hygiene:
@@ -532,6 +538,8 @@ final class GameViewModel: ObservableObject {
         case .nature:
             return "\(displayName(for: round.targetKind))，找到了"
         case .place:
+            return "\(displayName(for: round.targetKind))，找到了"
+        case .profession:
             return "\(displayName(for: round.targetKind))，找到了"
         case .count:
             return "\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))，找到了"

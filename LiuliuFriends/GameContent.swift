@@ -2,7 +2,7 @@ import SwiftUI
 
 enum GameContent {
     static let rounds: [GameRound] = makeRounds()
-    static let sessionRoundTotalLimit = 36
+    static var sessionRoundTotalLimit: Int { GameMode.allCases.count }
     private static let warmupModes: [GameMode] = [.animal, .sound, .color, .shape]
 
     static func sessionRounds() -> [GameRound] {
@@ -98,6 +98,12 @@ enum GameContent {
         .pineapple: .sunYellow,
         .cherry: .berryRed,
         .lemon: .sunYellow,
+        .rice: .softGray,
+        .noodles: .sunYellow,
+        .bread: .milkBrown,
+        .egg: .softGray,
+        .milk: .aqua,
+        .cookie: .milkBrown,
         .rectangle: .skyBlue,
         .oval: .mintGreen,
         .diamond: .purple,
@@ -167,6 +173,12 @@ enum GameContent {
         .beach: .aqua,
         .store: .orange,
         .playground: .purple,
+        .doctor: .aqua,
+        .teacher: .skyBlue,
+        .policeOfficer: .purple,
+        .firefighter: .coral,
+        .chef: .softGray,
+        .farmer: .leafGreen,
         .umbrella: .purple,
         .ball: .coral,
         .book: .skyBlue,
@@ -191,6 +203,10 @@ enum GameContent {
 
     private static var vegetables: [FriendKind] {
         FriendKind.allCases.filter { $0.category == .vegetable }
+    }
+
+    private static var foodItems: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .food }
     }
 
     private static var tablewareItems: [FriendKind] {
@@ -223,6 +239,10 @@ enum GameContent {
 
     private static var placeItems: [FriendKind] {
         FriendKind.allCases.filter { $0.category == .place }
+    }
+
+    private static var professionItems: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .profession }
     }
 
     private static var visibleKinds: [FriendKind] {
@@ -258,6 +278,7 @@ enum GameContent {
         .body: [.eye, .ear, .mouth, .hand, .foot, .nose],
         .clothing: [.hat, .shirt, .pants, .shoes, .socks, .coat],
         .vegetable: [.carrot, .corn, .tomato, .cucumber, .mushroom, .broccoli],
+        .food: [.rice, .noodles, .bread, .egg, .milk, .cookie],
         .tableware: [.bowl, .spoon, .plate, .fork, .chopsticks, .bottle],
         .hygiene: [.toothbrush, .toothpaste, .towel, .soap, .bathtub, .comb],
         .home: [.chair, .table, .bed, .sofa, .lamp, .clock],
@@ -266,6 +287,7 @@ enum GameContent {
         .toy: [.blocks, .doll, .kite, .puzzle, .rattle, .bucket],
         .nature: [.sun, .cloud, .moon, .flower, .tree, .rainbow],
         .place: [.house, .school, .park, .beach, .store, .playground],
+        .profession: [.doctor, .teacher, .policeOfficer, .firefighter, .chef, .farmer],
         .object: [.balloon, .umbrella, .ball, .book, .cup]
     ]
 
@@ -278,6 +300,8 @@ enum GameContent {
         (.fruit, .watermelon, .car),
         (.vegetable, .carrot, .cat),
         (.vegetable, .tomato, .bus),
+        (.food, .rice, .dog),
+        (.food, .bread, .car),
         (.tableware, .bowl, .rabbit),
         (.tableware, .spoon, .banana),
         (.hygiene, .toothbrush, .apple),
@@ -294,6 +318,8 @@ enum GameContent {
         (.nature, .tree, .bus),
         (.place, .house, .fish),
         (.place, .park, .spoon),
+        (.profession, .doctor, .banana),
+        (.profession, .chef, .car),
         (.object, .book, .rabbit),
         (.object, .umbrella, .banana)
     ]
@@ -454,6 +480,10 @@ enum GameContent {
             matchingRound(.vegetable, kind, color(for: kind), distractor(for: kind, in: vegetables, offset: 2), color(for: distractor(for: kind, in: vegetables, offset: 2)), correctFirst: !index.isMultiple(of: 2))
         }
 
+        result += foodItems.enumerated().map { index, kind in
+            matchingRound(.food, kind, color(for: kind), distractor(for: kind, in: foodItems, offset: 2), color(for: distractor(for: kind, in: foodItems, offset: 2)), correctFirst: index.isMultiple(of: 2))
+        }
+
         result += tablewareItems.enumerated().map { index, kind in
             matchingRound(.tableware, kind, color(for: kind), distractor(for: kind, in: tablewareItems, offset: 2), color(for: distractor(for: kind, in: tablewareItems, offset: 2)), correctFirst: index.isMultiple(of: 2))
         }
@@ -484,6 +514,10 @@ enum GameContent {
 
         result += placeItems.enumerated().map { index, kind in
             matchingRound(.place, kind, color(for: kind), distractor(for: kind, in: placeItems, offset: 2), color(for: distractor(for: kind, in: placeItems, offset: 2)), correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += professionItems.enumerated().map { index, kind in
+            matchingRound(.profession, kind, color(for: kind), distractor(for: kind, in: professionItems, offset: 2), color(for: distractor(for: kind, in: professionItems, offset: 2)), correctFirst: index.isMultiple(of: 2))
         }
 
         result += visibleKinds.enumerated().flatMap { index, kind in
