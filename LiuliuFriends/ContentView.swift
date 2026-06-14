@@ -480,6 +480,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .hygiene:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .size:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
@@ -773,7 +780,7 @@ private struct GameObjectView: View {
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .shape, .body, .clothing, .vegetable, .tableware, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
+        case .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -930,6 +937,8 @@ private struct CategoryTargetView: View {
             return [sampleKind, .carrot, .tomato, .corn].uniqued()
         case .tableware:
             return [sampleKind, .bowl, .spoon, .plate].uniqued()
+        case .hygiene:
+            return [sampleKind, .toothbrush, .towel, .soap].uniqued()
         case .object:
             return [sampleKind, .balloon, .book, .umbrella].uniqued()
         }
@@ -953,6 +962,8 @@ private struct CategoryTargetView: View {
             return Color(red: 0.28, green: 0.70, blue: 0.38)
         case .tableware:
             return Color(red: 0.26, green: 0.62, blue: 0.80)
+        case .hygiene:
+            return Color(red: 0.28, green: 0.68, blue: 0.76)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -1022,6 +1033,8 @@ private struct DifferenceTargetView: View {
             return [.carrot, .tomato]
         case .tableware:
             return [.bowl, .spoon]
+        case .hygiene:
+            return [.toothbrush, .towel]
         case .object:
             return [.book, .umbrella]
         }
@@ -1045,6 +1058,8 @@ private struct DifferenceTargetView: View {
             return Color(red: 0.28, green: 0.70, blue: 0.38)
         case .tableware:
             return Color(red: 0.26, green: 0.62, blue: 0.80)
+        case .hygiene:
+            return Color(red: 0.28, green: 0.68, blue: 0.76)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -1422,6 +1437,8 @@ private struct PatternTargetView: View {
             return Color(red: 0.28, green: 0.70, blue: 0.38)
         case .tableware:
             return Color(red: 0.26, green: 0.62, blue: 0.80)
+        case .hygiene:
+            return Color(red: 0.28, green: 0.68, blue: 0.76)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -2394,6 +2411,8 @@ private struct SettingsScreen: View {
             return "蔬菜"
         case .tableware:
             return "餐具"
+        case .hygiene:
+            return "卫生"
         case .size:
             return "大小"
         case .shadow:
@@ -2455,6 +2474,8 @@ private struct SettingsScreen: View {
             return "carrot.fill"
         case .tableware:
             return "fork.knife.circle.fill"
+        case .hygiene:
+            return "sparkles"
         case .size:
             return "arrow.up.left.and.arrow.down.right"
         case .shadow:
