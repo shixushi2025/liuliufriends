@@ -74,6 +74,7 @@ enum FutureLearningModule: String, CaseIterable {
 enum GameMode: String, CaseIterable, Codable {
     case animal
     case vehicle
+    case fruit
     case sound
     case color
     case shape
@@ -122,6 +123,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "动物朋友"
         case .vehicle:
             return "交通朋友"
+        case .fruit:
+            return "水果朋友"
         case .sound:
             return "声音朋友"
         case .color:
@@ -213,6 +216,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "帮六六找动物朋友"
         case .vehicle:
             return "帮六六找交通工具"
+        case .fruit:
+            return "帮六六找水果朋友"
         case .sound:
             return "听声音找朋友"
         case .color:
@@ -302,7 +307,7 @@ enum GameMode: String, CaseIterable, Codable {
         switch self {
         case .animal, .sound:
             return .starter18Months
-        case .vehicle, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .category, .position, .insideOutside, .frontBack, .routine, .emotion:
+        case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .category, .position, .insideOutside, .frontBack, .routine, .emotion:
             return .explorer24Months
         case .size, .length, .height, .shadow, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .opposite, .difference:
             return .matcher30Months
@@ -317,7 +322,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var settingsGroupTitle: String {
         switch self {
-        case .animal, .vehicle, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession:
+        case .animal, .vehicle, .fruit, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession:
             return "基础识物"
         case .category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .opposite:
             return "生活关系"
@@ -337,7 +342,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .vehicle, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .opposite, .rhythm, .sequence, .pattern, .difference:
+        case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .opposite, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -350,6 +355,8 @@ enum GameMode: String, CaseIterable, Codable {
             return Color(red: 1.0, green: 0.42, blue: 0.34)
         case .vehicle:
             return Color(red: 0.26, green: 0.58, blue: 0.90)
+        case .fruit:
+            return Color(red: 0.95, green: 0.48, blue: 0.34)
         case .sound:
             return Color(red: 0.22, green: 0.65, blue: 0.94)
         case .color:
@@ -2714,6 +2721,8 @@ struct GameRound: Identifiable {
             return "找\(targetKind.name)"
         case .vehicle:
             return "找\(targetKind.name)"
+        case .fruit:
+            return "找\(targetKind.name)"
         case .sound:
             return "找\(targetKind.soundText)"
         case .color:
@@ -2802,6 +2811,8 @@ struct GameRound: Identifiable {
     var successSpeechText: String {
         switch mode {
         case .vehicle:
+            return "\(targetKind.name)，找到了"
+        case .fruit:
             return "\(targetKind.name)，找到了"
         case .color:
             return "\(targetColor.speechName)，找到了"
