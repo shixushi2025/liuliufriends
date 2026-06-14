@@ -2,6 +2,7 @@ import SwiftUI
 
 enum GameContent {
     static let rounds: [GameRound] = makeRounds()
+    static let sessionRoundTotalLimit = 36
     private static let warmupModes: [GameMode] = [.animal, .sound, .color, .shape]
 
     static func sessionRounds() -> [GameRound] {
@@ -141,6 +142,17 @@ enum GameContent {
         .object: [.balloon, .flower, .tree, .umbrella, .ball, .book]
     ]
 
+    private static let differencePracticePairs: [(category: FriendCategory, same: FriendKind, different: FriendKind)] = [
+        (.animal, .cat, .car),
+        (.animal, .dog, .apple),
+        (.vehicle, .bus, .banana),
+        (.vehicle, .train, .fish),
+        (.fruit, .apple, .book),
+        (.fruit, .watermelon, .car),
+        (.object, .book, .rabbit),
+        (.object, .umbrella, .banana)
+    ]
+
     private static let positionPracticeKinds: [FriendKind] = [
         .cat,
         .dog,
@@ -212,6 +224,24 @@ enum GameContent {
         (.grow, .tree, .truck)
     ]
 
+    private static let rhythmPracticePairs: [(target: FriendRhythm, distractor: FriendRhythm)] = [
+        (.clap, .step),
+        (.step, .shake),
+        (.shake, .tap),
+        (.tap, .clap),
+        (.clap, .shake),
+        (.step, .tap)
+    ]
+
+    private static let sequencePracticePairs: [(target: FriendSequence, distractor: FriendSequence)] = [
+        (.first, .second),
+        (.second, .last),
+        (.last, .first),
+        (.first, .last),
+        (.second, .first),
+        (.last, .second)
+    ]
+
     private static func makeRounds() -> [GameRound] {
         var result: [GameRound] = []
 
@@ -266,6 +296,10 @@ enum GameContent {
         }
         result += categoryRounds
 
+        result += differencePracticePairs.enumerated().map { index, pair in
+            difference(pair.category, sameKind: pair.same, differentKind: pair.different, correctFirst: !index.isMultiple(of: 2))
+        }
+
         result += positionPracticeKinds.enumerated().flatMap { index, kind in
             let firstTarget = SpatialPosition.allCases[index % SpatialPosition.allCases.count]
             let secondTarget = SpatialPosition.allCases[(index + 2) % SpatialPosition.allCases.count]
@@ -297,6 +331,18 @@ enum GameContent {
 
         result += actionPracticePairs.enumerated().map { index, pair in
             action(pair.action, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += rhythmPracticePairs.enumerated().map { index, pair in
+            rhythm(pair.target, distractor: pair.distractor, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += sequencePracticePairs.enumerated().map { index, pair in
+            sequence(pair.target, distractor: pair.distractor, correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += FriendPattern.allCases.enumerated().map { index, pattern in
+            patternRound(pattern, correctFirst: index.isMultiple(of: 2))
         }
 
         return result
@@ -376,6 +422,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetCategory: category,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func difference(
+        _ baseCategory: FriendCategory,
+        sameKind: FriendKind,
+        differentKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: differentKind, color: color(for: differentKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: sameKind, color: color(for: sameKind), isCorrect: false)
+        return GameRound(
+            mode: .difference,
+            targetKind: differentKind,
+            targetColor: color(for: differentKind),
+            targetCategory: baseCategory,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
@@ -499,6 +562,53 @@ enum GameContent {
         )
     }
 
+    private static func rhythm(
+        _ target: FriendRhythm,
+        distractor: FriendRhythm,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: .ball, color: .rosePink, isCorrect: true, rhythm: target)
+        let wrong = FriendCandidate(kind: .book, color: .skyBlue, isCorrect: false, rhythm: distractor)
+        return GameRound(
+            mode: .rhythm,
+            targetKind: .ball,
+            targetColor: .rosePink,
+            targetRhythm: target,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func sequence(
+        _ target: FriendSequence,
+        distractor: FriendSequence,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: .star, color: .skyBlue, isCorrect: true, sequence: target)
+        let wrong = FriendCandidate(kind: .star, color: .softGray, isCorrect: false, sequence: distractor)
+        return GameRound(
+            mode: .sequence,
+            targetKind: .star,
+            targetColor: .skyBlue,
+            targetSequence: target,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func patternRound(
+        _ pattern: FriendPattern,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: pattern.correctKind, color: color(for: pattern.correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: pattern.distractorKind, color: color(for: pattern.distractorKind), isCorrect: false)
+        return GameRound(
+            mode: .pattern,
+            targetKind: pattern.correctKind,
+            targetColor: color(for: pattern.correctKind),
+            targetPattern: pattern,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
     private static func matchingRound(
         _ mode: GameMode,
         _ target: FriendKind,
@@ -574,10 +684,50 @@ enum GameContent {
     }
 
     private static func limitedForSession(_ sourceRounds: [GameRound]) -> [GameRound] {
-        Dictionary(grouping: sourceRounds, by: \.mode)
-            .flatMap { mode, rounds in
-                Array(rounds.shuffled().prefix(sessionRoundLimit(for: mode)))
+        var buckets = Dictionary(grouping: sourceRounds, by: \.mode)
+            .mapValues { $0.shuffled() }
+        var selectedRounds: [GameRound] = []
+        var selectedCountsByMode: [GameMode: Int] = [:]
+
+        for mode in GameMode.allCases {
+            guard var bucket = buckets[mode], !bucket.isEmpty else {
+                continue
             }
+            selectedRounds.append(bucket.removeLast())
+            selectedCountsByMode[mode, default: 0] += 1
+            buckets[mode] = bucket
+        }
+
+        let weightedModes = GameMode.allCases.flatMap { mode in
+            Array(repeating: mode, count: sessionRoundLimit(for: mode))
+        }
+
+        while selectedRounds.count < sessionRoundTotalLimit, buckets.values.contains(where: { !$0.isEmpty }) {
+            var didAddRound = false
+
+            for mode in weightedModes.shuffled() {
+                guard selectedRounds.count < sessionRoundTotalLimit else {
+                    break
+                }
+                guard selectedCountsByMode[mode, default: 0] < sessionRoundLimit(for: mode) else {
+                    continue
+                }
+                guard var bucket = buckets[mode], !bucket.isEmpty else {
+                    continue
+                }
+
+                selectedRounds.append(bucket.removeLast())
+                selectedCountsByMode[mode, default: 0] += 1
+                buckets[mode] = bucket
+                didAddRound = true
+            }
+
+            guard didAddRound else {
+                break
+            }
+        }
+
+        return selectedRounds
     }
 
     private static func warmupFirst(_ sourceRounds: [GameRound]) -> [GameRound] {

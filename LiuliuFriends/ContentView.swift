@@ -442,6 +442,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetCategory?.childPromptTitle ?? round.targetKind.category.childPromptTitle)", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .difference:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    DifferenceTargetView(category: round.targetCategory ?? .animal, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.95)
+                    TargetCaption(title: "找不一样的", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .position:
                 VStack(spacing: metrics.targetContentSpacing) {
                     PositionTargetView(position: round.targetPosition, kind: round.targetKind, color: round.targetColor, accentColor: round.mode.accentColor)
@@ -489,6 +496,27 @@ private struct TargetArea: View {
                     ActionTargetView(action: round.targetAction ?? .fly, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
                     TargetCaption(title: "找\(round.targetAction?.speechTitle ?? "动作朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .rhythm:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    RhythmTargetView(rhythm: round.targetRhythm ?? .clap, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetRhythm?.speechTitle ?? "节奏朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .sequence:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    SequenceTargetView(sequence: round.targetSequence ?? .first, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetSequence?.speechTitle ?? "顺序朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .pattern:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    PatternTargetView(pattern: round.targetPattern ?? .catDog, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.30, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetPattern?.speechTitle ?? "下一个")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             }
@@ -601,6 +629,12 @@ private struct CandidateButton: View {
         if round.mode == .emotion, let emotion = candidate.emotion {
             return emotion.promptTitle
         }
+        if round.mode == .rhythm, let rhythm = candidate.rhythm {
+            return rhythm.promptTitle
+        }
+        if round.mode == .sequence, let sequence = candidate.sequence {
+            return sequence.promptTitle
+        }
         return candidate.kind.name
     }
 }
@@ -620,10 +654,14 @@ private struct GameObjectView: View {
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .shape, .size, .purpose, .scene, .weather, .routine, .action:
+        case .shape, .size, .purpose, .scene, .weather, .routine, .action, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
+        case .rhythm:
+            RhythmChoiceView(rhythm: candidate.rhythm ?? .clap, accentColor: round.mode.accentColor)
+        case .sequence:
+            SequenceChoiceView(sequence: candidate.sequence ?? .first, accentColor: round.mode.accentColor)
         case .shadow:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: isTarget)
         case .animal, .sound:
@@ -769,6 +807,82 @@ private struct CategoryTargetView: View {
     }
 }
 
+private struct DifferenceTargetView: View {
+    let category: FriendCategory
+    let accentColor: Color
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.76), accentColor.opacity(0.18)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
+                )
+
+            VStack(spacing: 10) {
+                HStack(spacing: 8) {
+                    ForEach(sampleKinds.prefix(2), id: \.self) { kind in
+                        FriendShape(kind: kind, color: categoryColor(for: kind), isShadow: false)
+                            .padding(6)
+                            .frame(width: 42, height: 42)
+                            .background(.white.opacity(0.70), in: Circle())
+                    }
+
+                    Text("?")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(accentColor)
+                        .frame(width: 42, height: 42)
+                        .background(accentColor.opacity(0.14), in: Circle())
+                }
+
+                Text("找不一样")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.24, green: 0.26, blue: 0.30))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+            }
+            .padding(14)
+        }
+    }
+
+    private var sampleKinds: [FriendKind] {
+        switch category {
+        case .animal:
+            return [.cat, .dog]
+        case .vehicle:
+            return [.car, .bus]
+        case .fruit:
+            return [.apple, .banana]
+        case .shape:
+            return [.circle, .triangle]
+        case .object:
+            return [.book, .umbrella]
+        }
+    }
+
+    private func categoryColor(for kind: FriendKind) -> Color {
+        switch kind.category {
+        case .animal:
+            return Color(red: 1.0, green: 0.62, blue: 0.30)
+        case .vehicle:
+            return Color(red: 0.22, green: 0.65, blue: 0.94)
+        case .fruit:
+            return Color(red: 0.96, green: 0.32, blue: 0.34)
+        case .shape:
+            return Color(red: 0.61, green: 0.45, blue: 0.91)
+        case .object:
+            return Color(red: 0.14, green: 0.66, blue: 0.54)
+        }
+    }
+}
+
 private struct PositionTargetView: View {
     let position: SpatialPosition
     let kind: FriendKind
@@ -889,6 +1003,98 @@ private struct ActionTargetView: View {
     }
 }
 
+private struct RhythmTargetView: View {
+    let rhythm: FriendRhythm
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: rhythm.promptTitle,
+            subtitle: "跟节奏",
+            systemName: rhythm.iconName,
+            accentColor: accentColor,
+            motif: .rhythm
+        )
+    }
+}
+
+private struct SequenceTargetView: View {
+    let sequence: FriendSequence
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: sequence.promptTitle,
+            subtitle: "前后顺序",
+            systemName: sequence.iconName,
+            accentColor: accentColor,
+            motif: .sequence
+        )
+    }
+}
+
+private struct PatternTargetView: View {
+    let pattern: FriendPattern
+    let accentColor: Color
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
+                )
+
+            VStack(spacing: 10) {
+                Text("下一个")
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(accentColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.14), in: Capsule())
+
+                HStack(spacing: 8) {
+                    ForEach(Array(pattern.sequencePrefix.enumerated()), id: \.offset) { _, kind in
+                        FriendShape(kind: kind, color: patternColor(for: kind), isShadow: false)
+                            .padding(5)
+                            .frame(width: 42, height: 42)
+                            .background(.white.opacity(0.70), in: Circle())
+                    }
+
+                    Text("?")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(accentColor)
+                        .frame(width: 42, height: 42)
+                        .background(accentColor.opacity(0.14), in: Circle())
+                }
+            }
+            .padding(14)
+        }
+    }
+
+    private func patternColor(for kind: FriendKind) -> Color {
+        switch kind.category {
+        case .animal:
+            return Color(red: 1.0, green: 0.62, blue: 0.30)
+        case .vehicle:
+            return Color(red: 0.22, green: 0.65, blue: 0.94)
+        case .fruit:
+            return Color(red: 0.96, green: 0.32, blue: 0.34)
+        case .shape:
+            return accentColor
+        case .object:
+            return Color(red: 0.14, green: 0.66, blue: 0.54)
+        }
+    }
+}
+
 private struct EmotionChoiceView: View {
     let emotion: FriendEmotion
     let accentColor: Color
@@ -925,6 +1131,73 @@ private struct EmotionChoiceView: View {
     }
 }
 
+private struct RhythmChoiceView: View {
+    let rhythm: FriendRhythm
+    let accentColor: Color
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: rhythm.iconName)
+                .font(.system(size: 54, weight: .heavy))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(accentColor)
+                .frame(width: 96, height: 80)
+                .background(
+                    Circle()
+                        .fill(accentColor.opacity(0.12))
+                        .frame(width: 108, height: 108)
+                )
+                .shadow(color: accentColor.opacity(0.20), radius: 12, y: 8)
+
+            Text(rhythm.promptTitle)
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color(red: 0.48, green: 0.28, blue: 0.16))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.74), in: Capsule())
+        }
+    }
+}
+
+private struct SequenceChoiceView: View {
+    let sequence: FriendSequence
+    let accentColor: Color
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 10) {
+                ForEach(0..<3, id: \.self) { index in
+                    VStack(spacing: 6) {
+                        Circle()
+                            .fill(index == sequence.highlightedIndex ? accentColor : accentColor.opacity(0.18))
+                            .frame(width: index == sequence.highlightedIndex ? 38 : 28, height: index == sequence.highlightedIndex ? 38 : 28)
+                            .overlay {
+                                Text("\(index + 1)")
+                                    .font(.system(size: 15, weight: .black, design: .rounded))
+                                    .foregroundStyle(index == sequence.highlightedIndex ? .white : accentColor.opacity(0.70))
+                            }
+                            .shadow(color: accentColor.opacity(index == sequence.highlightedIndex ? 0.24 : 0), radius: 10, y: 6)
+
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(index == sequence.highlightedIndex ? accentColor.opacity(0.38) : accentColor.opacity(0.10))
+                            .frame(width: 30, height: 8)
+                    }
+                }
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
+            .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+
+            Text(sequence.promptTitle)
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color(red: 0.48, green: 0.28, blue: 0.16))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.74), in: Capsule())
+        }
+    }
+}
+
 private struct ConceptTargetCard: View {
     enum Motif {
         case spark
@@ -933,6 +1206,8 @@ private struct ConceptTargetCard: View {
         case clock
         case heart
         case motion
+        case rhythm
+        case sequence
     }
 
     let title: String
@@ -1088,6 +1363,42 @@ private struct ConceptTargetCard: View {
                     .font(.system(size: 34, weight: .black))
                     .foregroundStyle(accentColor)
                     .offset(x: 46, y: -34)
+            }
+        case .rhythm:
+            ZStack {
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .stroke(accentColor, lineWidth: 5)
+                        .frame(width: CGFloat(30 + index * 18), height: CGFloat(30 + index * 18))
+                        .offset(x: -42, y: CGFloat(index * 14 - 18))
+                }
+                Capsule()
+                    .fill(accentColor)
+                    .frame(width: 52, height: 10)
+                    .rotationEffect(.degrees(-18))
+                    .offset(x: 42, y: -36)
+                Capsule()
+                    .fill(accentColor)
+                    .frame(width: 38, height: 10)
+                    .rotationEffect(.degrees(18))
+                    .offset(x: 46, y: 32)
+            }
+        case .sequence:
+            ZStack {
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .fill(accentColor)
+                        .frame(width: CGFloat(20 + index * 8), height: CGFloat(20 + index * 8))
+                        .offset(x: CGFloat(index * 36 - 42), y: CGFloat(index * 12 - 20))
+                }
+                Capsule()
+                    .fill(accentColor)
+                    .frame(width: 82, height: 8)
+                    .offset(x: 0, y: 32)
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 30, weight: .black))
+                    .foregroundStyle(accentColor)
+                    .offset(x: 46, y: -36)
             }
         }
     }
@@ -1647,11 +1958,13 @@ private struct SettingsScreen: View {
     }
 
     private var modeGroups: [ModeSettingsGroup] {
-        [
-            ModeSettingsGroup(title: "基础识物", modes: [.animal, .sound, .color, .shape, .routine, .emotion]),
-            ModeSettingsGroup(title: "观察匹配", modes: [.size, .shadow, .count, .position]),
-            ModeSettingsGroup(title: "理解关系", modes: [.category, .purpose, .scene, .weather, .action])
-        ]
+        GameMode.settingsGroupOrder.map { groupTitle in
+            ModeSettingsGroup(
+                title: groupTitle,
+                modes: GameMode.allCases.filter { $0.settingsGroupTitle == groupTitle }
+            )
+        }
+        .filter { !$0.modes.isEmpty }
     }
 
     private func shortModeTitle(for mode: GameMode) -> String {
@@ -1672,6 +1985,8 @@ private struct SettingsScreen: View {
             return "数量"
         case .category:
             return "分类"
+        case .difference:
+            return "不同"
         case .position:
             return "位置"
         case .purpose:
@@ -1686,6 +2001,12 @@ private struct SettingsScreen: View {
             return "情绪"
         case .action:
             return "动作"
+        case .rhythm:
+            return "节奏"
+        case .sequence:
+            return "顺序"
+        case .pattern:
+            return "规律"
         }
     }
 
@@ -1707,6 +2028,8 @@ private struct SettingsScreen: View {
             return "number.circle.fill"
         case .category:
             return "square.grid.2x2.fill"
+        case .difference:
+            return "questionmark.circle.fill"
         case .position:
             return "location.fill"
         case .purpose:
@@ -1721,6 +2044,12 @@ private struct SettingsScreen: View {
             return "face.smiling.fill"
         case .action:
             return "figure.run"
+        case .rhythm:
+            return "music.note"
+        case .sequence:
+            return "arrow.right.circle.fill"
+        case .pattern:
+            return "repeat.circle.fill"
         }
     }
 }

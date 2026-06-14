@@ -57,7 +57,11 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.scene.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.weather.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.action.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.difference.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.count.ageBand, .preschool36Months)
+        XCTAssertEqual(GameMode.rhythm.ageBand, .preschool36Months)
+        XCTAssertEqual(GameMode.sequence.ageBand, .preschool36Months)
+        XCTAssertEqual(GameMode.pattern.ageBand, .preschool36Months)
         XCTAssertEqual(FutureLearningModule.numbers.recommendedAgeBand, .preschool36Months)
         XCTAssertEqual(FutureLearningModule.nurseryRhymes.recommendedAgeBand, .preschool36Months)
     }
@@ -69,6 +73,16 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertTrue(LearningAgeBand.matcher30Months.isIncluded(in: .preschool36Months))
         XCTAssertFalse(LearningAgeBand.preschool36Months.isIncluded(in: .matcher30Months))
         XCTAssertFalse(LearningAgeBand.matcher30Months.isIncluded(in: .explorer24Months))
+    }
+
+    func testGameModesHaveStableSettingsGroups() {
+        let groupedModes = Dictionary(grouping: GameMode.allCases, by: \.settingsGroupTitle)
+
+        XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
+        XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .sound, .color, .shape])
+        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action])
+        XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .shadow, .position, .difference])
+        XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.count, .rhythm, .sequence, .pattern])
     }
 
     func testPurposeRoundsHaveExplicitPurposeTargets() {
@@ -150,14 +164,84 @@ final class GameViewModelTests: XCTestCase {
         }
     }
 
+    func testDifferenceRoundsUseDifferentCategoryTargets() {
+        let differenceRounds = GameContent.rounds.filter { $0.mode == .difference }
+
+        XCTAssertFalse(differenceRounds.isEmpty)
+        for round in differenceRounds {
+            let baseCategory = try! XCTUnwrap(round.targetCategory)
+            let correctKind = try! XCTUnwrap(round.candidates.first { $0.isCorrect }?.kind)
+            let wrongKind = try! XCTUnwrap(round.candidates.first { !$0.isCorrect }?.kind)
+
+            XCTAssertNotEqual(correctKind.category, baseCategory)
+            XCTAssertEqual(wrongKind.category, baseCategory)
+            XCTAssertEqual(round.targetKind, correctKind)
+            XCTAssertEqual(round.promptSpeechText, "找不一样的")
+            XCTAssertTrue(round.successSpeechText.contains("不一样"))
+        }
+    }
+
+    func testRhythmRoundsHaveExplicitRhythmTargets() {
+        let rhythmRounds = GameContent.rounds.filter { $0.mode == .rhythm }
+
+        XCTAssertFalse(rhythmRounds.isEmpty)
+        XCTAssertEqual(Set(rhythmRounds.compactMap(\.targetRhythm)), Set(FriendRhythm.allCases))
+        for round in rhythmRounds {
+            XCTAssertNotNil(round.targetRhythm)
+            XCTAssertTrue(round.candidates.allSatisfy { $0.rhythm != nil })
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetRhythm!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testSequenceRoundsHaveExplicitSequenceTargets() {
+        let sequenceRounds = GameContent.rounds.filter { $0.mode == .sequence }
+
+        XCTAssertFalse(sequenceRounds.isEmpty)
+        XCTAssertEqual(Set(sequenceRounds.compactMap(\.targetSequence)), Set(FriendSequence.allCases))
+        for round in sequenceRounds {
+            XCTAssertNotNil(round.targetSequence)
+            XCTAssertTrue(round.candidates.allSatisfy { $0.sequence != nil })
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetSequence!.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testPatternRoundsHaveExplicitPatternTargets() {
+        let patternRounds = GameContent.rounds.filter { $0.mode == .pattern }
+
+        XCTAssertFalse(patternRounds.isEmpty)
+        XCTAssertEqual(Set(patternRounds.compactMap(\.targetPattern)), Set(FriendPattern.allCases))
+        for round in patternRounds {
+            let pattern = try! XCTUnwrap(round.targetPattern)
+            XCTAssertEqual(round.targetKind, pattern.correctKind)
+            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.kind, pattern.correctKind)
+            XCTAssertTrue(round.candidates.contains { $0.kind == pattern.distractorKind })
+            XCTAssertEqual(pattern.sequencePrefix.count, 3)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(pattern.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
     func testSessionRoundsLimitLargeModesAndKeepAllModesVisible() {
         let sessionRounds = GameContent.sessionRounds()
         let countsByMode = Dictionary(grouping: sessionRounds, by: \.mode).mapValues(\.count)
 
         XCTAssertEqual(Set(countsByMode.keys), Set(GameMode.allCases))
+        XCTAssertLessThanOrEqual(sessionRounds.count, GameContent.sessionRoundTotalLimit)
+        XCTAssertGreaterThanOrEqual(GameContent.sessionRoundTotalLimit, GameMode.allCases.count)
         for mode in GameMode.allCases {
             XCTAssertLessThanOrEqual(countsByMode[mode, default: 0], GameContent.sessionRoundLimit(for: mode), "\(mode.title) should not dominate one session.")
         }
+    }
+
+    func testSessionRoundsStayShortEnoughForOneSitting() {
+        let sessionRounds = GameContent.sessionRounds()
+
+        XCTAssertEqual(sessionRounds.count, GameContent.sessionRoundTotalLimit)
     }
 
     func testSessionRoundLimitsGetShorterForHarderAgeBands() {
@@ -165,6 +249,9 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .routine), 7)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .action), 5)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .count), 4)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .rhythm), 4)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .sequence), 4)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .pattern), 4)
     }
 
     func testSessionStartsWithBasicWarmupModes() {

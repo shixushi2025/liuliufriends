@@ -87,6 +87,10 @@ enum GameMode: String, CaseIterable {
     case routine
     case emotion
     case action
+    case rhythm
+    case sequence
+    case pattern
+    case difference
 
     var title: String {
         switch self {
@@ -120,6 +124,14 @@ enum GameMode: String, CaseIterable {
             return "情绪朋友"
         case .action:
             return "动作朋友"
+        case .rhythm:
+            return "节奏朋友"
+        case .sequence:
+            return "顺序朋友"
+        case .pattern:
+            return "规律朋友"
+        case .difference:
+            return "不同朋友"
         }
     }
 
@@ -155,6 +167,14 @@ enum GameMode: String, CaseIterable {
             return "帮六六找表情"
         case .action:
             return "帮六六找会怎么动"
+        case .rhythm:
+            return "帮六六找节奏动作"
+        case .sequence:
+            return "帮六六找前后顺序"
+        case .pattern:
+            return "帮六六找下一个"
+        case .difference:
+            return "帮六六找不一样"
         }
     }
 
@@ -164,9 +184,9 @@ enum GameMode: String, CaseIterable {
             return .starter18Months
         case .color, .shape, .category, .position, .routine, .emotion:
             return .explorer24Months
-        case .size, .shadow, .purpose, .scene, .weather, .action:
+        case .size, .shadow, .purpose, .scene, .weather, .action, .difference:
             return .matcher30Months
-        case .count:
+        case .count, .rhythm, .sequence, .pattern:
             return .preschool36Months
         }
     }
@@ -175,9 +195,29 @@ enum GameMode: String, CaseIterable {
         ageBand.label
     }
 
+    var settingsGroupTitle: String {
+        switch self {
+        case .animal, .sound, .color, .shape:
+            return "基础识物"
+        case .category, .routine, .emotion, .purpose, .scene, .weather, .action:
+            return "生活关系"
+        case .size, .shadow, .position, .difference:
+            return "观察匹配"
+        case .count, .rhythm, .sequence, .pattern:
+            return "进阶思维"
+        }
+    }
+
+    static let settingsGroupOrder = [
+        "基础识物",
+        "生活关系",
+        "观察匹配",
+        "进阶思维"
+    ]
+
     var usesNeutralBackground: Bool {
         switch self {
-        case .color, .shape, .size, .shadow, .count, .category, .position, .purpose, .scene, .weather, .routine, .emotion, .action:
+        case .color, .shape, .size, .shadow, .count, .category, .position, .purpose, .scene, .weather, .routine, .emotion, .action, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -216,6 +256,14 @@ enum GameMode: String, CaseIterable {
             return Color(red: 0.94, green: 0.42, blue: 0.58)
         case .action:
             return Color(red: 0.45, green: 0.48, blue: 0.92)
+        case .rhythm:
+            return Color(red: 0.90, green: 0.42, blue: 0.74)
+        case .sequence:
+            return Color(red: 0.40, green: 0.62, blue: 0.92)
+        case .pattern:
+            return Color(red: 0.54, green: 0.50, blue: 0.88)
+        case .difference:
+            return Color(red: 0.18, green: 0.60, blue: 0.58)
         }
     }
 }
@@ -575,6 +623,170 @@ enum FriendAction: String, CaseIterable {
             return "car.fill"
         case .grow:
             return "leaf.fill"
+        }
+    }
+}
+
+enum FriendRhythm: String, CaseIterable {
+    case clap
+    case step
+    case shake
+    case tap
+
+    var promptTitle: String {
+        switch self {
+        case .clap:
+            return "拍拍手"
+        case .step:
+            return "踏踏脚"
+        case .shake:
+            return "摇一摇"
+        case .tap:
+            return "敲一敲"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .clap:
+            return "拍拍手"
+        case .step:
+            return "踏踏脚"
+        case .shake:
+            return "摇一摇"
+        case .tap:
+            return "敲一敲"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .clap:
+            return "hand.raised.fill"
+        case .step:
+            return "figure.walk"
+        case .shake:
+            return "speaker.wave.2.fill"
+        case .tap:
+            return "music.note"
+        }
+    }
+}
+
+enum FriendSequence: String, CaseIterable {
+    case first
+    case second
+    case last
+
+    var promptTitle: String {
+        switch self {
+        case .first:
+            return "第一个"
+        case .second:
+            return "第二个"
+        case .last:
+            return "最后一个"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .first:
+            return "第一个"
+        case .second:
+            return "第二个"
+        case .last:
+            return "最后一个"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .first:
+            return "1.circle.fill"
+        case .second:
+            return "2.circle.fill"
+        case .last:
+            return "3.circle.fill"
+        }
+    }
+
+    var highlightedIndex: Int {
+        switch self {
+        case .first:
+            return 0
+        case .second:
+            return 1
+        case .last:
+            return 2
+        }
+    }
+}
+
+enum FriendPattern: String, CaseIterable {
+    case catDog
+    case appleBanana
+    case carBus
+    case sunMoon
+    case circleTriangle
+    case flowerTree
+
+    var promptTitle: String {
+        "下一个"
+    }
+
+    var speechTitle: String {
+        "下一个"
+    }
+
+    var sequencePrefix: [FriendKind] {
+        switch self {
+        case .catDog:
+            return [.cat, .dog, .cat]
+        case .appleBanana:
+            return [.apple, .banana, .apple]
+        case .carBus:
+            return [.car, .bus, .car]
+        case .sunMoon:
+            return [.sun, .moon, .sun]
+        case .circleTriangle:
+            return [.circle, .triangle, .circle]
+        case .flowerTree:
+            return [.flower, .tree, .flower]
+        }
+    }
+
+    var correctKind: FriendKind {
+        switch self {
+        case .catDog:
+            return .dog
+        case .appleBanana:
+            return .banana
+        case .carBus:
+            return .bus
+        case .sunMoon:
+            return .moon
+        case .circleTriangle:
+            return .triangle
+        case .flowerTree:
+            return .tree
+        }
+    }
+
+    var distractorKind: FriendKind {
+        switch self {
+        case .catDog:
+            return .rabbit
+        case .appleBanana:
+            return .strawberry
+        case .carBus:
+            return .train
+        case .sunMoon:
+            return .cloud
+        case .circleTriangle:
+            return .square
+        case .flowerTree:
+            return .balloon
         }
     }
 }
@@ -1250,8 +1462,10 @@ struct FriendCandidate: Identifiable {
     let count: Int
     let position: SpatialPosition
     let emotion: FriendEmotion?
+    let rhythm: FriendRhythm?
+    let sequence: FriendSequence?
 
-    init(id: UUID = UUID(), kind: FriendKind, color: Color, isCorrect: Bool, sizeScale: CGFloat = 1, count: Int = 1, position: SpatialPosition = .top, emotion: FriendEmotion? = nil) {
+    init(id: UUID = UUID(), kind: FriendKind, color: Color, isCorrect: Bool, sizeScale: CGFloat = 1, count: Int = 1, position: SpatialPosition = .top, emotion: FriendEmotion? = nil, rhythm: FriendRhythm? = nil, sequence: FriendSequence? = nil) {
         self.id = id
         self.kind = kind
         self.color = color
@@ -1260,6 +1474,8 @@ struct FriendCandidate: Identifiable {
         self.count = count
         self.position = position
         self.emotion = emotion
+        self.rhythm = rhythm
+        self.sequence = sequence
     }
 }
 
@@ -1278,6 +1494,9 @@ struct GameRound: Identifiable {
     let targetRoutine: FriendRoutine?
     let targetEmotion: FriendEmotion?
     let targetAction: FriendAction?
+    let targetRhythm: FriendRhythm?
+    let targetSequence: FriendSequence?
+    let targetPattern: FriendPattern?
     let candidates: [FriendCandidate]
 
     init(
@@ -1295,6 +1514,9 @@ struct GameRound: Identifiable {
         targetRoutine: FriendRoutine? = nil,
         targetEmotion: FriendEmotion? = nil,
         targetAction: FriendAction? = nil,
+        targetRhythm: FriendRhythm? = nil,
+        targetSequence: FriendSequence? = nil,
+        targetPattern: FriendPattern? = nil,
         candidates: [FriendCandidate]
     ) {
         self.id = id
@@ -1311,6 +1533,9 @@ struct GameRound: Identifiable {
         self.targetRoutine = targetRoutine
         self.targetEmotion = targetEmotion
         self.targetAction = targetAction
+        self.targetRhythm = targetRhythm
+        self.targetSequence = targetSequence
+        self.targetPattern = targetPattern
         self.candidates = candidates
     }
 
@@ -1346,6 +1571,14 @@ struct GameRound: Identifiable {
             return "找\(targetEmotion?.speechTitle ?? targetKind.name)"
         case .action:
             return "找\(targetAction?.speechTitle ?? targetKind.name)"
+        case .rhythm:
+            return "找\(targetRhythm?.speechTitle ?? targetKind.name)"
+        case .sequence:
+            return "找\(targetSequence?.speechTitle ?? targetKind.name)"
+        case .pattern:
+            return "找\(targetPattern?.speechTitle ?? targetKind.name)"
+        case .difference:
+            return "找不一样的"
         }
     }
 
@@ -1371,6 +1604,14 @@ struct GameRound: Identifiable {
             return "\(targetEmotion?.promptTitle ?? targetKind.name)，找到了"
         case .action:
             return "\(targetKind.name)，找到了"
+        case .rhythm:
+            return "\(targetRhythm?.promptTitle ?? targetKind.name)，找到了"
+        case .sequence:
+            return "\(targetSequence?.promptTitle ?? targetKind.name)，找到了"
+        case .pattern:
+            return "\(targetKind.name)，找到了"
+        case .difference:
+            return "\(targetKind.name)，不一样"
         default:
             return "\(targetKind.name)，找到了"
         }

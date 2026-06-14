@@ -419,6 +419,8 @@ final class GameViewModel: ObservableObject {
             return "找\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))"
         case .category:
             return "找\(round.targetCategory?.childPromptTitle ?? round.targetKind.category.childPromptTitle)"
+        case .difference:
+            return "找不一样的"
         case .position:
             return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
         case .purpose:
@@ -433,6 +435,12 @@ final class GameViewModel: ObservableObject {
             return "找\(round.targetEmotion?.speechTitle ?? displayName(for: round.targetKind))"
         case .action:
             return "找\(round.targetAction?.speechTitle ?? displayName(for: round.targetKind))"
+        case .rhythm:
+            return "找\(round.targetRhythm?.speechTitle ?? displayName(for: round.targetKind))"
+        case .sequence:
+            return "找\(round.targetSequence?.speechTitle ?? displayName(for: round.targetKind))"
+        case .pattern:
+            return "找\(round.targetPattern?.speechTitle ?? displayName(for: round.targetKind))"
         }
     }
 
@@ -444,12 +452,20 @@ final class GameViewModel: ObservableObject {
             return "\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))，找到了"
         case .category:
             return "\(displayName(for: round.targetKind))，是\(round.targetKind.category.childPromptTitle)"
+        case .difference:
+            return "\(displayName(for: round.targetKind))，不一样"
         case .position:
             return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
         case .purpose:
             return "\(displayName(for: round.targetKind))，找到了"
         case .emotion:
             return "\(round.targetEmotion?.promptTitle ?? displayName(for: round.targetKind))，找到了"
+        case .rhythm:
+            return "\(round.targetRhythm?.promptTitle ?? displayName(for: round.targetKind))，找到了"
+        case .sequence:
+            return "\(round.targetSequence?.promptTitle ?? displayName(for: round.targetKind))，找到了"
+        case .pattern:
+            return "\(displayName(for: round.targetKind))，找到了"
         default:
             return "\(displayName(for: round.targetKind))，找到了"
         }
