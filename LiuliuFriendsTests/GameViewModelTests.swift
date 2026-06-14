@@ -90,6 +90,27 @@ final class GameViewModelTests: XCTestCase {
         }
     }
 
+    func testNumberRoundsCoverDigitsOneToTen() {
+        let numberRounds = GameContent.rounds.filter { $0.mode == .number }
+
+        XCTAssertEqual(numberRounds.count, 10)
+        XCTAssertEqual(Set(numberRounds.map(\.targetCount)), Set(1...10))
+        XCTAssertEqual(Set(numberRounds.map(\.voicePromptID)), Set((1...10).map { "number.\($0)" }))
+        for round in numberRounds {
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找数字"))
+            XCTAssertEqual(round.targetKind, .blocks)
+            XCTAssertEqual(Set(round.candidates.map(\.kind)), [.blocks])
+            XCTAssertEqual(round.candidates.filter(\.isCorrect).first?.count, round.targetCount)
+            XCTAssertTrue(round.candidates.allSatisfy { (1...10).contains($0.count) })
+        }
+    }
+
+    func testChineseNumberNamesCoverOneToTen() {
+        let names = (1...10).map(\.cnNumberName)
+
+        XCTAssertEqual(names, ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"])
+    }
+
     func testTablewareRoundsCoverCommonTablewareItems() {
         let tablewareRounds = GameContent.rounds.filter { $0.mode == .tableware }
         let tablewareKinds = FriendKind.allCases.filter { $0.category == .tableware }
@@ -224,9 +245,13 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.profession.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.category.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.position.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.insideOutside.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.frontBack.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.routine.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.emotion.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.size.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.length.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.height.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.shadow.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.purpose.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.scene.ageBand, .matcher30Months)
@@ -237,6 +262,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.pairing.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.opposite.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.difference.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.number.ageBand, .preschool36Months)
         XCTAssertEqual(GameMode.count.ageBand, .preschool36Months)
         XCTAssertEqual(GameMode.quantityCompare.ageBand, .preschool36Months)
         XCTAssertEqual(GameMode.rhythm.ageBand, .preschool36Months)
@@ -261,8 +287,84 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
         XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession])
         XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .opposite])
-        XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .shadow, .position, .difference])
-        XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.count, .quantityCompare, .rhythm, .sequence, .pattern])
+        XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .difference])
+        XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.number, .count, .quantityCompare, .rhythm, .sequence, .pattern])
+    }
+
+    func testLengthRoundsCompareLongAndShort() {
+        let lengthRounds = GameContent.rounds.filter { $0.mode == .length }
+
+        XCTAssertGreaterThanOrEqual(lengthRounds.count, 12)
+        XCTAssertEqual(Set(lengthRounds.map { $0.targetSizeScale > 1 }), [true, false])
+        for round in lengthRounds {
+            XCTAssertTrue(round.promptSpeechText == "找长长的" || round.promptSpeechText == "找短短的")
+            XCTAssertEqual(round.candidates.count, 2)
+            let correct = round.candidates.first { $0.isCorrect }
+            let wrong = round.candidates.first { !$0.isCorrect }
+            XCTAssertEqual(correct?.kind, round.targetKind)
+            XCTAssertEqual(wrong?.kind, round.targetKind)
+            XCTAssertEqual(correct?.sizeScale, round.targetSizeScale)
+            XCTAssertNotEqual(correct?.sizeScale, wrong?.sizeScale)
+        }
+    }
+
+    func testHeightRoundsCompareTallAndShort() {
+        let heightRounds = GameContent.rounds.filter { $0.mode == .height }
+
+        XCTAssertGreaterThanOrEqual(heightRounds.count, 12)
+        XCTAssertEqual(Set(heightRounds.map { $0.targetSizeScale > 1 }), [true, false])
+        for round in heightRounds {
+            XCTAssertTrue(round.promptSpeechText == "找高高的" || round.promptSpeechText == "找矮矮的")
+            XCTAssertEqual(round.candidates.count, 2)
+            let correct = round.candidates.first { $0.isCorrect }
+            let wrong = round.candidates.first { !$0.isCorrect }
+            XCTAssertEqual(correct?.kind, round.targetKind)
+            XCTAssertEqual(wrong?.kind, round.targetKind)
+            XCTAssertEqual(correct?.sizeScale, round.targetSizeScale)
+            XCTAssertNotEqual(correct?.sizeScale, wrong?.sizeScale)
+        }
+    }
+
+    func testPositionRoundsStayCardinalOnly() {
+        let positionRounds = GameContent.rounds.filter { $0.mode == .position }
+        let cardinalPositions: Set<SpatialPosition> = [.top, .bottom, .left, .right]
+
+        XCTAssertFalse(positionRounds.isEmpty)
+        XCTAssertEqual(Set(positionRounds.map(\.targetPosition)), cardinalPositions)
+        for round in positionRounds {
+            XCTAssertTrue(cardinalPositions.contains(round.targetPosition))
+            XCTAssertTrue(round.candidates.allSatisfy { cardinalPositions.contains($0.position) })
+        }
+    }
+
+    func testInsideOutsideRoundsCoverBothRelations() {
+        let relationRounds = GameContent.rounds.filter { $0.mode == .insideOutside }
+        let relations: Set<SpatialPosition> = [.inside, .outside]
+
+        XCTAssertGreaterThanOrEqual(relationRounds.count, 12)
+        XCTAssertEqual(Set(relationRounds.map(\.targetPosition)), relations)
+        for round in relationRounds {
+            XCTAssertTrue(round.promptSpeechText == "找在里面的\(round.targetKind.name)" || round.promptSpeechText == "找在外面的\(round.targetKind.name)")
+            XCTAssertEqual(round.candidates.count, 2)
+            XCTAssertTrue(round.candidates.allSatisfy { $0.kind == round.targetKind })
+            XCTAssertEqual(Set(round.candidates.map(\.position)), relations)
+            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.position, round.targetPosition)
+        }
+    }
+
+    func testFrontBackRoundsCoverBothRelations() {
+        let relationRounds = GameContent.rounds.filter { $0.mode == .frontBack }
+        let relations: Set<SpatialPosition> = [.front, .back]
+
+        XCTAssertGreaterThanOrEqual(relationRounds.count, 12)
+        XCTAssertEqual(Set(relationRounds.map(\.targetPosition)), relations)
+        for round in relationRounds {
+            XCTAssertTrue(round.promptSpeechText == "找在前面的\(round.targetKind.name)" || round.promptSpeechText == "找在后面的\(round.targetKind.name)")
+            XCTAssertEqual(round.candidates.count, 2)
+            XCTAssertTrue(round.candidates.allSatisfy { $0.kind == round.targetKind })
+            XCTAssertEqual(Set(round.candidates.map(\.position)), relations)
+            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.position, round.targetPosition)
+        }
     }
 
     func testFriendCategoryVisualSamplesStayInCategory() {

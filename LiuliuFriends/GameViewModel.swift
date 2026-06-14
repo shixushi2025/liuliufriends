@@ -470,8 +470,14 @@ final class GameViewModel: ObservableObject {
             return "找\(displayName(for: round.targetKind))"
         case .size:
             return "找一样大的\(displayName(for: round.targetKind))"
+        case .length:
+            return round.targetSizeScale > 1 ? "找长长的" : "找短短的"
+        case .height:
+            return round.targetSizeScale > 1 ? "找高高的" : "找矮矮的"
         case .shadow:
             return "找\(displayName(for: round.targetKind))的影子"
+        case .number:
+            return "找数字\(round.targetCount.cnNumberName)"
         case .count:
             return "找\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))"
         case .quantityCompare:
@@ -481,6 +487,10 @@ final class GameViewModel: ObservableObject {
         case .difference:
             return "找不一样的"
         case .position:
+            return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
+        case .insideOutside:
+            return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
+        case .frontBack:
             return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
         case .purpose:
             return "找\(round.targetPurpose?.speechTitle ?? displayName(for: round.targetKind))"
@@ -541,6 +551,12 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))，找到了"
         case .profession:
             return "\(displayName(for: round.targetKind))，找到了"
+        case .length:
+            return round.targetSizeScale > 1 ? "长长的，找到了" : "短短的，找到了"
+        case .height:
+            return round.targetSizeScale > 1 ? "高高的，找到了" : "矮矮的，找到了"
+        case .number:
+            return "数字\(round.targetCount.cnNumberName)，找到了"
         case .count:
             return "\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))，找到了"
         case .quantityCompare:
@@ -550,6 +566,10 @@ final class GameViewModel: ObservableObject {
         case .difference:
             return "\(displayName(for: round.targetKind))，不一样"
         case .position:
+            return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
+        case .insideOutside:
+            return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
+        case .frontBack:
             return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
         case .purpose:
             return "\(displayName(for: round.targetKind))，找到了"

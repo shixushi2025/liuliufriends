@@ -551,11 +551,32 @@ private struct TargetArea: View {
                     TargetCaption(title: "找一样大的朋友", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .length:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    LengthChoiceView(kind: round.targetKind, color: round.targetColor, lengthScale: round.targetSizeScale)
+                        .frame(width: metrics.targetIconSize * 1.14, height: metrics.targetIconSize * 0.74)
+                    TargetCaption(title: round.targetSizeScale > 1 ? "找长长的" : "找短短的", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .height:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    HeightChoiceView(kind: round.targetKind, color: round.targetColor, heightScale: round.targetSizeScale)
+                        .frame(width: metrics.targetIconSize * 0.86, height: metrics.targetIconSize * 1.0)
+                    TargetCaption(title: round.targetSizeScale > 1 ? "找高高的" : "找矮矮的", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .shadow:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: Color(red: 0.28, green: 0.25, blue: 0.22), isShadow: true)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
                     TargetCaption(title: "找这个影子", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .number:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    NumberCardView(count: round.targetCount, accentColor: round.mode.accentColor, isTarget: true)
+                        .frame(width: metrics.targetIconSize * 0.92, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找数字\(round.targetCount.cnNumberName)", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .count:
@@ -590,6 +611,20 @@ private struct TargetArea: View {
                 VStack(spacing: metrics.targetContentSpacing) {
                     PositionTargetView(position: round.targetPosition, kind: round.targetKind, color: round.targetColor, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.98)
+                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .insideOutside:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    InsideOutsideStageView(kind: round.targetKind, color: round.targetColor, position: round.targetPosition)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.94)
+                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
+            case .frontBack:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FrontBackStageView(kind: round.targetKind, color: round.targetColor, position: round.targetPosition)
+                        .frame(width: metrics.targetIconSize * 1.10, height: metrics.targetIconSize * 0.96)
                     TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
@@ -796,12 +831,18 @@ private struct CandidateButton: View {
         switch round.mode {
         case .shape:
             max(30, size * 0.22)
+        case .number:
+            max(12, size * 0.12)
         case .count:
             max(10, size * 0.10)
         case .position:
             max(8, size * 0.08)
         case .size:
             max(14, size * 0.13)
+        case .length:
+            max(10, size * 0.10)
+        case .height:
+            max(10, size * 0.10)
         default:
             max(14, size * 0.13)
         }
@@ -817,6 +858,21 @@ private struct CandidateButton: View {
         if round.mode == .sequence, let sequence = candidate.sequence {
             return sequence.promptTitle
         }
+        if round.mode == .number {
+            return "数字\(candidate.count.cnNumberName)"
+        }
+        if round.mode == .length {
+            return candidate.sizeScale > 1 ? "长长的" : "短短的"
+        }
+        if round.mode == .height {
+            return candidate.sizeScale > 1 ? "高高的" : "矮矮的"
+        }
+        if round.mode == .insideOutside {
+            return "\(candidate.kind.name)在\(candidate.position.name)"
+        }
+        if round.mode == .frontBack {
+            return "\(candidate.kind.name)在\(candidate.position.name)"
+        }
         return candidate.kind.name
     }
 }
@@ -830,12 +886,22 @@ private struct GameObjectView: View {
         switch round.mode {
         case .color:
             ColorLearningObjectView(kind: candidate.kind, color: candidate.color)
+        case .number:
+            NumberCardView(count: candidate.count, accentColor: candidate.color, isTarget: isTarget)
         case .count, .quantityCompare:
             CountClusterView(kind: candidate.kind, color: candidate.color, count: candidate.count)
+        case .length:
+            LengthChoiceView(kind: candidate.kind, color: candidate.color, lengthScale: candidate.sizeScale)
+        case .height:
+            HeightChoiceView(kind: candidate.kind, color: candidate.color, heightScale: candidate.sizeScale)
         case .category:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
+        case .insideOutside:
+            InsideOutsideStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
+        case .frontBack:
+            FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
@@ -932,6 +998,139 @@ private struct QuantityCompareTargetView: View {
             accentColor: accentColor,
             motif: .quantity
         )
+    }
+}
+
+private struct NumberCardView: View {
+    let count: Int
+    let accentColor: Color
+    let isTarget: Bool
+
+    var body: some View {
+        GeometryReader { geometry in
+            let diameter = min(geometry.size.width, geometry.size.height)
+            ZStack {
+                RoundedRectangle(cornerRadius: diameter * 0.28, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                accentColor.opacity(isTarget ? 0.96 : 0.86),
+                                accentColor.opacity(isTarget ? 0.72 : 0.58)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: diameter * 0.28, style: .continuous)
+                            .stroke(.white.opacity(0.68), lineWidth: max(2, diameter * 0.035))
+                    )
+                    .shadow(color: accentColor.opacity(0.24), radius: diameter * 0.12, x: 0, y: diameter * 0.05)
+
+                Text("\(count)")
+                    .font(.system(size: diameter * 0.58, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+                    .minimumScaleFactor(0.65)
+                    .shadow(color: .black.opacity(0.10), radius: diameter * 0.02, x: 0, y: diameter * 0.02)
+
+                Text(count.cnNumberName)
+                    .font(.system(size: diameter * 0.14, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.88))
+                    .offset(y: diameter * 0.32)
+            }
+            .padding(diameter * 0.05)
+        }
+        .aspectRatio(1, contentMode: .fit)
+    }
+}
+
+private struct LengthChoiceView: View {
+    let kind: FriendKind
+    let color: Color
+    let lengthScale: CGFloat
+
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let height = geometry.size.height
+            let barWidth = width * min(max(lengthScale, 0.55), 1.25) * 0.72
+            let barHeight = max(height * 0.38, 24)
+
+            ZStack {
+                RoundedRectangle(cornerRadius: height * 0.24, style: .continuous)
+                    .fill(.white.opacity(0.78))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: height * 0.24, style: .continuous)
+                            .stroke(color.opacity(0.20), lineWidth: max(1, height * 0.025))
+                    )
+
+                RoundedRectangle(cornerRadius: barHeight * 0.5, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [color.opacity(0.92), color.opacity(0.68)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(width: barWidth, height: barHeight)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: barHeight * 0.5, style: .continuous)
+                            .stroke(.white.opacity(0.58), lineWidth: max(2, barHeight * 0.08))
+                    )
+                    .shadow(color: color.opacity(0.22), radius: height * 0.10, x: 0, y: height * 0.05)
+
+                FriendShape(kind: kind, color: color, isShadow: false)
+                    .frame(width: min(height * 0.52, width * 0.22), height: min(height * 0.52, width * 0.22))
+                    .offset(x: barWidth * 0.36)
+            }
+        }
+        .aspectRatio(1.45, contentMode: .fit)
+    }
+}
+
+private struct HeightChoiceView: View {
+    let kind: FriendKind
+    let color: Color
+    let heightScale: CGFloat
+
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let height = geometry.size.height
+            let barHeight = height * min(max(heightScale, 0.55), 1.25) * 0.70
+            let barWidth = max(width * 0.38, 24)
+
+            ZStack(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: width * 0.24, style: .continuous)
+                    .fill(.white.opacity(0.78))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: width * 0.24, style: .continuous)
+                            .stroke(color.opacity(0.20), lineWidth: max(1, width * 0.025))
+                    )
+
+                RoundedRectangle(cornerRadius: barWidth * 0.5, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [color.opacity(0.94), color.opacity(0.68)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: barWidth, height: barHeight)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: barWidth * 0.5, style: .continuous)
+                            .stroke(.white.opacity(0.58), lineWidth: max(2, barWidth * 0.08))
+                    )
+                    .shadow(color: color.opacity(0.22), radius: width * 0.10, x: 0, y: width * 0.05)
+                    .padding(.bottom, height * 0.10)
+
+                FriendShape(kind: kind, color: color, isShadow: false)
+                    .frame(width: min(width * 0.58, height * 0.24), height: min(width * 0.58, height * 0.24))
+                    .offset(y: -barHeight * 0.88)
+            }
+            .padding(width * 0.05)
+        }
+        .aspectRatio(0.78, contentMode: .fit)
     }
 }
 
@@ -1833,7 +2032,159 @@ private struct PositionStageView: View {
             return CGPoint(x: size.width * 0.27, y: size.height * 0.5)
         case .right:
             return CGPoint(x: size.width * 0.73, y: size.height * 0.5)
+        case .inside:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.5)
+        case .outside:
+            return CGPoint(x: size.width * 0.80, y: size.height * 0.22)
+        case .front:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.68)
+        case .back:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.32)
         }
+    }
+}
+
+private struct InsideOutsideStageView: View {
+    let kind: FriendKind
+    let color: Color
+    let position: SpatialPosition
+
+    var body: some View {
+        GeometryReader { geometry in
+            let size = geometry.size
+            let boxSize = min(size.width, size.height) * 0.58
+            let itemSize = min(size.width, size.height) * 0.40
+
+            ZStack {
+                RoundedRectangle(cornerRadius: min(28, min(size.width, size.height) * 0.20), style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [.white.opacity(0.74), Color(red: 0.88, green: 0.97, blue: 0.95).opacity(0.64)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                RoundedRectangle(cornerRadius: boxSize * 0.22, style: .continuous)
+                    .fill(color.opacity(0.10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: boxSize * 0.22, style: .continuous)
+                            .stroke(color.opacity(0.42), style: StrokeStyle(lineWidth: max(2, boxSize * 0.045), lineCap: .round, dash: [8, 6]))
+                    )
+                    .frame(width: boxSize, height: boxSize)
+                    .position(x: size.width * 0.47, y: size.height * 0.56)
+
+                Circle()
+                    .fill(color.opacity(0.13))
+                    .frame(width: itemSize * 1.12, height: itemSize * 1.12)
+                    .position(point(for: position, in: size))
+
+                FriendShape(kind: kind, color: color, isShadow: false)
+                    .padding(max(4, itemSize * 0.08))
+                    .frame(width: itemSize, height: itemSize)
+                    .position(point(for: position, in: size))
+            }
+        }
+        .aspectRatio(1.12, contentMode: .fit)
+    }
+
+    private func point(for position: SpatialPosition, in size: CGSize) -> CGPoint {
+        switch position {
+        case .inside:
+            return CGPoint(x: size.width * 0.47, y: size.height * 0.56)
+        case .outside:
+            return CGPoint(x: size.width * 0.76, y: size.height * 0.28)
+        case .top:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.25)
+        case .bottom:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.75)
+        case .left:
+            return CGPoint(x: size.width * 0.27, y: size.height * 0.5)
+        case .right:
+            return CGPoint(x: size.width * 0.73, y: size.height * 0.5)
+        case .front:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.68)
+        case .back:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.32)
+        }
+    }
+}
+
+private struct FrontBackStageView: View {
+    let kind: FriendKind
+    let color: Color
+    let position: SpatialPosition
+
+    var body: some View {
+        GeometryReader { geometry in
+            let size = geometry.size
+            let itemSize = min(size.width, size.height) * (position == .front ? 0.48 : 0.34)
+            let point = point(for: position, in: size)
+
+            ZStack {
+                RoundedRectangle(cornerRadius: min(28, min(size.width, size.height) * 0.20), style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [.white.opacity(0.74), Color(red: 0.92, green: 0.93, blue: 1.0).opacity(0.66)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                PerspectiveFloor()
+                    .fill(color.opacity(0.10))
+                    .overlay(
+                        PerspectiveFloor()
+                            .stroke(color.opacity(0.24), lineWidth: 2)
+                    )
+                    .frame(width: size.width * 0.72, height: size.height * 0.48)
+                    .position(x: size.width * 0.5, y: size.height * 0.58)
+
+                Ellipse()
+                    .fill(.black.opacity(position == .front ? 0.08 : 0.04))
+                    .frame(width: itemSize * 0.82, height: itemSize * 0.20)
+                    .position(x: point.x, y: point.y + itemSize * 0.34)
+
+                FriendShape(kind: kind, color: color, isShadow: false)
+                    .opacity(position == .front ? 1 : 0.62)
+                    .padding(max(4, itemSize * 0.08))
+                    .frame(width: itemSize, height: itemSize)
+                    .position(point)
+            }
+        }
+        .aspectRatio(1.12, contentMode: .fit)
+    }
+
+    private func point(for position: SpatialPosition, in size: CGSize) -> CGPoint {
+        switch position {
+        case .front:
+            return CGPoint(x: size.width * 0.50, y: size.height * 0.67)
+        case .back:
+            return CGPoint(x: size.width * 0.50, y: size.height * 0.34)
+        case .top:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.25)
+        case .bottom:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.75)
+        case .left:
+            return CGPoint(x: size.width * 0.27, y: size.height * 0.5)
+        case .right:
+            return CGPoint(x: size.width * 0.73, y: size.height * 0.5)
+        case .inside:
+            return CGPoint(x: size.width * 0.5, y: size.height * 0.5)
+        case .outside:
+            return CGPoint(x: size.width * 0.76, y: size.height * 0.28)
+        }
+    }
+}
+
+private struct PerspectiveFloor: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
     }
 }
 
@@ -1871,6 +2222,14 @@ private struct DirectionGlyph: Shape {
             path = DirectionGlyph(position: .top).path(in: rect).applying(CGAffineTransform(translationX: -center.x, y: -center.y).rotated(by: -.pi / 2).translatedBy(x: center.x, y: center.y))
         case .right:
             path = DirectionGlyph(position: .top).path(in: rect).applying(CGAffineTransform(translationX: -center.x, y: -center.y).rotated(by: .pi / 2).translatedBy(x: center.x, y: center.y))
+        case .inside:
+            path.addEllipse(in: rect.insetBy(dx: rect.width * 0.18, dy: rect.height * 0.18))
+        case .outside:
+            path.addRoundedRect(in: rect.insetBy(dx: rect.width * 0.16, dy: rect.height * 0.16), cornerSize: CGSize(width: rect.width * 0.12, height: rect.height * 0.12))
+        case .front:
+            path.addEllipse(in: rect.insetBy(dx: rect.width * 0.12, dy: rect.height * 0.12))
+        case .back:
+            path.addEllipse(in: rect.insetBy(dx: rect.width * 0.28, dy: rect.height * 0.28))
         }
         path.closeSubpath()
         return path
@@ -2370,8 +2729,14 @@ private struct SettingsScreen: View {
             return "职业"
         case .size:
             return "大小"
+        case .length:
+            return "长短"
+        case .height:
+            return "高矮"
         case .shadow:
             return "影子"
+        case .number:
+            return "数字"
         case .count:
             return "数量"
         case .quantityCompare:
@@ -2382,6 +2747,10 @@ private struct SettingsScreen: View {
             return "不同"
         case .position:
             return "位置"
+        case .insideOutside:
+            return "里外"
+        case .frontBack:
+            return "前后"
         case .purpose:
             return "用途"
         case .scene:
@@ -2449,8 +2818,14 @@ private struct SettingsScreen: View {
             return "person.2.fill"
         case .size:
             return "arrow.up.left.and.arrow.down.right"
+        case .length:
+            return "arrow.left.and.right"
+        case .height:
+            return "arrow.up.and.down"
         case .shadow:
             return "moon.fill"
+        case .number:
+            return "number.circle.fill"
         case .count:
             return "number.circle.fill"
         case .quantityCompare:
@@ -2461,6 +2836,10 @@ private struct SettingsScreen: View {
             return "questionmark.circle.fill"
         case .position:
             return "location.fill"
+        case .insideOutside:
+            return "square.dashed.inset.filled"
+        case .frontBack:
+            return "arrow.up.left.and.down.right"
         case .purpose:
             return "lightbulb.fill"
         case .scene:
