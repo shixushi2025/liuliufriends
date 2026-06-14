@@ -494,6 +494,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .stationery:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .size:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
@@ -787,7 +794,7 @@ private struct GameObjectView: View {
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .position:
             PositionStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
+        case .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -948,6 +955,8 @@ private struct CategoryTargetView: View {
             return [sampleKind, .toothbrush, .towel, .soap].uniqued()
         case .home:
             return [sampleKind, .chair, .bed, .lamp].uniqued()
+        case .stationery:
+            return [sampleKind, .pencil, .notebook, .schoolbag].uniqued()
         case .object:
             return [sampleKind, .balloon, .book, .umbrella].uniqued()
         }
@@ -975,6 +984,8 @@ private struct CategoryTargetView: View {
             return Color(red: 0.28, green: 0.68, blue: 0.76)
         case .home:
             return Color(red: 0.76, green: 0.52, blue: 0.34)
+        case .stationery:
+            return Color(red: 0.52, green: 0.47, blue: 0.88)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -1048,6 +1059,8 @@ private struct DifferenceTargetView: View {
             return [.toothbrush, .towel]
         case .home:
             return [.chair, .bed]
+        case .stationery:
+            return [.pencil, .notebook]
         case .object:
             return [.book, .umbrella]
         }
@@ -1075,6 +1088,8 @@ private struct DifferenceTargetView: View {
             return Color(red: 0.28, green: 0.68, blue: 0.76)
         case .home:
             return Color(red: 0.76, green: 0.52, blue: 0.34)
+        case .stationery:
+            return Color(red: 0.52, green: 0.47, blue: 0.88)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -1456,6 +1471,8 @@ private struct PatternTargetView: View {
             return Color(red: 0.28, green: 0.68, blue: 0.76)
         case .home:
             return Color(red: 0.76, green: 0.52, blue: 0.34)
+        case .stationery:
+            return Color(red: 0.52, green: 0.47, blue: 0.88)
         case .object:
             return Color(red: 0.14, green: 0.66, blue: 0.54)
         }
@@ -2432,6 +2449,8 @@ private struct SettingsScreen: View {
             return "卫生"
         case .home:
             return "家居"
+        case .stationery:
+            return "文具"
         case .size:
             return "大小"
         case .shadow:
@@ -2497,6 +2516,8 @@ private struct SettingsScreen: View {
             return "sparkles"
         case .home:
             return "house.fill"
+        case .stationery:
+            return "pencil.circle.fill"
         case .size:
             return "arrow.up.left.and.arrow.down.right"
         case .shadow:
