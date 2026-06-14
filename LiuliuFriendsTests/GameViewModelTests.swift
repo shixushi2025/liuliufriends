@@ -286,6 +286,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.texture.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.taste.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.pairing.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.animalHome.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.opposite.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.difference.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.number.ageBand, .preschool36Months)
@@ -312,7 +313,7 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
         XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .vehicle, .fruit, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession])
-        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .opposite])
+        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .opposite])
         XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .difference])
         XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.number, .count, .quantityCompare, .rhythm, .sequence, .pattern])
     }
@@ -546,6 +547,23 @@ final class GameViewModelTests: XCTestCase {
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(pairing.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("好搭档"))
+        }
+    }
+
+    func testAnimalHomeRoundsHaveExplicitHomeTargets() {
+        let animalHomeRounds = GameContent.rounds.filter { $0.mode == .animalHome }
+
+        XCTAssertFalse(animalHomeRounds.isEmpty)
+        XCTAssertEqual(Set(animalHomeRounds.compactMap(\.targetAnimalHome)), Set(FriendAnimalHome.allCases))
+        for round in animalHomeRounds {
+            let animalHome = try! XCTUnwrap(round.targetAnimalHome)
+            XCTAssertEqual(round.targetKind, animalHome.animalKind)
+            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.kind, animalHome.animalKind)
+            XCTAssertTrue(round.candidates.contains { $0.kind == animalHome.distractorKind })
+            XCTAssertTrue(round.candidates.allSatisfy { $0.kind.category == .animal })
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(animalHome.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains(animalHome.speechTitle))
         }
     }
 

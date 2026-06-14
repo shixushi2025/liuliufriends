@@ -514,6 +514,8 @@ final class GameViewModel: ObservableObject {
             return "找\(round.targetTaste?.speechTitle ?? displayName(for: round.targetKind))"
         case .pairing:
             return "找\(round.targetPairing?.speechTitle ?? displayName(for: round.targetKind))"
+        case .animalHome:
+            return "找\(round.targetAnimalHome?.speechTitle ?? displayName(for: round.targetKind))的\(displayName(for: round.targetKind))"
         case .opposite:
             return "找\(round.targetOpposite?.speechTitle ?? displayName(for: round.targetKind))"
         case .rhythm:
@@ -589,6 +591,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))，尝起来\(round.targetTaste?.promptTitle ?? "找到了")"
         case .pairing:
             return "\(displayName(for: round.targetKind))，是好搭档"
+        case .animalHome:
+            return "\(displayName(for: round.targetKind))\(round.targetAnimalHome?.speechTitle ?? "找到了")，找到了"
         case .opposite:
             return "\(round.targetOpposite?.answerTitle ?? displayName(for: round.targetKind))，找到了"
         case .rhythm:
