@@ -712,6 +712,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetAnimalHome?.speechTitle ?? "住在哪里")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .animalBaby:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    AnimalBabyTargetView(animalBaby: round.targetAnimalBaby ?? .catKitten, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.16, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetAnimalBaby?.speechTitle ?? "动物宝宝")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .opposite:
                 VStack(spacing: metrics.targetContentSpacing) {
                     OppositeTargetView(opposite: round.targetOpposite ?? .dayNight, accentColor: round.mode.accentColor)
@@ -923,7 +930,7 @@ private struct GameObjectView: View {
             InsideOutsideStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .frontBack:
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1462,6 +1469,21 @@ private struct AnimalHomeTargetView: View {
             title: animalHome.promptTitle,
             subtitle: "住在哪里",
             systemName: animalHome.iconName,
+            accentColor: accentColor,
+            motif: .bubble
+        )
+    }
+}
+
+private struct AnimalBabyTargetView: View {
+    let animalBaby: FriendAnimalBaby
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: animalBaby.promptTitle,
+            subtitle: "宝宝是谁",
+            systemName: animalBaby.iconName,
             accentColor: accentColor,
             motif: .bubble
         )
@@ -2811,6 +2833,8 @@ private struct SettingsScreen: View {
             return "搭配"
         case .animalHome:
             return "动物家"
+        case .animalBaby:
+            return "宝宝"
         case .opposite:
             return "相反"
         case .rhythm:
@@ -2906,6 +2930,8 @@ private struct SettingsScreen: View {
             return "link.circle.fill"
         case .animalHome:
             return "house.circle.fill"
+        case .animalBaby:
+            return "heart.circle.fill"
         case .opposite:
             return "arrow.left.arrow.right.circle.fill"
         case .rhythm:

@@ -112,6 +112,7 @@ enum GameMode: String, CaseIterable, Codable {
     case taste
     case pairing
     case animalHome
+    case animalBaby
     case opposite
     case rhythm
     case sequence
@@ -200,6 +201,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "搭配朋友"
         case .animalHome:
             return "动物家朋友"
+        case .animalBaby:
+            return "动物宝宝"
         case .opposite:
             return "相反朋友"
         case .rhythm:
@@ -295,6 +298,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "帮六六找好搭档"
         case .animalHome:
             return "帮六六找动物住哪里"
+        case .animalBaby:
+            return "帮六六找动物宝宝"
         case .opposite:
             return "帮六六找相反的朋友"
         case .rhythm:
@@ -314,7 +319,7 @@ enum GameMode: String, CaseIterable, Codable {
             return .starter18Months
         case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .category, .position, .insideOutside, .frontBack, .routine, .emotion:
             return .explorer24Months
-        case .size, .length, .height, .shadow, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .opposite, .difference:
+        case .size, .length, .height, .shadow, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .opposite, .difference:
             return .matcher30Months
         case .number, .count, .quantityCompare, .rhythm, .sequence, .pattern:
             return .preschool36Months
@@ -329,7 +334,7 @@ enum GameMode: String, CaseIterable, Codable {
         switch self {
         case .animal, .vehicle, .fruit, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession:
             return "基础识物"
-        case .category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .opposite:
+        case .category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .opposite:
             return "生活关系"
         case .size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .difference:
             return "观察匹配"
@@ -347,7 +352,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .animalHome, .opposite, .rhythm, .sequence, .pattern, .difference:
+        case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .opposite, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -436,6 +441,8 @@ enum GameMode: String, CaseIterable, Codable {
             return Color(red: 0.22, green: 0.64, blue: 0.58)
         case .animalHome:
             return Color(red: 0.42, green: 0.62, blue: 0.36)
+        case .animalBaby:
+            return Color(red: 0.95, green: 0.46, blue: 0.52)
         case .opposite:
             return Color(red: 0.96, green: 0.46, blue: 0.30)
         case .rhythm:
@@ -1108,6 +1115,74 @@ enum FriendAnimalHome: String, CaseIterable {
         case .frogPond:
             return "water.waves"
         }
+    }
+}
+
+enum FriendAnimalBaby: String, CaseIterable {
+    case catKitten
+    case dogPuppy
+    case duckDuckling
+    case cowCalf
+    case sheepLamb
+    case horseFoal
+
+    var babyKind: FriendKind {
+        switch self {
+        case .catKitten:
+            return .cat
+        case .dogPuppy:
+            return .dog
+        case .duckDuckling:
+            return .duck
+        case .cowCalf:
+            return .cow
+        case .sheepLamb:
+            return .sheep
+        case .horseFoal:
+            return .horse
+        }
+    }
+
+    var distractorKind: FriendKind {
+        switch self {
+        case .catKitten:
+            return .duck
+        case .dogPuppy:
+            return .cat
+        case .duckDuckling:
+            return .sheep
+        case .cowCalf:
+            return .horse
+        case .sheepLamb:
+            return .dog
+        case .horseFoal:
+            return .cow
+        }
+    }
+
+    var promptTitle: String {
+        switch self {
+        case .catKitten:
+            return "猫妈妈"
+        case .dogPuppy:
+            return "狗妈妈"
+        case .duckDuckling:
+            return "鸭妈妈"
+        case .cowCalf:
+            return "牛妈妈"
+        case .sheepLamb:
+            return "羊妈妈"
+        case .horseFoal:
+            return "马妈妈"
+        }
+    }
+
+    var speechTitle: String {
+        "\(promptTitle)的宝宝"
+    }
+
+    var iconName: String {
+        "pawprint.fill"
     }
 }
 
@@ -2748,6 +2823,7 @@ struct GameRound: Identifiable {
     let targetTaste: FriendTaste?
     let targetPairing: FriendPairing?
     let targetAnimalHome: FriendAnimalHome?
+    let targetAnimalBaby: FriendAnimalBaby?
     let targetOpposite: FriendOpposite?
     let targetRhythm: FriendRhythm?
     let targetSequence: FriendSequence?
@@ -2774,6 +2850,7 @@ struct GameRound: Identifiable {
         targetTaste: FriendTaste? = nil,
         targetPairing: FriendPairing? = nil,
         targetAnimalHome: FriendAnimalHome? = nil,
+        targetAnimalBaby: FriendAnimalBaby? = nil,
         targetOpposite: FriendOpposite? = nil,
         targetRhythm: FriendRhythm? = nil,
         targetSequence: FriendSequence? = nil,
@@ -2799,6 +2876,7 @@ struct GameRound: Identifiable {
         self.targetTaste = targetTaste
         self.targetPairing = targetPairing
         self.targetAnimalHome = targetAnimalHome
+        self.targetAnimalBaby = targetAnimalBaby
         self.targetOpposite = targetOpposite
         self.targetRhythm = targetRhythm
         self.targetSequence = targetSequence
@@ -2888,6 +2966,8 @@ struct GameRound: Identifiable {
             return "找\(targetPairing?.speechTitle ?? targetKind.name)"
         case .animalHome:
             return "找\(targetAnimalHome?.speechTitle ?? targetKind.name)的\(targetKind.name)"
+        case .animalBaby:
+            return "找\(targetAnimalBaby?.speechTitle ?? targetKind.name)"
         case .opposite:
             return "找\(targetOpposite?.speechTitle ?? targetKind.name)"
         case .rhythm:
@@ -2973,6 +3053,8 @@ struct GameRound: Identifiable {
             return "\(targetKind.name)，是好搭档"
         case .animalHome:
             return "\(targetKind.name)\(targetAnimalHome?.speechTitle ?? "找到了")，找到了"
+        case .animalBaby:
+            return "\(targetKind.name)，是\(targetAnimalBaby?.speechTitle ?? "宝宝")"
         case .opposite:
             return "\(targetOpposite?.answerTitle ?? targetKind.name)，找到了"
         case .rhythm:
