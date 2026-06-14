@@ -458,6 +458,8 @@ final class GameViewModel: ObservableObject {
             return "找\(displayName(for: round.targetKind))"
         case .instrument:
             return "找\(displayName(for: round.targetKind))"
+        case .toy:
+            return "找\(displayName(for: round.targetKind))"
         case .size:
             return "找一样大的\(displayName(for: round.targetKind))"
         case .shadow:
@@ -520,6 +522,8 @@ final class GameViewModel: ObservableObject {
         case .stationery:
             return "\(displayName(for: round.targetKind))，找到了"
         case .instrument:
+            return "\(displayName(for: round.targetKind))，找到了"
+        case .toy:
             return "\(displayName(for: round.targetKind))，找到了"
         case .count:
             return "\(round.targetCount.cnNumberName)个\(displayName(for: round.targetKind))，找到了"
