@@ -108,6 +108,12 @@ enum GameContent {
         .hand: .sunYellow,
         .foot: .mintGreen,
         .nose: .orange,
+        .hat: .purple,
+        .shirt: .skyBlue,
+        .pants: .mintGreen,
+        .shoes: .milkBrown,
+        .socks: .rosePink,
+        .coat: .orange,
         .flower: .rosePink,
         .tree: .leafGreen,
         .sun: .sunYellow,
@@ -128,6 +134,10 @@ enum GameContent {
 
     private static var bodyParts: [FriendKind] {
         FriendKind.allCases.filter { $0.category == .body }
+    }
+
+    private static var clothingItems: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .clothing }
     }
 
     private static var visibleKinds: [FriendKind] {
@@ -161,6 +171,7 @@ enum GameContent {
         .vehicle: [.car, .bus, .train, .truck, .airplane, .boat],
         .fruit: [.apple, .banana, .orange, .pear, .strawberry, .watermelon],
         .body: [.eye, .ear, .mouth, .hand, .foot, .nose],
+        .clothing: [.hat, .shirt, .pants, .shoes, .socks, .coat],
         .object: [.balloon, .flower, .tree, .umbrella, .ball, .book]
     ]
 
@@ -321,6 +332,10 @@ enum GameContent {
 
         result += bodyParts.enumerated().map { index, kind in
             matchingRound(.body, kind, color(for: kind), distractor(for: kind, in: bodyParts, offset: 2), color(for: distractor(for: kind, in: bodyParts, offset: 2)), correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += clothingItems.enumerated().map { index, kind in
+            matchingRound(.clothing, kind, color(for: kind), distractor(for: kind, in: clothingItems, offset: 2), color(for: distractor(for: kind, in: clothingItems, offset: 2)), correctFirst: index.isMultiple(of: 2))
         }
 
         result += visibleKinds.enumerated().flatMap { index, kind in

@@ -1094,7 +1094,7 @@ private struct SymbolFriendShape: View {
         switch kind.category {
         case .vehicle:
             return 74
-        case .fruit, .object:
+        case .fruit, .clothing, .object:
             return 78
         case .animal:
             return 76
