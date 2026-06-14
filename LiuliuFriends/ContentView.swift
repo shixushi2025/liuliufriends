@@ -719,6 +719,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetAnimalBaby?.speechTitle ?? "动物宝宝")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .animalFood:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    AnimalFoodTargetView(animalFood: round.targetAnimalFood ?? .rabbitCarrot, animalColor: targetCueColor(for: round.targetAnimalFood?.animalKind ?? .rabbit), accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetAnimalFood?.speechTitle ?? "动物爱吃的")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .opposite:
                 VStack(spacing: metrics.targetContentSpacing) {
                     OppositeTargetView(opposite: round.targetOpposite ?? .dayNight, accentColor: round.mode.accentColor)
@@ -930,7 +937,7 @@ private struct GameObjectView: View {
             InsideOutsideStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .frontBack:
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1487,6 +1494,62 @@ private struct AnimalBabyTargetView: View {
             accentColor: accentColor,
             motif: .bubble
         )
+    }
+}
+
+private struct AnimalFoodTargetView: View {
+    let animalFood: FriendAnimalFood
+    let animalColor: Color
+    let accentColor: Color
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
+                )
+
+            VStack(spacing: 8) {
+                Text("吃什么")
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(accentColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.14), in: Capsule())
+
+                HStack(spacing: 12) {
+                    FriendShape(kind: animalFood.animalKind, color: animalColor, isShadow: false)
+                        .padding(5)
+                        .frame(width: 54, height: 54)
+                        .background(.white.opacity(0.74), in: Circle())
+
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 18, weight: .black))
+                        .foregroundStyle(accentColor)
+                        .frame(width: 34, height: 34)
+                        .background(accentColor.opacity(0.12), in: Circle())
+
+                    Text("?")
+                        .font(.system(size: 30, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                        .frame(width: 50, height: 50)
+                        .background(accentColor.opacity(0.86), in: Circle())
+                }
+
+                Text(animalFood.promptTitle)
+                    .font(.system(size: 16, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.48, green: 0.28, blue: 0.16))
+            }
+            .padding(12)
+        }
     }
 }
 
@@ -2835,6 +2898,8 @@ private struct SettingsScreen: View {
             return "动物家"
         case .animalBaby:
             return "宝宝"
+        case .animalFood:
+            return "食物"
         case .opposite:
             return "相反"
         case .rhythm:
@@ -2932,6 +2997,8 @@ private struct SettingsScreen: View {
             return "house.circle.fill"
         case .animalBaby:
             return "heart.circle.fill"
+        case .animalFood:
+            return "fork.knife.circle.fill"
         case .opposite:
             return "arrow.left.arrow.right.circle.fill"
         case .rhythm:

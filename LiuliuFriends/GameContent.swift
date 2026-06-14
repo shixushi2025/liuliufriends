@@ -693,6 +693,10 @@ enum GameContent {
             animalBabyRound(animalBaby, correctFirst: index.isMultiple(of: 2))
         }
 
+        result += FriendAnimalFood.allCases.enumerated().map { index, animalFood in
+            animalFoodRound(animalFood, correctFirst: !index.isMultiple(of: 2))
+        }
+
         result += oppositePracticePairs.enumerated().map { index, pair in
             opposite(pair.target, distractor: pair.distractor, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
         }
@@ -1105,6 +1109,21 @@ enum GameContent {
             targetKind: animalBaby.babyKind,
             targetColor: color(for: animalBaby.babyKind),
             targetAnimalBaby: animalBaby,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func animalFoodRound(
+        _ animalFood: FriendAnimalFood,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: animalFood.foodKind, color: color(for: animalFood.foodKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: animalFood.distractorKind, color: color(for: animalFood.distractorKind), isCorrect: false)
+        return GameRound(
+            mode: .animalFood,
+            targetKind: animalFood.foodKind,
+            targetColor: color(for: animalFood.foodKind),
+            targetAnimalFood: animalFood,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
