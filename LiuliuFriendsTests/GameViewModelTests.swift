@@ -162,10 +162,22 @@ final class GameViewModelTests: XCTestCase {
         }
     }
 
+    func testPlaceRoundsCoverCommonPlaceItems() {
+        let placeRounds = GameContent.rounds.filter { $0.mode == .place }
+        let placeKinds = FriendKind.allCases.filter { $0.category == .place }
+
+        XCTAssertEqual(placeRounds.count, placeKinds.count)
+        XCTAssertEqual(Set(placeRounds.map(\.targetKind)), Set(placeKinds))
+        for round in placeRounds {
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.candidates.allSatisfy { $0.kind.category == .place })
+        }
+    }
+
     func testContentCoversCoreFriendCategories() {
         let categories = Set(FriendKind.allCases.map(\.category))
 
-        XCTAssertEqual(categories, [.animal, .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .object])
+        XCTAssertEqual(categories, [.animal, .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .object])
     }
 
     func testGameModesUseStructuredAgeBands() {
@@ -183,6 +195,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.instrument.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.toy.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.nature.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.place.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.category.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.position.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.routine.ageBand, .explorer24Months)
@@ -220,7 +233,7 @@ final class GameViewModelTests: XCTestCase {
         let groupedModes = Dictionary(grouping: GameMode.allCases, by: \.settingsGroupTitle)
 
         XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
-        XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .sound, .color, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature])
+        XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .sound, .color, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place])
         XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .opposite])
         XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .shadow, .position, .difference])
         XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.count, .quantityCompare, .rhythm, .sequence, .pattern])
@@ -843,7 +856,7 @@ final class GameViewModelTests: XCTestCase {
     }
 
     func testRecognizedSoundPromptCatalogDoesNotOverrideShapesOrFruit() {
-        for kind in FriendKind.allCases where kind.category == .shape || kind.category == .fruit || kind.category == .vegetable || kind.category == .tableware || kind.category == .hygiene || kind.category == .home || kind.category == .stationery || kind.category == .instrument || kind.category == .toy || kind.category == .nature {
+        for kind in FriendKind.allCases where kind.category == .shape || kind.category == .fruit || kind.category == .vegetable || kind.category == .tableware || kind.category == .hygiene || kind.category == .home || kind.category == .stationery || kind.category == .instrument || kind.category == .toy || kind.category == .nature || kind.category == .place {
             XCTAssertFalse(LearningPromptTextCatalog.usesRecognizedSoundPrompt(kind), "\(kind.name) should default to canonical name unless parents customize it.")
             XCTAssertEqual(kind.soundText, kind.name)
         }

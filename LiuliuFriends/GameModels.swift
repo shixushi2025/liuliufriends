@@ -86,6 +86,7 @@ enum GameMode: String, CaseIterable, Codable {
     case instrument
     case toy
     case nature
+    case place
     case size
     case shadow
     case count
@@ -137,6 +138,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "玩具朋友"
         case .nature:
             return "自然朋友"
+        case .place:
+            return "地点朋友"
         case .size:
             return "大小朋友"
         case .shadow:
@@ -210,6 +213,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "帮六六找玩具朋友"
         case .nature:
             return "帮六六找自然朋友"
+        case .place:
+            return "帮六六找去哪里"
         case .size:
             return "帮六六找一样大的朋友"
         case .shadow:
@@ -257,7 +262,7 @@ enum GameMode: String, CaseIterable, Codable {
         switch self {
         case .animal, .sound:
             return .starter18Months
-        case .color, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .category, .position, .routine, .emotion:
+        case .color, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .category, .position, .routine, .emotion:
             return .explorer24Months
         case .size, .shadow, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .opposite, .difference:
             return .matcher30Months
@@ -272,7 +277,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var settingsGroupTitle: String {
         switch self {
-        case .animal, .sound, .color, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature:
+        case .animal, .sound, .color, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place:
             return "基础识物"
         case .category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .opposite:
             return "生活关系"
@@ -292,7 +297,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .color, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .size, .shadow, .count, .quantityCompare, .category, .position, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .opposite, .rhythm, .sequence, .pattern, .difference:
+        case .color, .shape, .body, .clothing, .vegetable, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .size, .shadow, .count, .quantityCompare, .category, .position, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .opposite, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -329,6 +334,8 @@ enum GameMode: String, CaseIterable, Codable {
             return Color(red: 0.94, green: 0.54, blue: 0.22)
         case .nature:
             return Color(red: 0.26, green: 0.68, blue: 0.44)
+        case .place:
+            return Color(red: 0.30, green: 0.58, blue: 0.88)
         case .size:
             return Color(red: 0.61, green: 0.45, blue: 0.91)
         case .shadow:
@@ -1189,6 +1196,7 @@ enum FriendCategory: String, CaseIterable {
     case instrument
     case toy
     case nature
+    case place
     case object
 
     var title: String {
@@ -1221,6 +1229,8 @@ enum FriendCategory: String, CaseIterable {
             return "玩具"
         case .nature:
             return "自然"
+        case .place:
+            return "地点"
         case .object:
             return "生活"
         }
@@ -1256,6 +1266,8 @@ enum FriendCategory: String, CaseIterable {
             return "玩具朋友"
         case .nature:
             return "自然朋友"
+        case .place:
+            return "地点朋友"
         case .object:
             return "生活朋友"
         }
@@ -1278,6 +1290,7 @@ enum VoicePromptGroup: String, CaseIterable {
     case instrument
     case toy
     case nature
+    case place
     case object
 
     var title: String {
@@ -1312,6 +1325,8 @@ enum VoicePromptGroup: String, CaseIterable {
             return "玩具"
         case .nature:
             return "自然"
+        case .place:
+            return "地点"
         case .object:
             return "生活"
         }
@@ -1586,6 +1601,12 @@ enum FriendKind: String, CaseIterable, Identifiable {
     case sun
     case cloud
     case rainbow
+    case house
+    case school
+    case park
+    case beach
+    case store
+    case playground
     case umbrella
     case ball
     case book
@@ -1817,6 +1838,18 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "云朵"
         case .rainbow:
             return "彩虹"
+        case .house:
+            return "家"
+        case .school:
+            return "学校"
+        case .park:
+            return "公园"
+        case .beach:
+            return "海边"
+        case .store:
+            return "商店"
+        case .playground:
+            return "游乐场"
         case .umbrella:
             return "雨伞"
         case .ball:
@@ -1862,6 +1895,8 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return .toy
         case .moon, .flower, .tree, .sun, .cloud, .rainbow:
             return .nature
+        case .house, .school, .park, .beach, .store, .playground:
+            return .place
         case .balloon, .umbrella, .ball, .book, .cup:
             return .object
         }
@@ -1897,6 +1932,8 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return .toy
         case .nature:
             return .nature
+        case .place:
+            return .place
         case .object:
             return .object
         }
@@ -2098,6 +2135,18 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "cloud.fill"
         case .rainbow:
             return "cloud.sun.fill"
+        case .house:
+            return "house.fill"
+        case .school:
+            return "book.fill"
+        case .park:
+            return "tree.fill"
+        case .beach:
+            return "drop.fill"
+        case .store:
+            return "cart.fill"
+        case .playground:
+            return "figure.play"
         case .umbrella:
             return "umbrella.fill"
         case .ball:
@@ -2131,7 +2180,7 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "ObjectAppleArt"
         case .fish:
             return "AnimalFishArt"
-        case .circle, .square, .triangle, .star, .heart, .rectangle, .oval, .diamond, .eye, .ear, .mouth, .hand, .foot, .nose, .hat, .shirt, .pants, .shoes, .socks, .coat, .carrot, .corn, .tomato, .cucumber, .mushroom, .broccoli, .bowl, .spoon, .plate, .fork, .chopsticks, .bottle, .toothbrush, .toothpaste, .towel, .soap, .bathtub, .comb, .chair, .table, .bed, .sofa, .lamp, .clock, .pencil, .crayon, .eraser, .ruler, .notebook, .schoolbag, .drum, .piano, .guitar, .trumpet, .bell, .microphone, .blocks, .doll, .kite, .puzzle, .rattle, .bucket:
+        case .circle, .square, .triangle, .star, .heart, .rectangle, .oval, .diamond, .eye, .ear, .mouth, .hand, .foot, .nose, .hat, .shirt, .pants, .shoes, .socks, .coat, .carrot, .corn, .tomato, .cucumber, .mushroom, .broccoli, .bowl, .spoon, .plate, .fork, .chopsticks, .bottle, .toothbrush, .toothpaste, .towel, .soap, .bathtub, .comb, .chair, .table, .bed, .sofa, .lamp, .clock, .pencil, .crayon, .eraser, .ruler, .notebook, .schoolbag, .drum, .piano, .guitar, .trumpet, .bell, .microphone, .blocks, .doll, .kite, .puzzle, .rattle, .bucket, .rainbow, .house, .school, .park, .beach, .store, .playground:
             return nil
         case .bird:
             return "AnimalBirdArt"
@@ -2211,8 +2260,6 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "ObjectSunArt"
         case .cloud:
             return "ObjectCloudArt"
-        case .rainbow:
-            return nil
         case .umbrella:
             return "ObjectUmbrellaArt"
         case .ball:
@@ -2366,6 +2413,8 @@ struct GameRound: Identifiable {
             return "找\(targetKind.name)"
         case .nature:
             return "找\(targetKind.name)"
+        case .place:
+            return "找\(targetKind.name)"
         case .size:
             return "找一样大的\(targetKind.name)"
         case .shadow:
@@ -2432,6 +2481,8 @@ struct GameRound: Identifiable {
         case .toy:
             return "\(targetKind.name)，找到了"
         case .nature:
+            return "\(targetKind.name)，找到了"
+        case .place:
             return "\(targetKind.name)，找到了"
         case .count:
             return "\(targetCount.cnNumberName)个\(targetKind.name)，找到了"

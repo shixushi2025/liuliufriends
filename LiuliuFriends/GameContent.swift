@@ -161,6 +161,12 @@ enum GameContent {
         .sun: .sunYellow,
         .cloud: .softGray,
         .rainbow: .skyBlue,
+        .house: .coral,
+        .school: .skyBlue,
+        .park: .leafGreen,
+        .beach: .aqua,
+        .store: .orange,
+        .playground: .purple,
         .umbrella: .purple,
         .ball: .coral,
         .book: .skyBlue,
@@ -215,6 +221,10 @@ enum GameContent {
         FriendKind.allCases.filter { $0.category == .nature }
     }
 
+    private static var placeItems: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .place }
+    }
+
     private static var visibleKinds: [FriendKind] {
         FriendKind.allCases
     }
@@ -255,6 +265,7 @@ enum GameContent {
         .instrument: [.drum, .piano, .guitar, .trumpet, .bell, .microphone],
         .toy: [.blocks, .doll, .kite, .puzzle, .rattle, .bucket],
         .nature: [.sun, .cloud, .moon, .flower, .tree, .rainbow],
+        .place: [.house, .school, .park, .beach, .store, .playground],
         .object: [.balloon, .umbrella, .ball, .book, .cup]
     ]
 
@@ -281,6 +292,8 @@ enum GameContent {
         (.toy, .kite, .tomato),
         (.nature, .sun, .cup),
         (.nature, .tree, .bus),
+        (.place, .house, .fish),
+        (.place, .park, .spoon),
         (.object, .book, .rabbit),
         (.object, .umbrella, .banana)
     ]
@@ -467,6 +480,10 @@ enum GameContent {
 
         result += natureItems.enumerated().map { index, kind in
             matchingRound(.nature, kind, color(for: kind), distractor(for: kind, in: natureItems, offset: 2), color(for: distractor(for: kind, in: natureItems, offset: 2)), correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += placeItems.enumerated().map { index, kind in
+            matchingRound(.place, kind, color(for: kind), distractor(for: kind, in: placeItems, offset: 2), color(for: distractor(for: kind, in: placeItems, offset: 2)), correctFirst: !index.isMultiple(of: 2))
         }
 
         result += visibleKinds.enumerated().flatMap { index, kind in
