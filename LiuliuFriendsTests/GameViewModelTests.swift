@@ -546,6 +546,7 @@ final class GameViewModelTests: XCTestCase {
         let emotionRounds = GameContent.rounds.filter { $0.mode == .emotion }
 
         XCTAssertFalse(emotionRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(FriendEmotion.allCases.count, 6)
         XCTAssertEqual(Set(emotionRounds.compactMap(\.targetEmotion)), Set(FriendEmotion.allCases))
         for round in emotionRounds {
             XCTAssertNotNil(round.targetEmotion)

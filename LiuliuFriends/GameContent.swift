@@ -477,7 +477,13 @@ enum GameContent {
         (.encouraged, .calm),
         (.happy, .encouraged),
         (.calm, .encouraged),
-        (.encouraged, .happy)
+        (.encouraged, .happy),
+        (.sleepy, .curious),
+        (.curious, .sleepy),
+        (.surprised, .calm),
+        (.sleepy, .happy),
+        (.curious, .encouraged),
+        (.surprised, .sleepy)
     ]
 
     private static let actionPracticePairs: [(action: FriendAction, correct: FriendKind, wrong: FriendKind)] = [

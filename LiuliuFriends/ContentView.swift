@@ -2097,6 +2097,15 @@ private struct EmotionChoiceView: View {
                         .fill(accentColor.opacity(0.10))
                         .frame(width: 112, height: 112)
                 )
+                .overlay(alignment: .topTrailing) {
+                    Image(systemName: emotion.iconName)
+                        .font(.system(size: 18, weight: .black))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(accentColor)
+                        .frame(width: 32, height: 32)
+                        .background(.white.opacity(0.82), in: Circle())
+                        .offset(x: -8, y: 4)
+                }
 
             Text(emotion.promptTitle)
                 .font(.system(size: 22, weight: .heavy, design: .rounded))
@@ -2115,6 +2124,12 @@ private struct EmotionChoiceView: View {
             return .waiting
         case .encouraged:
             return .encourage
+        case .sleepy:
+            return .waiting
+        case .curious:
+            return .encourage
+        case .surprised:
+            return .happy
         }
     }
 }

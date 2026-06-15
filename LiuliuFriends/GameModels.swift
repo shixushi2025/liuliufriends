@@ -1030,6 +1030,9 @@ enum FriendEmotion: String, CaseIterable {
     case happy
     case calm
     case encouraged
+    case sleepy
+    case curious
+    case surprised
 
     var promptTitle: String {
         switch self {
@@ -1039,6 +1042,12 @@ enum FriendEmotion: String, CaseIterable {
             return "安静"
         case .encouraged:
             return "加油"
+        case .sleepy:
+            return "困困"
+        case .curious:
+            return "好奇"
+        case .surprised:
+            return "惊喜"
         }
     }
 
@@ -1050,6 +1059,12 @@ enum FriendEmotion: String, CaseIterable {
             return "安静的表情"
         case .encouraged:
             return "加油的表情"
+        case .sleepy:
+            return "困困的表情"
+        case .curious:
+            return "好奇的表情"
+        case .surprised:
+            return "惊喜的表情"
         }
     }
 
@@ -1061,6 +1076,12 @@ enum FriendEmotion: String, CaseIterable {
             return "moon.stars.fill"
         case .encouraged:
             return "hands.sparkles.fill"
+        case .sleepy:
+            return "bed.double.fill"
+        case .curious:
+            return "magnifyingglass.circle.fill"
+        case .surprised:
+            return "sparkles"
         }
     }
 }
