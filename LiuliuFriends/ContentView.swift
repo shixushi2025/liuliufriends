@@ -2773,6 +2773,7 @@ private struct SettingsScreen: View {
                             }
 
                             LearningStageSelector(viewModel: viewModel, isCompact: true)
+                            StageOverviewCard(ageBand: viewModel.settings.maximumAgeBand, items: stageOverviewItems, isCompact: true)
 
                             SettingsGroupTitle(text: "开启玩法（阶段外暂不出现）", isCompact: true)
                             VStack(spacing: 12) {
@@ -2834,6 +2835,7 @@ private struct SettingsScreen: View {
                             )
 
                             LearningStageSelector(viewModel: viewModel, isCompact: false)
+                            StageOverviewCard(ageBand: viewModel.settings.maximumAgeBand, items: stageOverviewItems, isCompact: false)
 
                             Divider()
                                 .padding(.vertical, 4)
@@ -2915,6 +2917,51 @@ private struct SettingsScreen: View {
             )
         }
         .filter { !$0.modes.isEmpty }
+    }
+
+    private var stageOverviewItems: [StageOverviewItem] {
+        modeGroups.map { group in
+            let availableModes = group.modes.filter(isModeAvailableInSelectedStage)
+            let enabledModes = availableModes.filter { viewModel.settings.enabledGameModes.contains($0) }
+            return StageOverviewItem(
+                title: group.title,
+                iconName: groupIcon(for: group.title),
+                color: groupColor(for: group.title),
+                enabledCount: enabledModes.count,
+                availableCount: availableModes.count,
+                totalCount: group.modes.count
+            )
+        }
+    }
+
+    private func groupIcon(for title: String) -> String {
+        switch title {
+        case "基础识物":
+            return "pawprint.fill"
+        case "生活关系":
+            return "link.circle.fill"
+        case "观察匹配":
+            return "eye.fill"
+        case "进阶思维":
+            return "sparkles"
+        default:
+            return "square.grid.2x2.fill"
+        }
+    }
+
+    private func groupColor(for title: String) -> Color {
+        switch title {
+        case "基础识物":
+            return Color(red: 1.0, green: 0.48, blue: 0.32)
+        case "生活关系":
+            return Color(red: 0.22, green: 0.64, blue: 0.52)
+        case "观察匹配":
+            return Color(red: 0.34, green: 0.56, blue: 0.92)
+        case "进阶思维":
+            return Color(red: 0.58, green: 0.44, blue: 0.90)
+        default:
+            return Color(red: 0.95, green: 0.26, blue: 0.24)
+        }
     }
 
     private func shortModeTitle(for mode: GameMode) -> String {
@@ -3133,6 +3180,136 @@ private struct ModeSettingsGroup: Identifiable {
     let modes: [GameMode]
 
     var id: String { title }
+}
+
+private struct StageOverviewItem: Identifiable {
+    let title: String
+    let iconName: String
+    let color: Color
+    let enabledCount: Int
+    let availableCount: Int
+    let totalCount: Int
+
+    var id: String { title }
+}
+
+private struct StageOverviewCard: View {
+    let ageBand: LearningAgeBand
+    let items: [StageOverviewItem]
+    let isCompact: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: isCompact ? 12 : 16) {
+            HStack(spacing: 10) {
+                Image(systemName: "square.grid.2x2.fill")
+                    .font(.system(size: isCompact ? 18 : 22, weight: .black))
+                    .foregroundStyle(.white)
+                    .frame(width: isCompact ? 34 : 42, height: isCompact ? 34 : 42)
+                    .background(Color(red: 0.95, green: 0.26, blue: 0.24), in: Circle())
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("当前内容包")
+                        .font(.system(size: isCompact ? 18 : 22, weight: .heavy, design: .rounded))
+                        .foregroundStyle(Color(red: 0.20, green: 0.16, blue: 0.12))
+
+                    Text("\(ageBand.label) · \(ageBand.focus)")
+                        .font(.system(size: isCompact ? 12 : 15, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.52, green: 0.43, blue: 0.35))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.78)
+                }
+
+                Spacer(minLength: 0)
+            }
+
+            if isCompact {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                    ForEach(items) { item in
+                        StageOverviewTile(item: item, isCompact: true)
+                    }
+                }
+            } else {
+                HStack(spacing: 10) {
+                    ForEach(items) { item in
+                        StageOverviewTile(item: item, isCompact: false)
+                    }
+                }
+            }
+        }
+        .padding(isCompact ? 14 : 18)
+        .background(
+            LinearGradient(
+                colors: [
+                    Color.white.opacity(0.92),
+                    Color(red: 1.0, green: 0.91, blue: 0.76).opacity(0.58)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: isCompact ? 22 : 26, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: isCompact ? 22 : 26, style: .continuous)
+                .stroke(Color(red: 1.0, green: 0.76, blue: 0.38).opacity(0.32), lineWidth: 1)
+        )
+        .shadow(color: Color(red: 0.58, green: 0.40, blue: 0.22).opacity(0.08), radius: 16, y: 8)
+    }
+}
+
+private struct StageOverviewTile: View {
+    let item: StageOverviewItem
+    let isCompact: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: isCompact ? 8 : 10) {
+            HStack(spacing: 7) {
+                Image(systemName: item.iconName)
+                    .font(.system(size: isCompact ? 14 : 16, weight: .black))
+                    .foregroundStyle(item.color)
+                    .frame(width: isCompact ? 28 : 32, height: isCompact ? 28 : 32)
+                    .background(item.color.opacity(0.14), in: Circle())
+
+                Text(item.title)
+                    .font(.system(size: isCompact ? 13 : 15, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.28, green: 0.22, blue: 0.17))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+            }
+
+            HStack(alignment: .lastTextBaseline, spacing: 3) {
+                Text("\(item.enabledCount)")
+                    .font(.system(size: isCompact ? 24 : 28, weight: .black, design: .rounded))
+                    .foregroundStyle(item.color)
+                Text("/\(item.availableCount)")
+                    .font(.system(size: isCompact ? 14 : 16, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.54, green: 0.46, blue: 0.38))
+            }
+
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(item.color.opacity(0.13))
+                    Capsule()
+                        .fill(item.color)
+                        .frame(width: proxy.size.width * fillRatio)
+                }
+            }
+            .frame(height: isCompact ? 7 : 8)
+
+            Text(item.availableCount == item.totalCount ? "本阶段可用" : "总共 \(item.totalCount) 个")
+                .font(.system(size: isCompact ? 11 : 12, weight: .bold, design: .rounded))
+                .foregroundStyle(Color(red: 0.58, green: 0.50, blue: 0.42))
+                .lineLimit(1)
+        }
+        .padding(isCompact ? 10 : 12)
+        .frame(maxWidth: .infinity, minHeight: isCompact ? 118 : 132, alignment: .topLeading)
+        .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private var fillRatio: CGFloat {
+        guard item.availableCount > 0 else { return 0 }
+        return CGFloat(item.enabledCount) / CGFloat(item.availableCount)
+    }
 }
 
 private struct ParentSummarySection: View {
