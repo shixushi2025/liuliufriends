@@ -1075,6 +1075,7 @@ private struct CandidateButton: View {
         .buttonStyle(.plain)
         .disabled(isCompleted || isLocked)
         .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityStatus)
     }
 
     private var displayScale: CGFloat {
@@ -1107,10 +1108,10 @@ private struct CandidateButton: View {
             return CandidateFeedbackLabel(text: "找到了", systemName: "checkmark", color: Color(red: 0.20, green: 0.68, blue: 0.38))
         }
         if isHinted {
-            return CandidateFeedbackLabel(text: "看这里", systemName: "sparkles", color: Color(red: 1.0, green: 0.66, blue: 0.18))
+            return CandidateFeedbackLabel(text: "这里哦", systemName: "sparkles", color: Color(red: 1.0, green: 0.66, blue: 0.18))
         }
         if isWrong {
-            return CandidateFeedbackLabel(text: "再看看", systemName: "arrow.counterclockwise", color: Color(red: 0.96, green: 0.36, blue: 0.32))
+            return CandidateFeedbackLabel(text: "再试试", systemName: "arrow.counterclockwise", color: Color(red: 0.96, green: 0.36, blue: 0.32))
         }
         return nil
     }
@@ -1144,6 +1145,19 @@ private struct CandidateButton: View {
             return "\(candidate.kind.name)在\(candidate.position.name)"
         }
         return candidate.kind.name
+    }
+
+    private var accessibilityStatus: String {
+        if isCompleted {
+            return "已找到"
+        }
+        if isHinted {
+            return "提示选这里"
+        }
+        if isWrong {
+            return "再试一次"
+        }
+        return candidate.isCorrect ? "正确答案" : "候选答案"
     }
 }
 
