@@ -1182,20 +1182,7 @@ private struct CategoryTargetView: View {
     let color: Color
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.72), color.opacity(0.18)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(color.opacity(0.24), lineWidth: 2)
-                )
-
+        TargetCardChrome(accentColor: color, whiteOpacity: 0.72, accentOpacity: 0.18) {
             VStack(spacing: 10) {
                 HStack(spacing: 8) {
                     ForEach(sampleKinds.prefix(3), id: \.self) { kind in
@@ -1226,20 +1213,7 @@ private struct DifferenceTargetView: View {
     let accentColor: Color
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.76), accentColor.opacity(0.18)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
-                )
-
+        TargetCardChrome(accentColor: accentColor, whiteOpacity: 0.76, accentOpacity: 0.18) {
             VStack(spacing: 10) {
                 HStack(spacing: 8) {
                     ForEach(sampleKinds.prefix(2), id: \.self) { kind in
@@ -1427,20 +1401,7 @@ private struct PairingTargetView: View {
     let accentColor: Color
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
-                )
-
+        TargetCardChrome(accentColor: accentColor) {
             VStack(spacing: 8) {
                 Text("好搭档")
                     .font(.system(size: 13, weight: .black, design: .rounded))
@@ -1510,20 +1471,7 @@ private struct AnimalFoodTargetView: View {
     let accentColor: Color
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
-                )
-
+        TargetCardChrome(accentColor: accentColor) {
             VStack(spacing: 8) {
                 Text("吃什么")
                     .font(.system(size: 13, weight: .black, design: .rounded))
@@ -1580,20 +1528,7 @@ private struct OppositeTargetView: View {
     let accentColor: Color
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
-                )
-
+        TargetCardChrome(accentColor: accentColor) {
             HStack(spacing: 10) {
                 OppositeConceptPill(
                     title: opposite.cueTitle,
@@ -1684,20 +1619,7 @@ private struct PatternTargetView: View {
     let accentColor: Color
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
-                )
-
+        TargetCardChrome(accentColor: accentColor) {
             VStack(spacing: 10) {
                 Text("下一个")
                     .font(.system(size: 13, weight: .black, design: .rounded))
@@ -1857,6 +1779,47 @@ private struct SequenceChoiceView: View {
     }
 }
 
+private struct TargetCardChrome<Content: View>: View {
+    let accentColor: Color
+    let whiteOpacity: Double
+    let accentOpacity: Double
+    let strokeOpacity: Double
+    let content: Content
+
+    init(
+        accentColor: Color,
+        whiteOpacity: Double = 0.84,
+        accentOpacity: Double = 0.16,
+        strokeOpacity: Double = 0.24,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.accentColor = accentColor
+        self.whiteOpacity = whiteOpacity
+        self.accentOpacity = accentOpacity
+        self.strokeOpacity = strokeOpacity
+        self.content = content()
+    }
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(whiteOpacity), accentColor.opacity(accentOpacity)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(accentColor.opacity(strokeOpacity), lineWidth: 2)
+                )
+
+            content
+        }
+    }
+}
+
 private struct ConceptTargetCard: View {
     enum Motif {
         case spark
@@ -1879,20 +1842,7 @@ private struct ConceptTargetCard: View {
     let motif: Motif
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.84), accentColor.opacity(0.16)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(accentColor.opacity(0.24), lineWidth: 2)
-                )
-
+        TargetCardChrome(accentColor: accentColor) {
             decorativeMotif
                 .opacity(0.22)
                 .padding(10)
