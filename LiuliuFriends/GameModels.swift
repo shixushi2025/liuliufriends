@@ -108,6 +108,7 @@ enum GameMode: String, CaseIterable, Codable {
     case safety
     case habit
     case scene
+    case samePlace
     case weather
     case season
     case routine
@@ -202,6 +203,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "好习惯朋友"
         case .scene:
             return "场景朋友"
+        case .samePlace:
+            return "同处朋友"
         case .weather:
             return "天气朋友"
         case .season:
@@ -317,6 +320,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "帮六六找好习惯"
         case .scene:
             return "帮六六找在哪儿"
+        case .samePlace:
+            return "帮六六找常在一起的朋友"
         case .weather:
             return "帮六六找天气朋友"
         case .season:
@@ -364,7 +369,7 @@ enum GameMode: String, CaseIterable, Codable {
             return .starter18Months
         case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .category, .position, .insideOutside, .frontBack, .routine, .emotion:
             return .explorer24Months
-        case .size, .length, .height, .shadow, .distance, .purpose, .safety, .habit, .scene, .weather, .season, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .difference:
+        case .size, .length, .height, .shadow, .distance, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .difference:
             return .matcher30Months
         case .number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern:
             return .preschool36Months
@@ -379,7 +384,7 @@ enum GameMode: String, CaseIterable, Codable {
         switch self {
         case .animal, .vehicle, .fruit, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession:
             return "基础识物"
-        case .category, .routine, .emotion, .purpose, .safety, .habit, .scene, .weather, .season, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite:
+        case .category, .routine, .emotion, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite:
             return "生活关系"
         case .size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .distance, .difference:
             return "观察匹配"
@@ -397,7 +402,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .vehicle, .fruit, .color, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .distance, .purpose, .safety, .habit, .scene, .weather, .season, .routine, .emotion, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .rhythm, .sequence, .pattern, .difference:
+        case .vehicle, .fruit, .color, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .distance, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .routine, .emotion, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -478,6 +483,8 @@ enum GameMode: String, CaseIterable, Codable {
             return Color(red: 0.22, green: 0.68, blue: 0.54)
         case .scene:
             return Color(red: 0.18, green: 0.63, blue: 0.74)
+        case .samePlace:
+            return Color(red: 0.24, green: 0.62, blue: 0.58)
         case .weather:
             return Color(red: 0.27, green: 0.58, blue: 0.92)
         case .season:
@@ -775,6 +782,88 @@ enum FriendScene: String, CaseIterable {
         case .rainyDay:
             return "cloud.rain.fill"
         }
+    }
+}
+
+enum FriendSamePlace: String, CaseIterable {
+    case fishBoat
+    case beachBucket
+    case tableBowl
+    case schoolPencil
+    case bathroomToothbrush
+    case gardenButterfly
+    case roadBus
+    case bedroomBook
+
+    var cueKind: FriendKind {
+        switch self {
+        case .fishBoat:
+            return .fish
+        case .beachBucket:
+            return .beach
+        case .tableBowl:
+            return .table
+        case .schoolPencil:
+            return .school
+        case .bathroomToothbrush:
+            return .toothbrush
+        case .gardenButterfly:
+            return .flower
+        case .roadBus:
+            return .car
+        case .bedroomBook:
+            return .bed
+        }
+    }
+
+    var answerKind: FriendKind {
+        switch self {
+        case .fishBoat:
+            return .boat
+        case .beachBucket:
+            return .bucket
+        case .tableBowl:
+            return .bowl
+        case .schoolPencil:
+            return .pencil
+        case .bathroomToothbrush:
+            return .soap
+        case .gardenButterfly:
+            return .butterfly
+        case .roadBus:
+            return .bus
+        case .bedroomBook:
+            return .book
+        }
+    }
+
+    var distractorKind: FriendKind {
+        switch self {
+        case .fishBoat:
+            return .chair
+        case .beachBucket:
+            return .piano
+        case .tableBowl:
+            return .airplane
+        case .schoolPencil:
+            return .fish
+        case .bathroomToothbrush:
+            return .truck
+        case .gardenButterfly:
+            return .fork
+        case .roadBus:
+            return .banana
+        case .bedroomBook:
+            return .tractor
+        }
+    }
+
+    var promptTitle: String {
+        "\(cueKind.name)旁边"
+    }
+
+    var speechTitle: String {
+        "和\(cueKind.name)常在一起的"
     }
 }
 
@@ -3343,6 +3432,7 @@ struct GameRound: Identifiable {
     let targetSafety: FriendSafety?
     let targetHabit: FriendHabit?
     let targetScene: FriendScene?
+    let targetSamePlace: FriendSamePlace?
     let targetWeather: FriendWeather?
     let targetSeason: FriendSeason?
     let targetRoutine: FriendRoutine?
@@ -3377,6 +3467,7 @@ struct GameRound: Identifiable {
         targetSafety: FriendSafety? = nil,
         targetHabit: FriendHabit? = nil,
         targetScene: FriendScene? = nil,
+        targetSamePlace: FriendSamePlace? = nil,
         targetWeather: FriendWeather? = nil,
         targetSeason: FriendSeason? = nil,
         targetRoutine: FriendRoutine? = nil,
@@ -3410,6 +3501,7 @@ struct GameRound: Identifiable {
         self.targetSafety = targetSafety
         self.targetHabit = targetHabit
         self.targetScene = targetScene
+        self.targetSamePlace = targetSamePlace
         self.targetWeather = targetWeather
         self.targetSeason = targetSeason
         self.targetRoutine = targetRoutine
@@ -3505,6 +3597,8 @@ struct GameRound: Identifiable {
             return "找\(targetHabit?.speechTitle ?? targetKind.name)"
         case .scene:
             return "找\(targetScene?.speechTitle ?? targetKind.name)"
+        case .samePlace:
+            return "找\(targetSamePlace?.speechTitle ?? targetKind.name)"
         case .weather:
             return "找\(targetWeather?.speechTitle ?? targetKind.name)"
         case .season:
@@ -3610,6 +3704,8 @@ struct GameRound: Identifiable {
             return "\(targetKind.name)，\(targetHabit?.promptTitle ?? "找到了")"
         case .scene:
             return "\(targetKind.name)，找到了"
+        case .samePlace:
+            return "\(targetKind.name)，\(targetSamePlace?.speechTitle ?? "找到了")"
         case .weather:
             return "\(targetKind.name)，找到了"
         case .season:

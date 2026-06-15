@@ -752,6 +752,10 @@ enum GameContent {
             scene(pair.scene, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
+        result += FriendSamePlace.allCases.enumerated().map { index, samePlace in
+            samePlaceRound(samePlace, correctFirst: index.isMultiple(of: 2))
+        }
+
         result += weatherPracticePairs.enumerated().map { index, pair in
             weather(pair.weather, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
         }
@@ -1296,6 +1300,21 @@ enum GameContent {
             targetKind: pairing.answerKind,
             targetColor: color(for: pairing.answerKind),
             targetPairing: pairing,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func samePlaceRound(
+        _ samePlace: FriendSamePlace,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: samePlace.answerKind, color: color(for: samePlace.answerKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: samePlace.distractorKind, color: color(for: samePlace.distractorKind), isCorrect: false)
+        return GameRound(
+            mode: .samePlace,
+            targetKind: samePlace.answerKind,
+            targetColor: color(for: samePlace.answerKind),
+            targetSamePlace: samePlace,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }

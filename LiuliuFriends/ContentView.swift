@@ -772,6 +772,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetScene?.speechTitle ?? "场景朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .samePlace:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    SamePlaceTargetView(samePlace: round.targetSamePlace ?? .fishBoat, cueColor: targetCueColor(for: round.targetSamePlace?.cueKind ?? .fish), accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.20, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetSamePlace?.speechTitle ?? "同处朋友")", mode: round.mode, isCompact: metrics.isCompact)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .weather:
                 VStack(spacing: metrics.targetContentSpacing) {
                     WeatherTargetView(weather: round.targetWeather ?? .sunny, accentColor: round.mode.accentColor)
@@ -1193,7 +1200,7 @@ private struct GameObjectView: View {
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .distance:
             DistanceChoiceView(kind: candidate.kind, color: candidate.color, distanceScale: candidate.sizeScale)
-        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .habit, .scene, .weather, .season, .routine, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .routine, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1738,6 +1745,44 @@ private struct PairingTargetView: View {
                         .background(accentColor, in: Circle())
                         .shadow(color: accentColor.opacity(0.22), radius: 10, y: 6)
                 }
+            }
+            .padding(14)
+        }
+    }
+}
+
+private struct SamePlaceTargetView: View {
+    let samePlace: FriendSamePlace
+    let cueColor: Color
+    let accentColor: Color
+
+    var body: some View {
+        TargetCardChrome(accentColor: accentColor) {
+            VStack(spacing: 8) {
+                Text(samePlace.promptTitle)
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(accentColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.14), in: Capsule())
+
+                HStack(spacing: 10) {
+                    FriendShape(kind: samePlace.cueKind, color: cueColor, isShadow: false)
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: "plus")
+                        .font(.system(size: 18, weight: .black, design: .rounded))
+                        .foregroundStyle(accentColor.opacity(0.78))
+
+                    Image(systemName: "questionmark.circle.fill")
+                        .font(.system(size: 42, weight: .heavy))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(accentColor)
+                }
+
+                Text("在一起")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.24, green: 0.26, blue: 0.30))
             }
             .padding(14)
         }
@@ -3309,6 +3354,8 @@ private struct SettingsScreen: View {
             return "习惯"
         case .scene:
             return "场景"
+        case .samePlace:
+            return "同处"
         case .weather:
             return "天气"
         case .season:
@@ -3424,6 +3471,8 @@ private struct SettingsScreen: View {
             return "sparkles"
         case .scene:
             return "map.fill"
+        case .samePlace:
+            return "plus.circle.fill"
         case .weather:
             return "cloud.sun.fill"
         case .season:
