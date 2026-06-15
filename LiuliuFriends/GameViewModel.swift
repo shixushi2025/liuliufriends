@@ -77,6 +77,11 @@ final class GameViewModel: ObservableObject {
         completedCandidateID != nil && !settings.autoAdvanceEnabled && breakReminder == nil
     }
 
+    var completionMessage: String? {
+        guard completedCandidateID != nil else { return nil }
+        return successSpeechText(for: round)
+    }
+
     init(
         rounds: [GameRound] = GameContent.sessionRounds(),
         voiceStore: VoicePromptStore = .shared,

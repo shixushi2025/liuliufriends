@@ -887,6 +887,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(feedback.correctCount, 1)
         XCTAssertEqual(feedback.correctRecordingID, viewModel.round.voicePromptID)
         XCTAssertTrue(viewModel.showsManualNextRoundControl)
+        XCTAssertNotNil(viewModel.completionMessage)
     }
 
     func testManualNextControlAdvancesWhenAutoAdvanceDisabled() {
@@ -903,6 +904,7 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertNotEqual(viewModel.round.id, firstRoundID)
         XCTAssertNil(viewModel.completedCandidateID)
+        XCTAssertNil(viewModel.completionMessage)
         XCTAssertFalse(viewModel.showsManualNextRoundControl)
     }
 

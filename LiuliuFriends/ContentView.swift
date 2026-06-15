@@ -295,6 +295,19 @@ private struct PlayPanel: View {
                     .animation(viewModel.settings.reducedMotion ? nil : .spring(response: 0.42, dampingFraction: 0.62), value: viewModel.celebrationSeed)
             }
 
+            if let completionMessage = viewModel.completionMessage {
+                CompletionRibbon(
+                    message: completionMessage,
+                    color: viewModel.round.mode.accentColor,
+                    isCompact: metrics.isCompact
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.top, metrics.isCompact ? 10 : 16)
+                .allowsHitTesting(false)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .zIndex(3)
+            }
+
             if viewModel.showsManualNextRoundControl {
                 ManualNextRoundButton(isCompact: metrics.isCompact) {
                     viewModel.nextRound()
@@ -367,6 +380,39 @@ private struct PlayPanel: View {
                 viewModel.choose(candidate)
             }
         }
+    }
+}
+
+private struct CompletionRibbon: View {
+    let message: String
+    let color: Color
+    let isCompact: Bool
+
+    var body: some View {
+        HStack(spacing: isCompact ? 6 : 9) {
+            Image(systemName: "star.fill")
+                .font(.system(size: isCompact ? 13 : 16, weight: .black))
+                .foregroundStyle(Color(red: 1.0, green: 0.78, blue: 0.18))
+
+            Text(message)
+                .font(.system(size: isCompact ? 16 : 20, weight: .black, design: .rounded))
+                .foregroundStyle(Color(red: 0.25, green: 0.20, blue: 0.16))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: isCompact ? 14 : 17, weight: .black))
+                .foregroundStyle(color)
+        }
+        .padding(.horizontal, isCompact ? 14 : 18)
+        .padding(.vertical, isCompact ? 9 : 12)
+        .background(.white.opacity(0.90), in: Capsule())
+        .overlay(
+            Capsule()
+                .stroke(color.opacity(0.22), lineWidth: 1)
+        )
+        .shadow(color: color.opacity(0.16), radius: 16, y: 8)
+        .padding(.horizontal, isCompact ? 18 : 28)
     }
 }
 
