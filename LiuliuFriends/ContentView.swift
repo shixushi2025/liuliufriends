@@ -886,6 +886,17 @@ private struct CandidateButton: View {
                 if isCompleted {
                     SparkleBurst()
                 }
+
+                if let feedbackLabel {
+                    CandidateFeedbackPill(
+                        text: feedbackLabel.text,
+                        systemName: feedbackLabel.systemName,
+                        color: feedbackLabel.color
+                    )
+                    .padding(10)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .transition(.scale(scale: 0.86).combined(with: .opacity))
+                }
             }
             .frame(width: size, height: size)
             .scaleEffect(!reducedMotion ? (isCompleted ? 1.08 : (isHinted ? 1.03 : 1)) : 1)
@@ -893,6 +904,7 @@ private struct CandidateButton: View {
             .animation(.spring(response: 0.3, dampingFraction: 0.45), value: isCompleted)
             .animation(.easeInOut(duration: 0.08).repeatCount(isWrong ? 4 : 0, autoreverses: true), value: isWrong)
             .animation(.easeInOut(duration: 0.65), value: isHinted)
+            .animation(.spring(response: 0.28, dampingFraction: 0.72), value: feedbackLabel?.text)
         }
         .buttonStyle(.plain)
         .disabled(isCompleted || isLocked)
@@ -924,6 +936,19 @@ private struct CandidateButton: View {
         }
     }
 
+    private var feedbackLabel: CandidateFeedbackLabel? {
+        if isCompleted {
+            return CandidateFeedbackLabel(text: "找到了", systemName: "checkmark", color: Color(red: 0.20, green: 0.68, blue: 0.38))
+        }
+        if isHinted {
+            return CandidateFeedbackLabel(text: "看这里", systemName: "sparkles", color: Color(red: 1.0, green: 0.66, blue: 0.18))
+        }
+        if isWrong {
+            return CandidateFeedbackLabel(text: "再看看", systemName: "arrow.counterclockwise", color: Color(red: 0.96, green: 0.36, blue: 0.32))
+        }
+        return nil
+    }
+
     private var accessibilityLabel: String {
         if round.mode == .emotion, let emotion = candidate.emotion {
             return emotion.promptTitle
@@ -953,6 +978,32 @@ private struct CandidateButton: View {
             return "\(candidate.kind.name)在\(candidate.position.name)"
         }
         return candidate.kind.name
+    }
+}
+
+private struct CandidateFeedbackLabel {
+    let text: String
+    let systemName: String
+    let color: Color
+}
+
+private struct CandidateFeedbackPill: View {
+    let text: String
+    let systemName: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: systemName)
+                .font(.system(size: 11, weight: .black))
+            Text(text)
+                .font(.system(size: 13, weight: .black, design: .rounded))
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(color, in: Capsule())
+        .shadow(color: color.opacity(0.25), radius: 8, y: 4)
     }
 }
 
