@@ -777,6 +777,9 @@ private struct TargetArea: View {
                 .padding(.vertical, metrics.targetVerticalInset)
             }
 
+            ReplayPromptPill(color: round.mode.accentColor)
+                .padding(metrics.isCompact ? 10 : 14)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
         }
         .contentShape(RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous))
         .onTapGesture {
@@ -801,6 +804,29 @@ private struct TargetArea: View {
         default:
             return kind.category.accentColor
         }
+    }
+}
+
+private struct ReplayPromptPill: View {
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Image(systemName: "speaker.wave.2.fill")
+                .font(.system(size: 12, weight: .black))
+            Text("再听一次")
+                .font(.system(size: 13, weight: .black, design: .rounded))
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(.white.opacity(0.86), in: Capsule())
+        .overlay(
+            Capsule()
+                .stroke(color.opacity(0.22), lineWidth: 1)
+        )
+        .shadow(color: color.opacity(0.10), radius: 8, y: 4)
+        .accessibilityHidden(true)
     }
 }
 
