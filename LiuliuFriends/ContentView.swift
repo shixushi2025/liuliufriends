@@ -695,6 +695,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .distance:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    DistanceChoiceView(kind: round.targetKind, color: round.targetColor, distanceScale: round.targetSizeScale)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.94)
+                    TargetCaption(title: round.targetSizeScale > 1 ? "找近近的" : "找远远的", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .purpose:
                 VStack(spacing: metrics.targetContentSpacing) {
                     PurposeTargetView(purpose: round.targetPurpose ?? .drink, accentColor: round.mode.accentColor)
@@ -1125,6 +1132,8 @@ private struct GameObjectView: View {
             InsideOutsideStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .frontBack:
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
+        case .distance:
+            DistanceChoiceView(kind: candidate.kind, color: candidate.color, distanceScale: candidate.sizeScale)
         case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .habit, .scene, .weather, .season, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
@@ -2541,6 +2550,54 @@ private struct FrontBackStageView: View {
     }
 }
 
+private struct DistanceChoiceView: View {
+    let kind: FriendKind
+    let color: Color
+    let distanceScale: CGFloat
+
+    var body: some View {
+        GeometryReader { geometry in
+            let size = geometry.size
+            let isNear = distanceScale > 1
+            let itemSize = min(size.width, size.height) * (isNear ? 0.52 : 0.34)
+            let point = CGPoint(x: size.width * 0.50, y: size.height * (isNear ? 0.66 : 0.36))
+
+            ZStack {
+                RoundedRectangle(cornerRadius: min(28, min(size.width, size.height) * 0.20), style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [.white.opacity(0.76), Color(red: 0.91, green: 0.96, blue: 1.0).opacity(0.64)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                PerspectiveFloor()
+                    .fill(color.opacity(0.10))
+                    .overlay(
+                        PerspectiveFloor()
+                            .stroke(color.opacity(0.22), lineWidth: 2)
+                    )
+                    .frame(width: size.width * 0.72, height: size.height * 0.48)
+                    .position(x: size.width * 0.5, y: size.height * 0.58)
+
+                Ellipse()
+                    .fill(.black.opacity(isNear ? 0.09 : 0.04))
+                    .frame(width: itemSize * 0.84, height: itemSize * 0.20)
+                    .position(x: point.x, y: point.y + itemSize * 0.34)
+
+                FriendShape(kind: kind, color: color, isShadow: false)
+                    .opacity(isNear ? 1 : 0.58)
+                    .saturation(isNear ? 1 : 0.78)
+                    .padding(max(4, itemSize * 0.08))
+                    .frame(width: itemSize, height: itemSize)
+                    .position(point)
+            }
+        }
+        .aspectRatio(1.12, contentMode: .fit)
+    }
+}
+
 private struct PerspectiveFloor: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -3168,6 +3225,8 @@ private struct SettingsScreen: View {
             return "里外"
         case .frontBack:
             return "前后"
+        case .distance:
+            return "远近"
         case .purpose:
             return "用途"
         case .safety:
@@ -3279,6 +3338,8 @@ private struct SettingsScreen: View {
             return "square.dashed.inset.filled"
         case .frontBack:
             return "arrow.up.left.and.down.right"
+        case .distance:
+            return "arrow.up.left.and.arrow.down.right"
         case .purpose:
             return "lightbulb.fill"
         case .safety:

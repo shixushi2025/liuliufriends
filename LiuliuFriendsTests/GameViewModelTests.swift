@@ -280,6 +280,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.length.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.height.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.shadow.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.distance.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.purpose.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.safety.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.habit.ageBand, .matcher30Months)
@@ -322,7 +323,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
         XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .vehicle, .fruit, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession])
         XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .safety, .habit, .scene, .weather, .season, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite])
-        XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .difference])
+        XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .distance, .difference])
         XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern])
     }
 
@@ -399,6 +400,22 @@ final class GameViewModelTests: XCTestCase {
             XCTAssertTrue(round.candidates.allSatisfy { $0.kind == round.targetKind })
             XCTAssertEqual(Set(round.candidates.map(\.position)), relations)
             XCTAssertEqual(round.candidates.first { $0.isCorrect }?.position, round.targetPosition)
+        }
+    }
+
+    func testDistanceRoundsCompareNearAndFar() {
+        let distanceRounds = GameContent.rounds.filter { $0.mode == .distance }
+
+        XCTAssertGreaterThanOrEqual(distanceRounds.count, 12)
+        XCTAssertTrue(distanceRounds.contains { $0.targetSizeScale > 1 })
+        XCTAssertTrue(distanceRounds.contains { $0.targetSizeScale < 1 })
+        for round in distanceRounds {
+            XCTAssertTrue(round.promptSpeechText.hasPrefix(round.targetSizeScale > 1 ? "找近近的" : "找远远的"))
+            XCTAssertEqual(round.candidates.count, 2)
+            XCTAssertTrue(round.candidates.allSatisfy { $0.kind == round.targetKind })
+            XCTAssertTrue(round.candidates.contains { $0.sizeScale > 1 })
+            XCTAssertTrue(round.candidates.contains { $0.sizeScale < 1 })
+            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.sizeScale, round.targetSizeScale)
         }
     }
 

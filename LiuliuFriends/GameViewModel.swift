@@ -503,6 +503,8 @@ final class GameViewModel: ObservableObject {
             return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
         case .frontBack:
             return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
+        case .distance:
+            return round.targetSizeScale > 1 ? "找近近的\(displayName(for: round.targetKind))" : "找远远的\(displayName(for: round.targetKind))"
         case .purpose:
             return "找\(round.targetPurpose?.speechTitle ?? displayName(for: round.targetKind))"
         case .safety:
@@ -604,6 +606,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
         case .frontBack:
             return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
+        case .distance:
+            return round.targetSizeScale > 1 ? "\(displayName(for: round.targetKind))，近近的" : "\(displayName(for: round.targetKind))，远远的"
         case .purpose:
             return "\(displayName(for: round.targetKind))，找到了"
         case .safety:

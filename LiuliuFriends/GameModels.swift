@@ -103,6 +103,7 @@ enum GameMode: String, CaseIterable, Codable {
     case position
     case insideOutside
     case frontBack
+    case distance
     case purpose
     case safety
     case habit
@@ -190,6 +191,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "里外朋友"
         case .frontBack:
             return "前后朋友"
+        case .distance:
+            return "远近朋友"
         case .purpose:
             return "用途朋友"
         case .safety:
@@ -301,6 +304,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "帮六六找里面外面"
         case .frontBack:
             return "帮六六找前面后面"
+        case .distance:
+            return "帮六六找远和近"
         case .purpose:
             return "帮六六找有用的朋友"
         case .safety:
@@ -354,7 +359,7 @@ enum GameMode: String, CaseIterable, Codable {
             return .starter18Months
         case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .category, .position, .insideOutside, .frontBack, .routine, .emotion:
             return .explorer24Months
-        case .size, .length, .height, .shadow, .purpose, .safety, .habit, .scene, .weather, .season, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .difference:
+        case .size, .length, .height, .shadow, .distance, .purpose, .safety, .habit, .scene, .weather, .season, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .difference:
             return .matcher30Months
         case .number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern:
             return .preschool36Months
@@ -371,7 +376,7 @@ enum GameMode: String, CaseIterable, Codable {
             return "基础识物"
         case .category, .routine, .emotion, .purpose, .safety, .habit, .scene, .weather, .season, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite:
             return "生活关系"
-        case .size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .difference:
+        case .size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .distance, .difference:
             return "观察匹配"
         case .number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern:
             return "进阶思维"
@@ -387,7 +392,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .vehicle, .fruit, .color, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .safety, .habit, .scene, .weather, .season, .routine, .emotion, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .rhythm, .sequence, .pattern, .difference:
+        case .vehicle, .fruit, .color, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .distance, .purpose, .safety, .habit, .scene, .weather, .season, .routine, .emotion, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -458,6 +463,8 @@ enum GameMode: String, CaseIterable, Codable {
             return Color(red: 0.28, green: 0.68, blue: 0.72)
         case .frontBack:
             return Color(red: 0.48, green: 0.54, blue: 0.86)
+        case .distance:
+            return Color(red: 0.35, green: 0.58, blue: 0.90)
         case .purpose:
             return Color(red: 0.96, green: 0.48, blue: 0.20)
         case .safety:
@@ -3431,6 +3438,8 @@ struct GameRound: Identifiable {
             return "找在\(targetPosition.name)的\(targetKind.name)"
         case .frontBack:
             return "找在\(targetPosition.name)的\(targetKind.name)"
+        case .distance:
+            return targetSizeScale > 1 ? "找近近的\(targetKind.name)" : "找远远的\(targetKind.name)"
         case .purpose:
             return "找\(targetPurpose?.speechTitle ?? targetKind.name)"
         case .safety:
@@ -3532,6 +3541,8 @@ struct GameRound: Identifiable {
             return "\(targetKind.name)在\(targetPosition.name)，找到了"
         case .frontBack:
             return "\(targetKind.name)在\(targetPosition.name)，找到了"
+        case .distance:
+            return targetSizeScale > 1 ? "\(targetKind.name)，近近的" : "\(targetKind.name)，远远的"
         case .purpose:
             return "\(targetKind.name)，\(targetPurpose?.speechTitle ?? "找到了")"
         case .safety:

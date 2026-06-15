@@ -388,6 +388,14 @@ enum GameContent {
         .doll,
         .schoolbag
     ]
+    private static let distancePracticeKinds: [FriendKind] = [
+        .cat,
+        .dog,
+        .car,
+        .ball,
+        .tree,
+        .house
+    ]
 
     private static let purposePracticePairs: [(purpose: FriendPurpose, correct: FriendKind, wrong: FriendKind)] = [
         (.drink, .cup, .book),
@@ -703,6 +711,13 @@ enum GameContent {
             [
                 frontBack(kind, color(for: kind), targetPosition: .front, correctFirst: index.isMultiple(of: 2)),
                 frontBack(kind, color(for: kind), targetPosition: .back, correctFirst: !index.isMultiple(of: 2))
+            ]
+        }
+
+        result += distancePracticeKinds.enumerated().flatMap { index, kind in
+            [
+                distance(kind, color(for: kind), correctScale: 1.18, wrongScale: 0.70, correctFirst: index.isMultiple(of: 2)),
+                distance(kind, color(for: kind), correctScale: 0.70, wrongScale: 1.18, correctFirst: !index.isMultiple(of: 2))
             ]
         }
 
@@ -1043,6 +1058,24 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetPurpose: purpose,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func distance(
+        _ kind: FriendKind,
+        _ color: Color,
+        correctScale: CGFloat,
+        wrongScale: CGFloat,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: kind, color: color, isCorrect: true, sizeScale: correctScale)
+        let wrong = FriendCandidate(kind: kind, color: color, isCorrect: false, sizeScale: wrongScale)
+        return GameRound(
+            mode: .distance,
+            targetKind: kind,
+            targetColor: color,
+            targetSizeScale: correctScale,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
