@@ -733,6 +733,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetItemHome?.speechTitle ?? "放好的")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .origin:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    OriginTargetView(origin: round.targetOrigin ?? .milkCow, itemColor: targetCueColor(for: round.targetOrigin?.itemKind ?? .milk), accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetOrigin?.speechTitle ?? "来源")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .opposite:
                 VStack(spacing: metrics.targetContentSpacing) {
                     OppositeTargetView(opposite: round.targetOpposite ?? .dayNight, accentColor: round.mode.accentColor)
@@ -944,7 +951,7 @@ private struct GameObjectView: View {
             InsideOutsideStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .frontBack:
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1520,6 +1527,51 @@ private struct ItemHomeTargetView: View {
             accentColor: accentColor,
             motif: .bubble
         )
+    }
+}
+
+private struct OriginTargetView: View {
+    let origin: FriendOrigin
+    let itemColor: Color
+    let accentColor: Color
+
+    var body: some View {
+        TargetCardChrome(accentColor: accentColor) {
+            VStack(spacing: 8) {
+                Text("从哪里来")
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(accentColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.14), in: Capsule())
+
+                HStack(spacing: 12) {
+                    FriendShape(kind: origin.itemKind, color: itemColor, isShadow: false)
+                        .padding(5)
+                        .frame(width: 54, height: 54)
+                        .background(.white.opacity(0.74), in: Circle())
+
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 18, weight: .black))
+                        .foregroundStyle(accentColor)
+                        .frame(width: 34, height: 34)
+                        .background(accentColor.opacity(0.12), in: Circle())
+
+                    Text("?")
+                        .font(.system(size: 30, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                        .frame(width: 50, height: 50)
+                        .background(accentColor.opacity(0.86), in: Circle())
+                }
+
+                Text(origin.promptTitle)
+                    .font(.system(size: 15, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.34, green: 0.28, blue: 0.18))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.82)
+            }
+            .padding(12)
+        }
     }
 }
 
@@ -2874,6 +2926,8 @@ private struct SettingsScreen: View {
             return "食物"
         case .itemHome:
             return "回家"
+        case .origin:
+            return "来源"
         case .opposite:
             return "相反"
         case .rhythm:
@@ -2975,6 +3029,8 @@ private struct SettingsScreen: View {
             return "fork.knife.circle.fill"
         case .itemHome:
             return "shippingbox.fill"
+        case .origin:
+            return "leaf.circle.fill"
         case .opposite:
             return "arrow.left.arrow.right.circle.fill"
         case .rhythm:
