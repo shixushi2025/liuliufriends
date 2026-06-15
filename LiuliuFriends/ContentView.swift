@@ -809,16 +809,12 @@ private struct TargetCaption: View {
     let mode: GameMode
 
     var body: some View {
-        VStack(spacing: 6) {
-            Text(mode.title)
-                .font(.system(size: 15, weight: .black, design: .rounded))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
-                .background(
-                    Capsule()
-                        .fill(mode.accentColor)
-                )
+        VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                TargetMetaPill(text: mode.title, color: mode.accentColor, isPrimary: true)
+                TargetMetaPill(text: mode.settingsGroupTitle, color: mode.accentColor, isPrimary: false)
+                TargetMetaPill(text: mode.ageLabel, color: mode.accentColor, isPrimary: false)
+            }
 
             Text(title)
                 .font(.system(size: 22, weight: .black, design: .rounded))
@@ -827,6 +823,30 @@ private struct TargetCaption: View {
                 .minimumScaleFactor(0.68)
                 .multilineTextAlignment(.center)
         }
+    }
+}
+
+private struct TargetMetaPill: View {
+    let text: String
+    let color: Color
+    let isPrimary: Bool
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: isPrimary ? 15 : 12, weight: .black, design: .rounded))
+            .foregroundStyle(isPrimary ? .white : color)
+            .lineLimit(1)
+            .minimumScaleFactor(0.76)
+            .padding(.horizontal, isPrimary ? 14 : 9)
+            .padding(.vertical, isPrimary ? 7 : 5)
+            .background(
+                Capsule()
+                    .fill(isPrimary ? color : color.opacity(0.12))
+            )
+            .overlay(
+                Capsule()
+                    .stroke(color.opacity(isPrimary ? 0 : 0.22), lineWidth: 1)
+            )
     }
 }
 
