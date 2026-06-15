@@ -516,140 +516,140 @@ private struct TargetArea: View {
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .vehicle:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .fruit:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .sound:
                 VStack(spacing: metrics.targetContentSpacing) {
                     SoundBubble(text: viewModel.soundPrompt(for: round.targetKind))
                         .frame(width: metrics.targetIconSize * 1.08, height: metrics.targetIconSize * 0.78)
-                    TargetCaption(title: "听声音找朋友", mode: round.mode)
+                    TargetCaption(title: "听声音找朋友", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .color:
                 VStack(spacing: metrics.targetContentSpacing) {
                     ColorLearningObjectView(kind: round.targetKind, color: round.targetColor)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找一样的颜色", mode: round.mode)
+                    TargetCaption(title: "找一样的颜色", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .shape:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找一样的形状", mode: round.mode)
+                    TargetCaption(title: "找一样的形状", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .colorShape:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(round.targetColor.speechName)\(round.targetKind.name)", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetColor.speechName)\(round.targetKind.name)", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .body:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .clothing:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .vegetable:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .food:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .tableware:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .hygiene:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .home:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .stationery:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .instrument:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .toy:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .nature:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .place:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .profession:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode)
+                    TargetCaption(title: "找\(viewModel.displayName(for: round.targetKind))", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .size:
@@ -657,245 +657,245 @@ private struct TargetArea: View {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
                         .scaleEffect(round.targetSizeScale)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找一样大的朋友", mode: round.mode)
+                    TargetCaption(title: "找一样大的朋友", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .length:
                 VStack(spacing: metrics.targetContentSpacing) {
                     LengthChoiceView(kind: round.targetKind, color: round.targetColor, lengthScale: round.targetSizeScale)
                         .frame(width: metrics.targetIconSize * 1.14, height: metrics.targetIconSize * 0.74)
-                    TargetCaption(title: round.targetSizeScale > 1 ? "找长长的" : "找短短的", mode: round.mode)
+                    TargetCaption(title: round.targetSizeScale > 1 ? "找长长的" : "找短短的", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .height:
                 VStack(spacing: metrics.targetContentSpacing) {
                     HeightChoiceView(kind: round.targetKind, color: round.targetColor, heightScale: round.targetSizeScale)
                         .frame(width: metrics.targetIconSize * 0.86, height: metrics.targetIconSize * 1.0)
-                    TargetCaption(title: round.targetSizeScale > 1 ? "找高高的" : "找矮矮的", mode: round.mode)
+                    TargetCaption(title: round.targetSizeScale > 1 ? "找高高的" : "找矮矮的", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .shadow:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: Color(red: 0.28, green: 0.25, blue: 0.22), isShadow: true)
                         .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
-                    TargetCaption(title: "找这个影子", mode: round.mode)
+                    TargetCaption(title: "找这个影子", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .number:
                 VStack(spacing: metrics.targetContentSpacing) {
                     NumberCardView(count: round.targetCount, accentColor: round.mode.accentColor, isTarget: true)
                         .frame(width: metrics.targetIconSize * 0.92, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找数字\(round.targetCount.cnNumberName)", mode: round.mode)
+                    TargetCaption(title: "找数字\(round.targetCount.cnNumberName)", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .count:
                 VStack(spacing: metrics.targetContentSpacing) {
                     CountClusterView(kind: round.targetKind, color: round.targetColor, count: round.targetCount)
                         .frame(width: metrics.targetIconSize * 1.1, height: metrics.targetIconSize * 0.96)
-                    TargetCaption(title: "找\(round.targetCount.cnNumberName)个", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetCount.cnNumberName)个", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .quantityCompare:
                 VStack(spacing: metrics.targetContentSpacing) {
                     QuantityCompareTargetView(target: round.targetQuantityCompare ?? .more, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetQuantityCompare?.speechTitle ?? "多的")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetQuantityCompare?.speechTitle ?? "多的")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .category:
                 VStack(spacing: metrics.targetContentSpacing) {
                     CategoryTargetView(category: round.targetCategory ?? round.targetKind.category, sampleKind: round.targetKind, color: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.95)
-                    TargetCaption(title: "找\(round.targetCategory?.childPromptTitle ?? round.targetKind.category.childPromptTitle)", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetCategory?.childPromptTitle ?? round.targetKind.category.childPromptTitle)", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .difference:
                 VStack(spacing: metrics.targetContentSpacing) {
                     DifferenceTargetView(category: round.targetCategory ?? .animal, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.95)
-                    TargetCaption(title: "找不一样的", mode: round.mode)
+                    TargetCaption(title: "找不一样的", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .position:
                 VStack(spacing: metrics.targetContentSpacing) {
                     PositionTargetView(position: round.targetPosition, kind: round.targetKind, color: round.targetColor, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.98)
-                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .insideOutside:
                 VStack(spacing: metrics.targetContentSpacing) {
                     InsideOutsideStageView(kind: round.targetKind, color: round.targetColor, position: round.targetPosition)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.94)
-                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .frontBack:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FrontBackStageView(kind: round.targetKind, color: round.targetColor, position: round.targetPosition)
                         .frame(width: metrics.targetIconSize * 1.10, height: metrics.targetIconSize * 0.96)
-                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetPosition.name)", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .distance:
                 VStack(spacing: metrics.targetContentSpacing) {
                     DistanceChoiceView(kind: round.targetKind, color: round.targetColor, distanceScale: round.targetSizeScale)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.94)
-                    TargetCaption(title: round.targetSizeScale > 1 ? "找近近的" : "找远远的", mode: round.mode)
+                    TargetCaption(title: round.targetSizeScale > 1 ? "找近近的" : "找远远的", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .purpose:
                 VStack(spacing: metrics.targetContentSpacing) {
                     PurposeTargetView(purpose: round.targetPurpose ?? .drink, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetPurpose?.speechTitle ?? "有用的朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetPurpose?.speechTitle ?? "有用的朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .safety:
                 VStack(spacing: metrics.targetContentSpacing) {
                     SafetyTargetView(safety: round.targetSafety ?? .safeToTouch, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetSafety?.speechTitle ?? "安全朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetSafety?.speechTitle ?? "安全朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .habit:
                 VStack(spacing: metrics.targetContentSpacing) {
                     HabitTargetView(habit: round.targetHabit ?? .washHands, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetHabit?.speechTitle ?? "好习惯")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetHabit?.speechTitle ?? "好习惯")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .scene:
                 VStack(spacing: metrics.targetContentSpacing) {
                     SceneTargetView(scene: round.targetScene ?? .home, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetScene?.speechTitle ?? "场景朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetScene?.speechTitle ?? "场景朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .weather:
                 VStack(spacing: metrics.targetContentSpacing) {
                     WeatherTargetView(weather: round.targetWeather ?? .sunny, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetWeather?.speechTitle ?? "天气朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetWeather?.speechTitle ?? "天气朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .season:
                 VStack(spacing: metrics.targetContentSpacing) {
                     SeasonTargetView(season: round.targetSeason ?? .spring, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetSeason?.speechTitle ?? "四季朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetSeason?.speechTitle ?? "四季朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .routine:
                 VStack(spacing: metrics.targetContentSpacing) {
                     RoutineTargetView(routine: round.targetRoutine ?? .morning, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetRoutine?.speechTitle ?? "作息朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetRoutine?.speechTitle ?? "作息朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .emotion:
                 VStack(spacing: metrics.targetContentSpacing) {
                     EmotionTargetView(emotion: round.targetEmotion ?? .happy, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetEmotion?.speechTitle ?? "情绪朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetEmotion?.speechTitle ?? "情绪朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .action:
                 VStack(spacing: metrics.targetContentSpacing) {
                     ActionTargetView(action: round.targetAction ?? .fly, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetAction?.speechTitle ?? "动作朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetAction?.speechTitle ?? "动作朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .texture:
                 VStack(spacing: metrics.targetContentSpacing) {
                     TextureTargetView(texture: round.targetTexture ?? .soft, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetTexture?.speechTitle ?? "触感朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetTexture?.speechTitle ?? "触感朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .material:
                 VStack(spacing: metrics.targetContentSpacing) {
                     MaterialTargetView(material: round.targetMaterial ?? .wood, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetMaterial?.speechTitle ?? "材料朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetMaterial?.speechTitle ?? "材料朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .taste:
                 VStack(spacing: metrics.targetContentSpacing) {
                     TasteTargetView(taste: round.targetTaste ?? .sweet, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetTaste?.speechTitle ?? "味道朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetTaste?.speechTitle ?? "味道朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .pairing:
                 VStack(spacing: metrics.targetContentSpacing) {
                     PairingTargetView(pairing: round.targetPairing ?? .beeFlower, cueColor: targetCueColor(for: round.targetPairing?.cueKind ?? .bee), accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.22, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetPairing?.speechTitle ?? "好搭档")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetPairing?.speechTitle ?? "好搭档")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .animalHome:
                 VStack(spacing: metrics.targetContentSpacing) {
                     AnimalHomeTargetView(animalHome: round.targetAnimalHome ?? .fishSea, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.16, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetAnimalHome?.speechTitle ?? "住在哪里")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetAnimalHome?.speechTitle ?? "住在哪里")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .animalBaby:
                 VStack(spacing: metrics.targetContentSpacing) {
                     AnimalBabyTargetView(animalBaby: round.targetAnimalBaby ?? .catKitten, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.16, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetAnimalBaby?.speechTitle ?? "动物宝宝")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetAnimalBaby?.speechTitle ?? "动物宝宝")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .animalFood:
                 VStack(spacing: metrics.targetContentSpacing) {
                     AnimalFoodTargetView(animalFood: round.targetAnimalFood ?? .rabbitCarrot, animalColor: targetCueColor(for: round.targetAnimalFood?.animalKind ?? .rabbit), accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetAnimalFood?.speechTitle ?? "动物爱吃的")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetAnimalFood?.speechTitle ?? "动物爱吃的")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .itemHome:
                 VStack(spacing: metrics.targetContentSpacing) {
                     ItemHomeTargetView(itemHome: round.targetItemHome ?? .pencilSchoolbag, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.16, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetItemHome?.speechTitle ?? "放好的")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetItemHome?.speechTitle ?? "放好的")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .origin:
                 VStack(spacing: metrics.targetContentSpacing) {
                     OriginTargetView(origin: round.targetOrigin ?? .milkCow, itemColor: targetCueColor(for: round.targetOrigin?.itemKind ?? .milk), accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetOrigin?.speechTitle ?? "来源")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetOrigin?.speechTitle ?? "来源")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .opposite:
                 VStack(spacing: metrics.targetContentSpacing) {
                     OppositeTargetView(opposite: round.targetOpposite ?? .dayNight, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.18, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetOpposite?.speechTitle ?? "相反的朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetOpposite?.speechTitle ?? "相反的朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .rhythm:
                 VStack(spacing: metrics.targetContentSpacing) {
                     RhythmTargetView(rhythm: round.targetRhythm ?? .clap, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetRhythm?.speechTitle ?? "节奏朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetRhythm?.speechTitle ?? "节奏朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .sequence:
                 VStack(spacing: metrics.targetContentSpacing) {
                     SequenceTargetView(sequence: round.targetSequence ?? .first, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetSequence?.speechTitle ?? "顺序朋友")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetSequence?.speechTitle ?? "顺序朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             case .pattern:
                 VStack(spacing: metrics.targetContentSpacing) {
                     PatternTargetView(pattern: round.targetPattern ?? .catDog, accentColor: round.mode.accentColor)
                         .frame(width: metrics.targetIconSize * 1.30, height: metrics.targetIconSize * 0.92)
-                    TargetCaption(title: "找\(round.targetPattern?.speechTitle ?? "下一个")", mode: round.mode)
+                    TargetCaption(title: "找\(round.targetPattern?.speechTitle ?? "下一个")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
             }
@@ -956,9 +956,10 @@ private struct ReplayPromptPill: View {
 private struct TargetCaption: View {
     let title: String
     let mode: GameMode
+    let isCompact: Bool
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: isCompact ? 7 : 8) {
             HStack(spacing: 6) {
                 TargetMetaPill(text: mode.title, color: mode.accentColor, isPrimary: true)
                 TargetMetaPill(text: mode.settingsGroupTitle, color: mode.accentColor, isPrimary: false)
@@ -971,6 +972,15 @@ private struct TargetCaption: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.68)
                 .multilineTextAlignment(.center)
+
+            if !isCompact {
+                Text(mode.prompt)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(mode.accentColor.opacity(0.78))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.70)
+                    .multilineTextAlignment(.center)
+            }
         }
     }
 }
