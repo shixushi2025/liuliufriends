@@ -8,6 +8,7 @@ final class GameViewModel: ObservableObject {
     @Published var hintCandidateID: UUID?
     @Published var celebrationSeed = 0
     @Published var completedRounds = 0
+    @Published var consecutiveCorrectRounds = 0
     @Published var screen: AppScreen = .play
     @Published var settings = GameSettings() {
         didSet {
@@ -80,6 +81,11 @@ final class GameViewModel: ObservableObject {
     var completionMessage: String? {
         guard completedCandidateID != nil else { return nil }
         return successSpeechText(for: round)
+    }
+
+    var encouragementMessage: String? {
+        guard completedCandidateID != nil, consecutiveCorrectRounds >= 3 else { return nil }
+        return "连续找到 \(consecutiveCorrectRounds) 个"
     }
 
     init(
@@ -182,6 +188,7 @@ final class GameViewModel: ObservableObject {
             completedCandidateID = candidate.id
             celebrationSeed += 1
             completedRounds += 1
+            consecutiveCorrectRounds += 1
             if shouldScheduleReview {
                 scheduleReview(for: round)
             }
@@ -193,6 +200,7 @@ final class GameViewModel: ObservableObject {
             return .correct
         } else {
             roundHadWrongAttempt = true
+            consecutiveCorrectRounds = 0
             wrongCandidateID = candidate.id
             hintCandidateID = nil
             feedbackPlayer.playRetry(settings: settings)
@@ -306,6 +314,7 @@ final class GameViewModel: ObservableObject {
         cancelPendingPrompt()
         roundIndex = 0
         completedRounds = 0
+        consecutiveCorrectRounds = 0
         completedCandidateID = nil
         wrongCandidateID = nil
         hintCandidateID = nil
@@ -331,6 +340,7 @@ final class GameViewModel: ObservableObject {
         completedCandidateID = nil
         wrongCandidateID = nil
         hintCandidateID = nil
+        consecutiveCorrectRounds = 0
         roundHadWrongAttempt = false
         pruneReviewQueue()
         nextReviewAllowedAfterCompletedRounds = completedRounds

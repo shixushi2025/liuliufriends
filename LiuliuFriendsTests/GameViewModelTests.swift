@@ -962,6 +962,30 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.showsManualNextRoundControl)
     }
 
+    func testConsecutiveCorrectRoundsShowGentleEncouragement() {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+        viewModel.settings.autoAdvanceEnabled = false
+
+        for expectedCount in 1...2 {
+            let correct = viewModel.round.candidates.first { $0.isCorrect }!
+            XCTAssertEqual(viewModel.choose(correct), .correct)
+            XCTAssertEqual(viewModel.consecutiveCorrectRounds, expectedCount)
+            XCTAssertNil(viewModel.encouragementMessage)
+            viewModel.nextRound()
+        }
+
+        var correct = viewModel.round.candidates.first { $0.isCorrect }!
+        XCTAssertEqual(viewModel.choose(correct), .correct)
+        XCTAssertEqual(viewModel.consecutiveCorrectRounds, 3)
+        XCTAssertEqual(viewModel.encouragementMessage, "连续找到 3 个")
+        viewModel.nextRound()
+
+        correct = viewModel.round.candidates.first { $0.isCorrect }!
+        XCTAssertEqual(viewModel.choose(correct), .correct)
+        XCTAssertEqual(viewModel.consecutiveCorrectRounds, 4)
+        XCTAssertEqual(viewModel.encouragementMessage, "连续找到 4 个")
+    }
+
     func testWrongSelectionMarksRetryAndDoesNotAdvanceProgress() {
         let feedback = TestFeedbackPlayer()
         let viewModel = GameViewModel(feedbackPlayer: feedback)
@@ -972,6 +996,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(result, .retry)
         XCTAssertEqual(viewModel.wrongCandidateID, wrong.id)
         XCTAssertEqual(viewModel.completedRounds, 0)
+        XCTAssertEqual(viewModel.consecutiveCorrectRounds, 0)
         XCTAssertEqual(feedback.retryCount, 1)
     }
 
@@ -1386,6 +1411,7 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.round.id, firstRoundID)
         XCTAssertEqual(viewModel.completedRounds, 0)
+        XCTAssertEqual(viewModel.consecutiveCorrectRounds, 0)
         XCTAssertNil(viewModel.completedCandidateID)
         XCTAssertNil(viewModel.wrongCandidateID)
     }

@@ -308,6 +308,20 @@ private struct PlayPanel: View {
                 .zIndex(3)
             }
 
+            if let encouragementMessage = viewModel.encouragementMessage {
+                EncouragementPill(
+                    message: encouragementMessage,
+                    color: viewModel.round.mode.accentColor,
+                    isCompact: metrics.isCompact
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .padding(.top, metrics.isCompact ? 54 : 74)
+                .padding(.trailing, metrics.isCompact ? 12 : 24)
+                .allowsHitTesting(false)
+                .transition(.scale(scale: 0.88).combined(with: .opacity))
+                .zIndex(3)
+            }
+
             if viewModel.showsManualNextRoundControl {
                 ManualNextRoundButton(isCompact: metrics.isCompact) {
                     viewModel.nextRound()
@@ -413,6 +427,34 @@ private struct CompletionRibbon: View {
         )
         .shadow(color: color.opacity(0.16), radius: 16, y: 8)
         .padding(.horizontal, isCompact ? 18 : 28)
+    }
+}
+
+private struct EncouragementPill: View {
+    let message: String
+    let color: Color
+    let isCompact: Bool
+
+    var body: some View {
+        HStack(spacing: isCompact ? 5 : 7) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: isCompact ? 10 : 13, weight: .black))
+                .foregroundStyle(Color(red: 1.0, green: 0.54, blue: 0.45))
+
+            Text(message)
+                .font(.system(size: isCompact ? 13 : 16, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color(red: 0.30, green: 0.24, blue: 0.18))
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
+        }
+        .padding(.horizontal, isCompact ? 11 : 15)
+        .padding(.vertical, isCompact ? 7 : 9)
+        .background(.white.opacity(0.86), in: Capsule())
+        .overlay(
+            Capsule()
+                .stroke(color.opacity(0.18), lineWidth: 1)
+        )
+        .shadow(color: color.opacity(0.12), radius: 12, y: 6)
     }
 }
 
