@@ -192,7 +192,11 @@ enum GameContent {
         .umbrella: .purple,
         .ball: .coral,
         .book: .skyBlue,
-        .cup: .aqua
+        .cup: .aqua,
+        .knife: .softGray,
+        .kettle: .berryRed,
+        .scissors: .orange,
+        .socket: .purple
     ]
 
     private static var animals: [FriendKind] {
@@ -394,6 +398,17 @@ enum GameContent {
         (.eat, .banana, .car),
         (.play, .ball, .cup),
         (.plant, .tree, .train)
+    ]
+
+    private static let safetyPracticePairs: [(safety: FriendSafety, correct: FriendKind, wrong: FriendKind)] = [
+        (.safeToTouch, .ball, .knife),
+        (.safeToTouch, .book, .kettle),
+        (.safeToTouch, .blocks, .scissors),
+        (.safeToTouch, .doll, .socket),
+        (.askGrownup, .knife, .ball),
+        (.askGrownup, .kettle, .book),
+        (.askGrownup, .scissors, .blocks),
+        (.askGrownup, .socket, .doll)
     ]
 
     private static let scenePracticePairs: [(scene: FriendScene, correct: FriendKind, wrong: FriendKind)] = [
@@ -672,6 +687,10 @@ enum GameContent {
 
         result += purposePracticePairs.enumerated().map { index, pair in
             purpose(pair.purpose, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += safetyPracticePairs.enumerated().map { index, pair in
+            safety(pair.safety, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
         result += scenePracticePairs.enumerated().map { index, pair in
@@ -995,6 +1014,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetPurpose: purpose,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func safety(
+        _ safety: FriendSafety,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .safety,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetSafety: safety,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }

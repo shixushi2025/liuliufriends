@@ -500,6 +500,8 @@ final class GameViewModel: ObservableObject {
             return "找在\(round.targetPosition.name)的\(displayName(for: round.targetKind))"
         case .purpose:
             return "找\(round.targetPurpose?.speechTitle ?? displayName(for: round.targetKind))"
+        case .safety:
+            return "找\(round.targetSafety?.speechTitle ?? displayName(for: round.targetKind))"
         case .scene:
             return "找\(round.targetScene?.speechTitle ?? displayName(for: round.targetKind))"
         case .weather:
@@ -595,6 +597,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))在\(round.targetPosition.name)，找到了"
         case .purpose:
             return "\(displayName(for: round.targetKind))，找到了"
+        case .safety:
+            return "\(displayName(for: round.targetKind))，\(round.targetSafety?.promptTitle ?? "找到了")"
         case .emotion:
             return "\(round.targetEmotion?.promptTitle ?? displayName(for: round.targetKind))，找到了"
         case .texture:
