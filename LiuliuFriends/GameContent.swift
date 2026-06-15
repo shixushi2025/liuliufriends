@@ -502,6 +502,21 @@ enum GameContent {
         (.rough, .tree, .cup)
     ]
 
+    private static let materialPracticePairs: [(material: FriendMaterial, correct: FriendKind, wrong: FriendKind)] = [
+        (.wood, .chair, .spoon),
+        (.wood, .table, .cup),
+        (.metal, .spoon, .book),
+        (.metal, .scissors, .shirt),
+        (.paper, .book, .ball),
+        (.paper, .notebook, .bottle),
+        (.glass, .cup, .pencil),
+        (.glass, .bottle, .socks),
+        (.cloth, .shirt, .fork),
+        (.cloth, .towel, .blocks),
+        (.plastic, .ball, .bread),
+        (.plastic, .blocks, .egg)
+    ]
+
     private static let tastePracticePairs: [(taste: FriendTaste, correct: FriendKind, wrong: FriendKind)] = [
         (.sweet, .strawberry, .lemon),
         (.sweet, .cherry, .pear),
@@ -759,6 +774,10 @@ enum GameContent {
 
         result += texturePracticePairs.enumerated().map { index, pair in
             texture(pair.texture, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += materialPracticePairs.enumerated().map { index, pair in
+            material(pair.material, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
         result += tastePracticePairs.enumerated().map { index, pair in
@@ -1228,6 +1247,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetTexture: texture,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func material(
+        _ material: FriendMaterial,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .material,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetMaterial: material,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }

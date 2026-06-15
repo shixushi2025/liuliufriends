@@ -814,6 +814,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetTexture?.speechTitle ?? "触感朋友")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .material:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    MaterialTargetView(material: round.targetMaterial ?? .wood, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetMaterial?.speechTitle ?? "材料朋友")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .taste:
                 VStack(spacing: metrics.targetContentSpacing) {
                     TasteTargetView(taste: round.targetTaste ?? .sweet, accentColor: round.mode.accentColor)
@@ -1176,7 +1183,7 @@ private struct GameObjectView: View {
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .distance:
             DistanceChoiceView(kind: candidate.kind, color: candidate.color, distanceScale: candidate.sizeScale)
-        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .habit, .scene, .weather, .season, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .habit, .scene, .weather, .season, .routine, .action, .texture, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1651,6 +1658,21 @@ private struct TextureTargetView: View {
             title: texture.promptTitle,
             subtitle: "摸起来",
             systemName: texture.iconName,
+            accentColor: accentColor,
+            motif: .texture
+        )
+    }
+}
+
+private struct MaterialTargetView: View {
+    let material: FriendMaterial
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: material.promptTitle,
+            subtitle: "什么做的",
+            systemName: material.iconName,
             accentColor: accentColor,
             motif: .texture
         )
@@ -3289,6 +3311,8 @@ private struct SettingsScreen: View {
             return "动作"
         case .texture:
             return "触感"
+        case .material:
+            return "材料"
         case .taste:
             return "味道"
         case .pairing:
@@ -3402,6 +3426,8 @@ private struct SettingsScreen: View {
             return "figure.run"
         case .texture:
             return "hand.raised.fill"
+        case .material:
+            return "square.stack.3d.up.fill"
         case .taste:
             return "fork.knife.circle.fill"
         case .pairing:
