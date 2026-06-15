@@ -107,6 +107,7 @@ enum GameMode: String, CaseIterable, Codable {
     case safety
     case scene
     case weather
+    case season
     case routine
     case emotion
     case action
@@ -196,6 +197,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "场景朋友"
         case .weather:
             return "天气朋友"
+        case .season:
+            return "四季朋友"
         case .routine:
             return "作息朋友"
         case .emotion:
@@ -303,6 +306,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "帮六六找在哪儿"
         case .weather:
             return "帮六六找天气朋友"
+        case .season:
+            return "帮六六找四季朋友"
         case .routine:
             return "帮六六找每天做的事"
         case .emotion:
@@ -344,7 +349,7 @@ enum GameMode: String, CaseIterable, Codable {
             return .starter18Months
         case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .category, .position, .insideOutside, .frontBack, .routine, .emotion:
             return .explorer24Months
-        case .size, .length, .height, .shadow, .purpose, .safety, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .difference:
+        case .size, .length, .height, .shadow, .purpose, .safety, .scene, .weather, .season, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .difference:
             return .matcher30Months
         case .number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern:
             return .preschool36Months
@@ -359,7 +364,7 @@ enum GameMode: String, CaseIterable, Codable {
         switch self {
         case .animal, .vehicle, .fruit, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession:
             return "基础识物"
-        case .category, .routine, .emotion, .purpose, .safety, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite:
+        case .category, .routine, .emotion, .purpose, .safety, .scene, .weather, .season, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite:
             return "生活关系"
         case .size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .difference:
             return "观察匹配"
@@ -377,7 +382,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .vehicle, .fruit, .color, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .safety, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .rhythm, .sequence, .pattern, .difference:
+        case .vehicle, .fruit, .color, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .safety, .scene, .weather, .season, .routine, .emotion, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -456,6 +461,8 @@ enum GameMode: String, CaseIterable, Codable {
             return Color(red: 0.18, green: 0.63, blue: 0.74)
         case .weather:
             return Color(red: 0.27, green: 0.58, blue: 0.92)
+        case .season:
+            return Color(red: 0.32, green: 0.66, blue: 0.36)
         case .routine:
             return Color(red: 0.88, green: 0.52, blue: 0.24)
         case .emotion:
@@ -732,6 +739,52 @@ enum FriendWeather: String, CaseIterable {
             return "cloud.fill"
         case .windy:
             return "wind"
+        }
+    }
+}
+
+enum FriendSeason: String, CaseIterable {
+    case spring
+    case summer
+    case autumn
+    case winter
+
+    var promptTitle: String {
+        switch self {
+        case .spring:
+            return "春天"
+        case .summer:
+            return "夏天"
+        case .autumn:
+            return "秋天"
+        case .winter:
+            return "冬天"
+        }
+    }
+
+    var speechTitle: String {
+        switch self {
+        case .spring:
+            return "春天的"
+        case .summer:
+            return "夏天的"
+        case .autumn:
+            return "秋天的"
+        case .winter:
+            return "冬天的"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .spring:
+            return "leaf.fill"
+        case .summer:
+            return "sun.max.fill"
+        case .autumn:
+            return "tree.fill"
+        case .winter:
+            return "snowflake"
         }
     }
 }
@@ -3162,6 +3215,7 @@ struct GameRound: Identifiable {
     let targetSafety: FriendSafety?
     let targetScene: FriendScene?
     let targetWeather: FriendWeather?
+    let targetSeason: FriendSeason?
     let targetRoutine: FriendRoutine?
     let targetEmotion: FriendEmotion?
     let targetAction: FriendAction?
@@ -3193,6 +3247,7 @@ struct GameRound: Identifiable {
         targetSafety: FriendSafety? = nil,
         targetScene: FriendScene? = nil,
         targetWeather: FriendWeather? = nil,
+        targetSeason: FriendSeason? = nil,
         targetRoutine: FriendRoutine? = nil,
         targetEmotion: FriendEmotion? = nil,
         targetAction: FriendAction? = nil,
@@ -3223,6 +3278,7 @@ struct GameRound: Identifiable {
         self.targetSafety = targetSafety
         self.targetScene = targetScene
         self.targetWeather = targetWeather
+        self.targetSeason = targetSeason
         self.targetRoutine = targetRoutine
         self.targetEmotion = targetEmotion
         self.targetAction = targetAction
@@ -3313,6 +3369,8 @@ struct GameRound: Identifiable {
             return "找\(targetScene?.speechTitle ?? targetKind.name)"
         case .weather:
             return "找\(targetWeather?.speechTitle ?? targetKind.name)"
+        case .season:
+            return "找\(targetSeason?.speechTitle ?? targetKind.name)"
         case .routine:
             return "找\(targetRoutine?.speechTitle ?? targetKind.name)"
         case .emotion:
@@ -3410,6 +3468,8 @@ struct GameRound: Identifiable {
             return "\(targetKind.name)，找到了"
         case .weather:
             return "\(targetKind.name)，找到了"
+        case .season:
+            return "\(targetKind.name)，\(targetSeason?.promptTitle ?? "找到了")"
         case .routine:
             return "\(targetKind.name)，找到了"
         case .emotion:

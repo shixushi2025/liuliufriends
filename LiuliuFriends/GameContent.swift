@@ -431,6 +431,17 @@ enum GameContent {
         (.windy, .balloon, .tree)
     ]
 
+    private static let seasonPracticePairs: [(season: FriendSeason, correct: FriendKind, wrong: FriendKind)] = [
+        (.spring, .flower, .moon),
+        (.spring, .tree, .airplane),
+        (.summer, .sun, .coat),
+        (.summer, .beach, .clock),
+        (.autumn, .apple, .fish),
+        (.autumn, .tree, .cup),
+        (.winter, .coat, .sun),
+        (.winter, .cloud, .flower)
+    ]
+
     private static let routinePracticePairs: [(routine: FriendRoutine, correct: FriendKind, wrong: FriendKind)] = [
         (.morning, .sun, .moon),
         (.morning, .sun, .book),
@@ -699,6 +710,10 @@ enum GameContent {
 
         result += weatherPracticePairs.enumerated().map { index, pair in
             weather(pair.weather, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += seasonPracticePairs.enumerated().map { index, pair in
+            season(pair.season, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
         result += routinePracticePairs.enumerated().map { index, pair in
@@ -1065,6 +1080,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetWeather: weather,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func season(
+        _ season: FriendSeason,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .season,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetSeason: season,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
