@@ -709,6 +709,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetSafety?.speechTitle ?? "安全朋友")", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .habit:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    HabitTargetView(habit: round.targetHabit ?? .washHands, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetHabit?.speechTitle ?? "好习惯")", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .scene:
                 VStack(spacing: metrics.targetContentSpacing) {
                     SceneTargetView(scene: round.targetScene ?? .home, accentColor: round.mode.accentColor)
@@ -1118,7 +1125,7 @@ private struct GameObjectView: View {
             InsideOutsideStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .frontBack:
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .scene, .weather, .season, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .habit, .scene, .weather, .season, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1473,6 +1480,21 @@ private struct SafetyTargetView: View {
             title: safety.promptTitle,
             subtitle: "安全吗",
             systemName: safety.iconName,
+            accentColor: accentColor,
+            motif: .spark
+        )
+    }
+}
+
+private struct HabitTargetView: View {
+    let habit: FriendHabit
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: habit.promptTitle,
+            subtitle: "好习惯",
+            systemName: habit.iconName,
             accentColor: accentColor,
             motif: .spark
         )
@@ -3150,6 +3172,8 @@ private struct SettingsScreen: View {
             return "用途"
         case .safety:
             return "安全"
+        case .habit:
+            return "习惯"
         case .scene:
             return "场景"
         case .weather:
@@ -3259,6 +3283,8 @@ private struct SettingsScreen: View {
             return "lightbulb.fill"
         case .safety:
             return "exclamationmark.triangle.fill"
+        case .habit:
+            return "sparkles"
         case .scene:
             return "map.fill"
         case .weather:

@@ -411,6 +411,16 @@ enum GameContent {
         (.askGrownup, .socket, .doll)
     ]
 
+    private static let habitPracticePairs: [(habit: FriendHabit, correct: FriendKind, wrong: FriendKind)] = [
+        (.washHands, .soap, .ball),
+        (.washHands, .towel, .kite),
+        (.brushTeeth, .toothbrush, .cup),
+        (.drinkWater, .cup, .socks),
+        (.tidyToys, .blocks, .banana),
+        (.readBook, .book, .car),
+        (.wearHat, .hat, .spoon)
+    ]
+
     private static let scenePracticePairs: [(scene: FriendScene, correct: FriendKind, wrong: FriendKind)] = [
         (.sea, .fish, .car),
         (.sky, .bird, .cup),
@@ -702,6 +712,10 @@ enum GameContent {
 
         result += safetyPracticePairs.enumerated().map { index, pair in
             safety(pair.safety, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += habitPracticePairs.enumerated().map { index, pair in
+            habit(pair.habit, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
         }
 
         result += scenePracticePairs.enumerated().map { index, pair in
@@ -1046,6 +1060,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetSafety: safety,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func habit(
+        _ habit: FriendHabit,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .habit,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetHabit: habit,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
