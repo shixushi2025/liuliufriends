@@ -502,6 +502,17 @@ enum GameContent {
         (.rough, .tree, .cup)
     ]
 
+    private static let temperaturePracticePairs: [(temperature: FriendTemperature, correct: FriendKind, wrong: FriendKind)] = [
+        (.hot, .sun, .moon),
+        (.hot, .kettle, .coat),
+        (.warm, .coat, .watermelon),
+        (.warm, .lamp, .umbrella),
+        (.cool, .umbrella, .sun),
+        (.cool, .watermelon, .coat),
+        (.cold, .moon, .sun),
+        (.cold, .cloud, .lamp)
+    ]
+
     private static let materialPracticePairs: [(material: FriendMaterial, correct: FriendKind, wrong: FriendKind)] = [
         (.wood, .chair, .spoon),
         (.wood, .table, .cup),
@@ -778,6 +789,10 @@ enum GameContent {
 
         result += texturePracticePairs.enumerated().map { index, pair in
             texture(pair.texture, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += temperaturePracticePairs.enumerated().map { index, pair in
+            temperature(pair.temperature, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
         result += materialPracticePairs.enumerated().map { index, pair in
@@ -1268,6 +1283,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetMaterial: material,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func temperature(
+        _ temperature: FriendTemperature,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .temperature,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetTemperature: temperature,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
