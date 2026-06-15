@@ -446,6 +446,8 @@ final class GameViewModel: ObservableObject {
             return "找\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))"
         case .shape:
             return "找\(displayName(for: round.targetKind))"
+        case .colorShape:
+            return "找\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))\(displayName(for: round.targetKind))"
         case .body:
             return "找\(displayName(for: round.targetKind))"
         case .clothing:
@@ -543,6 +545,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))，找到了"
         case .color:
             return "\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))，找到了"
+        case .colorShape:
+            return "\(displayName(for: VoicePromptTarget.target(for: round.targetColor)))\(displayName(for: round.targetKind))，找到了"
         case .body:
             return "\(displayName(for: round.targetKind))，找到了"
         case .clothing:

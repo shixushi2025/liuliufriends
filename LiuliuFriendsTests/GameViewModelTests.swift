@@ -256,6 +256,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.fruit.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.color.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.shape.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.colorShape.ageBand, .preschool36Months)
         XCTAssertEqual(GameMode.body.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.clothing.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.vegetable.ageBand, .explorer24Months)
@@ -319,7 +320,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .vehicle, .fruit, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession])
         XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite])
         XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .difference])
-        XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.number, .count, .quantityCompare, .rhythm, .sequence, .pattern])
+        XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern])
     }
 
     func testLengthRoundsCompareLongAndShort() {
@@ -534,6 +535,27 @@ final class GameViewModelTests: XCTestCase {
             }
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(target.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+        }
+    }
+
+    func testColorShapeRoundsCombineTwoAttributes() {
+        let colorShapeRounds = GameContent.rounds.filter { $0.mode == .colorShape }
+
+        XCTAssertGreaterThanOrEqual(colorShapeRounds.count, 8)
+        XCTAssertEqual(Set(colorShapeRounds.map(\.targetKind.category)), [.shape])
+        for round in colorShapeRounds {
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            let correctMatchesTargetColor = colorDistance(correct.color.rgbaComponents, round.targetColor.rgbaComponents) < 0.01
+            let wrongMatchesTargetColor = colorDistance(wrong.color.rgbaComponents, round.targetColor.rgbaComponents) < 0.01
+            XCTAssertEqual(correct.kind, round.targetKind)
+            XCTAssertTrue(correctMatchesTargetColor)
+            XCTAssertTrue(wrong.kind != round.targetKind || !wrongMatchesTargetColor)
+            XCTAssertTrue(wrong.kind == round.targetKind || wrongMatchesTargetColor)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetColor.speechName))
+            XCTAssertTrue(round.promptSpeechText.contains(round.targetKind.name))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))
         }
     }
@@ -757,6 +779,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .opposite), 5)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .count), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .quantityCompare), 4)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .colorShape), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .rhythm), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .sequence), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .pattern), 4)

@@ -48,6 +48,16 @@ enum GameContent {
     private static let colorLearningPalette = VoicePromptTarget.colorTargets.compactMap(\.color)
 
     private static let shapePracticeColor = Color(red: 0.24, green: 0.65, blue: 0.94)
+    private static let colorShapePracticeKinds: [FriendKind] = [
+        .circle,
+        .square,
+        .triangle,
+        .star,
+        .heart,
+        .rectangle,
+        .oval,
+        .diamond
+    ]
 
     private static let baseColors: [FriendKind: Color] = [
         .balloon: .coral,
@@ -510,6 +520,17 @@ enum GameContent {
             shape(kind, shapePracticeColor, distractor(for: kind, in: shapes, offset: 1), correctFirst: kindIndex.isMultiple(of: 2))
         }
 
+        result += colorShapePracticeKinds.enumerated().map { index, kind in
+            colorShape(
+                kind,
+                colorLearningPalette[index % colorLearningPalette.count],
+                wrongKind: colorShapePracticeKinds[(index + 3) % colorShapePracticeKinds.count],
+                wrongColor: colorLearningPalette[(index + 4) % colorLearningPalette.count],
+                changesColorOnly: index.isMultiple(of: 2),
+                correctFirst: !index.isMultiple(of: 2)
+            )
+        }
+
         result += bodyParts.enumerated().map { index, kind in
             matchingRound(.body, kind, color(for: kind), distractor(for: kind, in: bodyParts, offset: 2), color(for: distractor(for: kind, in: bodyParts, offset: 2)), correctFirst: !index.isMultiple(of: 2))
         }
@@ -747,6 +768,26 @@ enum GameContent {
         correctFirst: Bool = true
     ) -> GameRound {
         matchingRound(.shape, target, color, distractor, color, correctFirst: correctFirst)
+    }
+
+    private static func colorShape(
+        _ target: FriendKind,
+        _ targetColor: Color,
+        wrongKind: FriendKind,
+        wrongColor: Color,
+        changesColorOnly: Bool,
+        correctFirst: Bool
+    ) -> GameRound {
+        let wrong = changesColorOnly
+            ? FriendCandidate(kind: target, color: wrongColor, isCorrect: false)
+            : FriendCandidate(kind: wrongKind, color: targetColor, isCorrect: false)
+        let correct = FriendCandidate(kind: target, color: targetColor, isCorrect: true)
+        return GameRound(
+            mode: .colorShape,
+            targetKind: target,
+            targetColor: targetColor,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
     }
 
     private static func size(

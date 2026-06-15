@@ -466,6 +466,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找一样的形状", mode: round.mode)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .colorShape:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
+                        .frame(width: metrics.targetIconSize, height: metrics.targetIconSize)
+                    TargetCaption(title: "找\(round.targetColor.speechName)\(round.targetKind.name)", mode: round.mode)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .body:
                 VStack(spacing: metrics.targetContentSpacing) {
                     FriendShape(kind: round.targetKind, color: round.targetColor, isShadow: false)
@@ -878,7 +885,7 @@ private struct CandidateButton: View {
 
     private var objectPadding: CGFloat {
         switch round.mode {
-        case .shape:
+        case .shape, .colorShape:
             max(30, size * 0.22)
         case .number:
             max(12, size * 0.12)
@@ -909,6 +916,9 @@ private struct CandidateButton: View {
         }
         if round.mode == .number {
             return "数字\(candidate.count.cnNumberName)"
+        }
+        if round.mode == .colorShape {
+            return "\(candidate.color.speechName)\(candidate.kind.name)"
         }
         if round.mode == .length {
             return candidate.sizeScale > 1 ? "长长的" : "短短的"
@@ -951,7 +961,7 @@ private struct GameObjectView: View {
             InsideOutsideStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .frontBack:
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
-        case .vehicle, .fruit, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .scene, .weather, .routine, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -2850,6 +2860,8 @@ private struct SettingsScreen: View {
             return "颜色"
         case .shape:
             return "形状"
+        case .colorShape:
+            return "色形"
         case .body:
             return "身体"
         case .clothing:
@@ -2953,6 +2965,8 @@ private struct SettingsScreen: View {
             return "paintpalette.fill"
         case .shape:
             return "triangle.fill"
+        case .colorShape:
+            return "paintpalette.fill"
         case .body:
             return "figure.child"
         case .clothing:

@@ -78,6 +78,7 @@ enum GameMode: String, CaseIterable, Codable {
     case sound
     case color
     case shape
+    case colorShape
     case body
     case clothing
     case vegetable
@@ -136,6 +137,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "颜色朋友"
         case .shape:
             return "形状朋友"
+        case .colorShape:
+            return "颜色形状"
         case .body:
             return "身体朋友"
         case .clothing:
@@ -239,6 +242,8 @@ enum GameMode: String, CaseIterable, Codable {
             return "帮六六找一样的颜色"
         case .shape:
             return "帮六六找一样的形状"
+        case .colorShape:
+            return "帮六六找颜色和形状"
         case .body:
             return "帮六六找身体部位"
         case .clothing:
@@ -336,7 +341,7 @@ enum GameMode: String, CaseIterable, Codable {
             return .explorer24Months
         case .size, .length, .height, .shadow, .purpose, .scene, .weather, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .difference:
             return .matcher30Months
-        case .number, .count, .quantityCompare, .rhythm, .sequence, .pattern:
+        case .number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern:
             return .preschool36Months
         }
     }
@@ -353,7 +358,7 @@ enum GameMode: String, CaseIterable, Codable {
             return "生活关系"
         case .size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .difference:
             return "观察匹配"
-        case .number, .count, .quantityCompare, .rhythm, .sequence, .pattern:
+        case .number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern:
             return "进阶思维"
         }
     }
@@ -367,7 +372,7 @@ enum GameMode: String, CaseIterable, Codable {
 
     var usesNeutralBackground: Bool {
         switch self {
-        case .vehicle, .fruit, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .rhythm, .sequence, .pattern, .difference:
+        case .vehicle, .fruit, .color, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .length, .height, .shadow, .number, .count, .quantityCompare, .category, .position, .insideOutside, .frontBack, .purpose, .scene, .weather, .routine, .emotion, .action, .texture, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite, .rhythm, .sequence, .pattern, .difference:
             return true
         case .animal, .sound:
             return false
@@ -388,6 +393,8 @@ enum GameMode: String, CaseIterable, Codable {
             return Color(red: 1.0, green: 0.42, blue: 0.37)
         case .shape:
             return Color(red: 0.24, green: 0.65, blue: 0.94)
+        case .colorShape:
+            return Color(red: 0.54, green: 0.46, blue: 0.92)
         case .body:
             return Color(red: 0.96, green: 0.46, blue: 0.54)
         case .clothing:
@@ -3186,6 +3193,8 @@ struct GameRound: Identifiable {
             return "找\(targetColor.speechName)"
         case .shape:
             return "找\(targetKind.name)"
+        case .colorShape:
+            return "找\(targetColor.speechName)\(targetKind.name)"
         case .body:
             return "找\(targetKind.name)"
         case .clothing:
@@ -3283,6 +3292,8 @@ struct GameRound: Identifiable {
             return "\(targetKind.name)，找到了"
         case .color:
             return "\(targetColor.speechName)，找到了"
+        case .colorShape:
+            return "\(targetColor.speechName)\(targetKind.name)，找到了"
         case .body:
             return "\(targetKind.name)，找到了"
         case .clothing:
