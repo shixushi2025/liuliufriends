@@ -1880,6 +1880,10 @@ enum FriendItemHome: String, CaseIterable {
     case shoesDoor
     case blocksToyBox
     case spoonTable
+    case towelBathroom
+    case coatCloset
+    case notebookSchoolbag
+    case cupTable
 
     var itemKind: FriendKind {
         switch self {
@@ -1895,6 +1899,14 @@ enum FriendItemHome: String, CaseIterable {
             return .blocks
         case .spoonTable:
             return .spoon
+        case .towelBathroom:
+            return .towel
+        case .coatCloset:
+            return .coat
+        case .notebookSchoolbag:
+            return .notebook
+        case .cupTable:
+            return .cup
         }
     }
 
@@ -1912,6 +1924,14 @@ enum FriendItemHome: String, CaseIterable {
             return .toothbrush
         case .spoonTable:
             return .book
+        case .towelBathroom:
+            return .pencil
+        case .coatCloset:
+            return .spoon
+        case .notebookSchoolbag:
+            return .cup
+        case .cupTable:
+            return .shoes
         }
     }
 
@@ -1928,6 +1948,14 @@ enum FriendItemHome: String, CaseIterable {
         case .blocksToyBox:
             return "玩具盒里"
         case .spoonTable:
+            return "餐桌上"
+        case .towelBathroom:
+            return "浴室里"
+        case .coatCloset:
+            return "衣柜里"
+        case .notebookSchoolbag:
+            return "书包里"
+        case .cupTable:
             return "餐桌上"
         }
     }
@@ -1950,6 +1978,14 @@ enum FriendItemHome: String, CaseIterable {
             return "shippingbox.fill"
         case .spoonTable:
             return "fork.knife"
+        case .towelBathroom:
+            return "bathtub.fill"
+        case .coatCloset:
+            return "hanger"
+        case .notebookSchoolbag:
+            return "backpack.fill"
+        case .cupTable:
+            return "cup.and.saucer.fill"
         }
     }
 }

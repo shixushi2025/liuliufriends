@@ -828,7 +828,7 @@ final class GameViewModelTests: XCTestCase {
     func testItemHomeRoundsHaveExplicitHomeTargets() {
         let itemHomeRounds = GameContent.rounds.filter { $0.mode == .itemHome }
 
-        XCTAssertFalse(itemHomeRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(itemHomeRounds.count, 10)
         XCTAssertEqual(Set(itemHomeRounds.compactMap(\.targetItemHome)), Set(FriendItemHome.allCases))
         for round in itemHomeRounds {
             let itemHome = try! XCTUnwrap(round.targetItemHome)
