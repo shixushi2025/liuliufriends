@@ -2642,6 +2642,7 @@ enum LearningPromptTextCatalog {
         .bird: "啾啾",
         .cow: "哞哞",
         .sheep: "咩咩",
+        .horse: "咴咴",
         .pig: "哼哼",
         .monkey: "吱吱",
         .tiger: "嗷呜",

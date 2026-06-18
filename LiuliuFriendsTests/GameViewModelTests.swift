@@ -692,6 +692,21 @@ final class GameViewModelTests: XCTestCase {
         }
     }
 
+    func testShapeRoundsUseSingleNeutralPracticeColor() {
+        let shapeRounds = GameContent.rounds.filter { $0.mode == .shape }
+
+        XCTAssertGreaterThanOrEqual(shapeRounds.count, 8)
+        XCTAssertEqual(Set(shapeRounds.map(\.targetKind.category)), [.shape])
+        for round in shapeRounds {
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertFalse(round.promptSpeechText.contains(round.targetColor.speechName))
+            XCTAssertTrue(round.successSpeechText.contains("找到了"))
+            for candidate in round.candidates {
+                XCTAssertLessThan(colorDistance(candidate.color.rgbaComponents, round.targetColor.rgbaComponents), 0.01)
+            }
+        }
+    }
+
     func testColorShapeRoundsCombineTwoAttributes() {
         let colorShapeRounds = GameContent.rounds.filter { $0.mode == .colorShape }
 
@@ -1348,6 +1363,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(FriendKind.sheep.soundText, "咩咩")
         XCTAssertEqual(FriendKind.cat.soundText, "喵喵")
         XCTAssertEqual(FriendKind.dog.soundText, "汪汪")
+        XCTAssertEqual(FriendKind.horse.soundText, "咴咴")
         XCTAssertEqual(FriendKind.grape.soundText, "葡萄")
         XCTAssertEqual(FriendKind.circle.soundText, "圆形")
         XCTAssertEqual(FriendKind.watermelon.soundText, "西瓜")
