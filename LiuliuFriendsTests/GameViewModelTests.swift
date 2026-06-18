@@ -695,11 +695,16 @@ final class GameViewModelTests: XCTestCase {
     func testWeightRoundsHaveExplicitWeightTargets() {
         let weightRounds = GameContent.rounds.filter { $0.mode == .weight }
 
-        XCTAssertFalse(weightRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(weightRounds.count, FriendWeight.allCases.count * 6)
         XCTAssertEqual(Set(weightRounds.compactMap(\.targetWeight)), Set(FriendWeight.allCases))
+        for weight in FriendWeight.allCases {
+            XCTAssertGreaterThanOrEqual(weightRounds.filter { $0.targetWeight == weight }.count, 6)
+        }
         for round in weightRounds {
             let weight = try! XCTUnwrap(round.targetWeight)
-            XCTAssertNotEqual(round.candidates.first { $0.isCorrect }?.kind, round.candidates.first { !$0.isCorrect }?.kind)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(weight.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains(weight.promptTitle))

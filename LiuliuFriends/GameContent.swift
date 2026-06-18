@@ -607,10 +607,14 @@ enum GameContent {
         (.heavy, .truck, .butterfly),
         (.heavy, .watermelon, .cloud),
         (.heavy, .kettle, .kite),
+        (.heavy, .bed, .balloon),
+        (.heavy, .sofa, .cloud),
         (.light, .balloon, .elephant),
         (.light, .butterfly, .truck),
         (.light, .cloud, .watermelon),
-        (.light, .kite, .kettle)
+        (.light, .kite, .kettle),
+        (.light, .bird, .sofa),
+        (.light, .hat, .bed)
     ]
 
     private static let materialPracticePairs: [(material: FriendMaterial, correct: FriendKind, wrong: FriendKind)] = [
