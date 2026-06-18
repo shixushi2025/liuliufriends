@@ -957,7 +957,11 @@ final class GameViewModelTests: XCTestCase {
     func testDifferenceRoundsUseDifferentCategoryTargets() {
         let differenceRounds = GameContent.rounds.filter { $0.mode == .difference }
 
-        XCTAssertFalse(differenceRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(differenceRounds.count, FriendCategory.allCases.count * 2)
+        XCTAssertEqual(Set(differenceRounds.compactMap(\.targetCategory)), Set(FriendCategory.allCases))
+        for category in FriendCategory.allCases {
+            XCTAssertGreaterThanOrEqual(differenceRounds.filter { $0.targetCategory == category }.count, 2)
+        }
         for round in differenceRounds {
             let baseCategory = try! XCTUnwrap(round.targetCategory)
             let correctKind = try! XCTUnwrap(round.candidates.first { $0.isCorrect }?.kind)
