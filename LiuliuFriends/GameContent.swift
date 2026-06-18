@@ -519,6 +519,17 @@ enum GameContent {
         (.cold, .cloud, .lamp)
     ]
 
+    private static let brightnessPracticePairs: [(brightness: FriendBrightness, correct: FriendKind, wrong: FriendKind)] = [
+        (.bright, .sun, .moon),
+        (.bright, .lamp, .cloud),
+        (.dark, .moon, .sun),
+        (.dark, .cloud, .lamp),
+        (.shiny, .star, .book),
+        (.shiny, .lamp, .turtle),
+        (.dim, .moon, .sun),
+        (.dim, .cloud, .star)
+    ]
+
     private static let materialPracticePairs: [(material: FriendMaterial, correct: FriendKind, wrong: FriendKind)] = [
         (.wood, .chair, .spoon),
         (.wood, .table, .cup),
@@ -799,6 +810,10 @@ enum GameContent {
 
         result += temperaturePracticePairs.enumerated().map { index, pair in
             temperature(pair.temperature, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
+        }
+
+        result += brightnessPracticePairs.enumerated().map { index, pair in
+            brightness(pair.brightness, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
         }
 
         result += materialPracticePairs.enumerated().map { index, pair in
@@ -1306,6 +1321,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetTemperature: temperature,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func brightness(
+        _ brightness: FriendBrightness,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .brightness,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetBrightness: brightness,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }

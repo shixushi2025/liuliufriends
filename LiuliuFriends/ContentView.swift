@@ -828,6 +828,13 @@ private struct TargetArea: View {
                     TargetCaption(title: "找\(round.targetTemperature?.speechTitle ?? "冷暖朋友")", mode: round.mode, isCompact: metrics.isCompact)
                 }
                 .padding(.vertical, metrics.targetVerticalInset)
+            case .brightness:
+                VStack(spacing: metrics.targetContentSpacing) {
+                    BrightnessTargetView(brightness: round.targetBrightness ?? .bright, accentColor: round.mode.accentColor)
+                        .frame(width: metrics.targetIconSize * 1.12, height: metrics.targetIconSize * 0.92)
+                    TargetCaption(title: "找\(round.targetBrightness?.speechTitle ?? "明暗朋友")", mode: round.mode, isCompact: metrics.isCompact)
+                }
+                .padding(.vertical, metrics.targetVerticalInset)
             case .material:
                 VStack(spacing: metrics.targetContentSpacing) {
                     MaterialTargetView(material: round.targetMaterial ?? .wood, accentColor: round.mode.accentColor)
@@ -1221,7 +1228,7 @@ private struct GameObjectView: View {
             FrontBackStageView(kind: candidate.kind, color: candidate.color, position: candidate.position)
         case .distance:
             DistanceChoiceView(kind: candidate.kind, color: candidate.color, distanceScale: candidate.sizeScale)
-        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .routine, .action, .texture, .temperature, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
+        case .vehicle, .fruit, .shape, .colorShape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .size, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .routine, .action, .texture, .temperature, .brightness, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .pattern, .difference:
             FriendShape(kind: candidate.kind, color: candidate.color, isShadow: false)
         case .emotion:
             EmotionChoiceView(emotion: candidate.emotion ?? .happy, accentColor: round.mode.accentColor)
@@ -1713,6 +1720,21 @@ private struct TemperatureTargetView: View {
             systemName: temperature.iconName,
             accentColor: accentColor,
             motif: .weather
+        )
+    }
+}
+
+private struct BrightnessTargetView: View {
+    let brightness: FriendBrightness
+    let accentColor: Color
+
+    var body: some View {
+        ConceptTargetCard(
+            title: brightness.promptTitle,
+            subtitle: "亮和暗",
+            systemName: brightness.iconName,
+            accentColor: accentColor,
+            motif: .spark
         )
     }
 }
@@ -3421,6 +3443,8 @@ private struct SettingsScreen: View {
             return "触感"
         case .temperature:
             return "温度"
+        case .brightness:
+            return "明暗"
         case .material:
             return "材料"
         case .taste:
@@ -3540,6 +3564,8 @@ private struct SettingsScreen: View {
             return "hand.raised.fill"
         case .temperature:
             return "thermometer.medium"
+        case .brightness:
+            return "sun.max.circle.fill"
         case .material:
             return "square.stack.3d.up.fill"
         case .taste:
