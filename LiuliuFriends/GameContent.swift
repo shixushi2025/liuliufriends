@@ -620,16 +620,22 @@ enum GameContent {
     private static let materialPracticePairs: [(material: FriendMaterial, correct: FriendKind, wrong: FriendKind)] = [
         (.wood, .chair, .spoon),
         (.wood, .table, .cup),
+        (.wood, .pencil, .shirt),
         (.metal, .spoon, .book),
         (.metal, .scissors, .shirt),
+        (.metal, .fork, .notebook),
         (.paper, .book, .ball),
         (.paper, .notebook, .bottle),
+        (.paper, .kite, .spoon),
         (.glass, .cup, .pencil),
         (.glass, .bottle, .socks),
+        (.glass, .lamp, .bread),
         (.cloth, .shirt, .fork),
         (.cloth, .towel, .blocks),
+        (.cloth, .coat, .cup),
         (.plastic, .ball, .bread),
-        (.plastic, .blocks, .egg)
+        (.plastic, .blocks, .egg),
+        (.plastic, .rattle, .chair)
     ]
 
     private static let tastePracticePairs: [(taste: FriendTaste, correct: FriendKind, wrong: FriendKind)] = [

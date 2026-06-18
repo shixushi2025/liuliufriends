@@ -714,11 +714,16 @@ final class GameViewModelTests: XCTestCase {
     func testMaterialRoundsHaveExplicitMaterialTargets() {
         let materialRounds = GameContent.rounds.filter { $0.mode == .material }
 
-        XCTAssertFalse(materialRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(materialRounds.count, FriendMaterial.allCases.count * 3)
         XCTAssertEqual(Set(materialRounds.compactMap(\.targetMaterial)), Set(FriendMaterial.allCases))
+        for material in FriendMaterial.allCases {
+            XCTAssertGreaterThanOrEqual(materialRounds.filter { $0.targetMaterial == material }.count, 3)
+        }
         for round in materialRounds {
             let material = try! XCTUnwrap(round.targetMaterial)
-            XCTAssertNotEqual(round.candidates.first { $0.isCorrect }?.kind, round.candidates.first { !$0.isCorrect }?.kind)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(material.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("是"))
