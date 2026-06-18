@@ -538,14 +538,19 @@ enum GameContent {
     private static let sensePracticePairs: [(sense: FriendSense, correct: FriendKind, wrong: FriendKind)] = [
         (.see, .eye, .ear),
         (.see, .eye, .hand),
+        (.see, .eye, .nose),
         (.hear, .ear, .eye),
         (.hear, .ear, .mouth),
+        (.hear, .ear, .foot),
         (.smell, .nose, .foot),
         (.smell, .nose, .hand),
+        (.smell, .nose, .eye),
         (.taste, .mouth, .ear),
         (.taste, .mouth, .foot),
+        (.taste, .mouth, .hand),
         (.touch, .hand, .nose),
-        (.touch, .hand, .eye)
+        (.touch, .hand, .eye),
+        (.touch, .hand, .mouth)
     ]
 
     private static let actionPracticePairs: [(action: FriendAction, correct: FriendKind, wrong: FriendKind)] = [

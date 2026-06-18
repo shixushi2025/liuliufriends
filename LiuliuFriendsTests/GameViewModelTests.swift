@@ -608,11 +608,17 @@ final class GameViewModelTests: XCTestCase {
     func testSenseRoundsHaveExplicitSenseTargets() {
         let senseRounds = GameContent.rounds.filter { $0.mode == .sense }
 
-        XCTAssertFalse(senseRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(senseRounds.count, FriendSense.allCases.count * 3)
         XCTAssertEqual(Set(senseRounds.compactMap(\.targetSense)), Set(FriendSense.allCases))
+        for sense in FriendSense.allCases {
+            XCTAssertGreaterThanOrEqual(senseRounds.filter { $0.targetSense == sense }.count, 3)
+        }
         for round in senseRounds {
             let sense = try! XCTUnwrap(round.targetSense)
-            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.kind, round.targetKind)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertEqual(correct.kind, round.targetKind)
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(sense.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains(sense.promptTitle))
