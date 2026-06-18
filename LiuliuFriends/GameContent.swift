@@ -534,7 +534,11 @@ enum GameContent {
         (.jump, .frog, .tree),
         (.drive, .bus, .banana),
         (.drive, .car, .flower),
-        (.grow, .tree, .truck)
+        (.grow, .tree, .truck),
+        (.swim, .turtle, .airplane),
+        (.roll, .ball, .chair),
+        (.jump, .rabbit, .cup),
+        (.grow, .flower, .bus)
     ]
 
     private static let texturePracticePairs: [(texture: FriendTexture, correct: FriendKind, wrong: FriendKind)] = [
