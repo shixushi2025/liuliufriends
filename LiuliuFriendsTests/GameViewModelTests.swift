@@ -915,13 +915,20 @@ final class GameViewModelTests: XCTestCase {
     func testRhythmRoundsHaveExplicitRhythmTargets() {
         let rhythmRounds = GameContent.rounds.filter { $0.mode == .rhythm }
 
-        XCTAssertFalse(rhythmRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(rhythmRounds.count, FriendRhythm.allCases.count * 2)
         XCTAssertEqual(Set(rhythmRounds.compactMap(\.targetRhythm)), Set(FriendRhythm.allCases))
+        for rhythm in FriendRhythm.allCases {
+            XCTAssertGreaterThanOrEqual(rhythmRounds.filter { $0.targetRhythm == rhythm }.count, 2)
+        }
         for round in rhythmRounds {
-            XCTAssertNotNil(round.targetRhythm)
+            let target = try! XCTUnwrap(round.targetRhythm)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertEqual(correct.rhythm, target)
+            XCTAssertNotEqual(wrong.rhythm, target)
             XCTAssertTrue(round.candidates.allSatisfy { $0.rhythm != nil })
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetRhythm!.speechTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(target.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))
         }
     }
