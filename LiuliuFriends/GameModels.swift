@@ -2654,7 +2654,10 @@ enum LearningPromptTextCatalog {
         .bicycle: "叮叮",
         .fireTruck: "呜啦",
         .ambulance: "滴嘟",
-        .tractor: "突突"
+        .tractor: "突突",
+        .drum: "咚咚",
+        .bell: "叮铃",
+        .rattle: "沙沙"
     ]
 }
 

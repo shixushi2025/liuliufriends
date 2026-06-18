@@ -1364,15 +1364,24 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(FriendKind.cat.soundText, "喵喵")
         XCTAssertEqual(FriendKind.dog.soundText, "汪汪")
         XCTAssertEqual(FriendKind.horse.soundText, "咴咴")
+        XCTAssertEqual(FriendKind.drum.soundText, "咚咚")
+        XCTAssertEqual(FriendKind.bell.soundText, "叮铃")
+        XCTAssertEqual(FriendKind.rattle.soundText, "沙沙")
         XCTAssertEqual(FriendKind.grape.soundText, "葡萄")
         XCTAssertEqual(FriendKind.circle.soundText, "圆形")
         XCTAssertEqual(FriendKind.watermelon.soundText, "西瓜")
         XCTAssertEqual(FriendKind.butterfly.soundText, "蝴蝶")
     }
 
-    func testRecognizedSoundPromptCatalogDoesNotOverrideShapesOrFruit() {
-        for kind in FriendKind.allCases where kind.category == .shape || kind.category == .fruit || kind.category == .vegetable || kind.category == .food || kind.category == .tableware || kind.category == .hygiene || kind.category == .home || kind.category == .stationery || kind.category == .instrument || kind.category == .toy || kind.category == .nature || kind.category == .place || kind.category == .profession {
-            XCTAssertFalse(LearningPromptTextCatalog.usesRecognizedSoundPrompt(kind), "\(kind.name) should default to canonical name unless parents customize it.")
+    func testRecognizedSoundPromptCatalogOnlyOverridesKnownSoundMakers() {
+        let knownSoundMakers: Set<FriendKind> = [
+            .cat, .dog, .duck, .frog, .bird, .cow, .sheep, .horse, .pig, .monkey, .tiger, .lion, .bee,
+            .car, .train, .truck, .bicycle, .fireTruck, .ambulance, .tractor,
+            .drum, .bell, .rattle
+        ]
+
+        for kind in FriendKind.allCases where !knownSoundMakers.contains(kind) {
+            XCTAssertFalse(LearningPromptTextCatalog.usesRecognizedSoundPrompt(kind), "\(kind.name) should default to canonical name unless it has a widely recognized sound.")
             XCTAssertEqual(kind.soundText, kind.name)
         }
     }
