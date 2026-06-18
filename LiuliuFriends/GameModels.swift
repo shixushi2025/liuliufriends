@@ -1997,6 +1997,10 @@ enum FriendOrigin: String, CaseIterable {
     case breadChef
     case carrotFarmer
     case honeyBee
+    case pearTree
+    case cookieChef
+    case cornFarmer
+    case tomatoFarmer
 
     var itemKind: FriendKind {
         switch self {
@@ -2012,6 +2016,14 @@ enum FriendOrigin: String, CaseIterable {
             return .carrot
         case .honeyBee:
             return .flower
+        case .pearTree:
+            return .pear
+        case .cookieChef:
+            return .cookie
+        case .cornFarmer:
+            return .corn
+        case .tomatoFarmer:
+            return .tomato
         }
     }
 
@@ -2029,6 +2041,12 @@ enum FriendOrigin: String, CaseIterable {
             return .farmer
         case .honeyBee:
             return .bee
+        case .pearTree:
+            return .tree
+        case .cookieChef:
+            return .chef
+        case .cornFarmer, .tomatoFarmer:
+            return .farmer
         }
     }
 
@@ -2046,6 +2064,14 @@ enum FriendOrigin: String, CaseIterable {
             return .book
         case .honeyBee:
             return .truck
+        case .pearTree:
+            return .bus
+        case .cookieChef:
+            return .fish
+        case .cornFarmer:
+            return .sofa
+        case .tomatoFarmer:
+            return .car
         }
     }
 
@@ -2063,6 +2089,14 @@ enum FriendOrigin: String, CaseIterable {
             return "胡萝卜是谁种的"
         case .honeyBee:
             return "花蜜找谁帮忙"
+        case .pearTree:
+            return "梨从哪里来"
+        case .cookieChef:
+            return "饼干是谁做的"
+        case .cornFarmer:
+            return "玉米是谁种的"
+        case .tomatoFarmer:
+            return "番茄是谁种的"
         }
     }
 
@@ -2080,6 +2114,14 @@ enum FriendOrigin: String, CaseIterable {
             return "种胡萝卜的"
         case .honeyBee:
             return "花蜜的朋友"
+        case .pearTree:
+            return "梨的来源"
+        case .cookieChef:
+            return "做饼干的"
+        case .cornFarmer:
+            return "种玉米的"
+        case .tomatoFarmer:
+            return "种番茄的"
         }
     }
 
@@ -2097,6 +2139,12 @@ enum FriendOrigin: String, CaseIterable {
             return "leaf.fill"
         case .honeyBee:
             return "sparkles"
+        case .pearTree:
+            return "leaf.fill"
+        case .cookieChef:
+            return "fork.knife"
+        case .cornFarmer, .tomatoFarmer:
+            return "leaf.fill"
         }
     }
 }

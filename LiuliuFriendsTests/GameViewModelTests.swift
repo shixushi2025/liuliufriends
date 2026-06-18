@@ -845,7 +845,7 @@ final class GameViewModelTests: XCTestCase {
     func testOriginRoundsHaveExplicitSourceTargets() {
         let originRounds = GameContent.rounds.filter { $0.mode == .origin }
 
-        XCTAssertFalse(originRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(originRounds.count, 10)
         XCTAssertEqual(Set(originRounds.compactMap(\.targetOrigin)), Set(FriendOrigin.allCases))
         for round in originRounds {
             let origin = try! XCTUnwrap(round.targetOrigin)
