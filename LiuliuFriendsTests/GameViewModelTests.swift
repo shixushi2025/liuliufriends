@@ -1016,14 +1016,19 @@ final class GameViewModelTests: XCTestCase {
     func testPatternRoundsHaveExplicitPatternTargets() {
         let patternRounds = GameContent.rounds.filter { $0.mode == .pattern }
 
-        XCTAssertFalse(patternRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(patternRounds.count, 12)
         XCTAssertEqual(Set(patternRounds.compactMap(\.targetPattern)), Set(FriendPattern.allCases))
         for round in patternRounds {
             let pattern = try! XCTUnwrap(round.targetPattern)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
             XCTAssertEqual(round.targetKind, pattern.correctKind)
-            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.kind, pattern.correctKind)
-            XCTAssertTrue(round.candidates.contains { $0.kind == pattern.distractorKind })
+            XCTAssertEqual(correct.kind, pattern.correctKind)
+            XCTAssertEqual(wrong.kind, pattern.distractorKind)
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertEqual(pattern.sequencePrefix.count, 3)
+            XCTAssertEqual(pattern.sequencePrefix.first, pattern.sequencePrefix.last)
+            XCTAssertNotEqual(pattern.sequencePrefix.first, pattern.correctKind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(pattern.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))

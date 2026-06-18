@@ -2433,6 +2433,12 @@ enum FriendPattern: String, CaseIterable {
     case sunMoon
     case circleTriangle
     case flowerTree
+    case shirtPants
+    case bowlSpoon
+    case pencilCrayon
+    case drumBell
+    case doctorTeacher
+    case balloonKite
 
     var promptTitle: String {
         "下一个"
@@ -2456,6 +2462,18 @@ enum FriendPattern: String, CaseIterable {
             return [.circle, .triangle, .circle]
         case .flowerTree:
             return [.flower, .tree, .flower]
+        case .shirtPants:
+            return [.shirt, .pants, .shirt]
+        case .bowlSpoon:
+            return [.bowl, .spoon, .bowl]
+        case .pencilCrayon:
+            return [.pencil, .crayon, .pencil]
+        case .drumBell:
+            return [.drum, .bell, .drum]
+        case .doctorTeacher:
+            return [.doctor, .teacher, .doctor]
+        case .balloonKite:
+            return [.balloon, .kite, .balloon]
         }
     }
 
@@ -2473,6 +2491,18 @@ enum FriendPattern: String, CaseIterable {
             return .triangle
         case .flowerTree:
             return .tree
+        case .shirtPants:
+            return .pants
+        case .bowlSpoon:
+            return .spoon
+        case .pencilCrayon:
+            return .crayon
+        case .drumBell:
+            return .bell
+        case .doctorTeacher:
+            return .teacher
+        case .balloonKite:
+            return .kite
         }
     }
 
@@ -2490,6 +2520,18 @@ enum FriendPattern: String, CaseIterable {
             return .square
         case .flowerTree:
             return .balloon
+        case .shirtPants:
+            return .hat
+        case .bowlSpoon:
+            return .plate
+        case .pencilCrayon:
+            return .notebook
+        case .drumBell:
+            return .piano
+        case .doctorTeacher:
+            return .chef
+        case .balloonKite:
+            return .blocks
         }
     }
 }
