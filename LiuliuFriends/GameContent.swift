@@ -472,12 +472,16 @@ enum GameContent {
     private static let weatherPracticePairs: [(weather: FriendWeather, correct: FriendKind, wrong: FriendKind)] = [
         (.sunny, .sun, .umbrella),
         (.sunny, .sun, .cloud),
+        (.sunny, .beach, .coat),
         (.rainy, .umbrella, .sun),
-        (.rainy, .cloud, .ball),
+        (.rainy, .coat, .beach),
+        (.rainy, .cloud, .kite),
         (.cloudy, .cloud, .apple),
         (.cloudy, .cloud, .book),
+        (.cloudy, .umbrella, .sun),
         (.windy, .balloon, .cup),
-        (.windy, .balloon, .tree)
+        (.windy, .kite, .bowl),
+        (.windy, .tree, .clock)
     ]
 
     private static let seasonPracticePairs: [(season: FriendSeason, correct: FriendKind, wrong: FriendKind)] = [

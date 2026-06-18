@@ -533,12 +533,18 @@ final class GameViewModelTests: XCTestCase {
     func testWeatherRoundsHaveExplicitWeatherTargets() {
         let weatherRounds = GameContent.rounds.filter { $0.mode == .weather }
 
-        XCTAssertFalse(weatherRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(weatherRounds.count, FriendWeather.allCases.count * 3)
         XCTAssertEqual(Set(weatherRounds.compactMap(\.targetWeather)), Set(FriendWeather.allCases))
+        for weather in FriendWeather.allCases {
+            XCTAssertGreaterThanOrEqual(weatherRounds.filter { $0.targetWeather == weather }.count, 3)
+        }
         for round in weatherRounds {
-            XCTAssertNotNil(round.targetWeather)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            let weather = try! XCTUnwrap(round.targetWeather)
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetWeather!.speechTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(weather.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))
         }
     }
