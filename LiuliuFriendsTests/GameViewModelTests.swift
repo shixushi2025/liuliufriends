@@ -552,13 +552,19 @@ final class GameViewModelTests: XCTestCase {
     func testSeasonRoundsHaveExplicitSeasonTargets() {
         let seasonRounds = GameContent.rounds.filter { $0.mode == .season }
 
-        XCTAssertFalse(seasonRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(seasonRounds.count, FriendSeason.allCases.count * 3)
         XCTAssertEqual(Set(seasonRounds.compactMap(\.targetSeason)), Set(FriendSeason.allCases))
+        for season in FriendSeason.allCases {
+            XCTAssertGreaterThanOrEqual(seasonRounds.filter { $0.targetSeason == season }.count, 3)
+        }
         for round in seasonRounds {
-            XCTAssertNotNil(round.targetSeason)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            let season = try! XCTUnwrap(round.targetSeason)
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetSeason!.speechTitle))
-            XCTAssertTrue(round.successSpeechText.contains(round.targetSeason!.promptTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(season.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains(season.promptTitle))
         }
     }
 
