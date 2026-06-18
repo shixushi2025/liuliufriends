@@ -473,9 +473,15 @@ final class GameViewModelTests: XCTestCase {
     func testHabitRoundsHaveExplicitHabitTargets() {
         let habitRounds = GameContent.rounds.filter { $0.mode == .habit }
 
-        XCTAssertFalse(habitRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(habitRounds.count, FriendHabit.allCases.count * 2)
         XCTAssertEqual(Set(habitRounds.compactMap(\.targetHabit)), Set(FriendHabit.allCases))
+        for habit in FriendHabit.allCases {
+            XCTAssertGreaterThanOrEqual(habitRounds.filter { $0.targetHabit == habit }.count, 2)
+        }
         for round in habitRounds {
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertNotNil(round.targetHabit)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(round.targetHabit!.speechTitle))

@@ -442,7 +442,12 @@ enum GameContent {
         (.drinkWater, .cup, .socks),
         (.tidyToys, .blocks, .banana),
         (.readBook, .book, .car),
-        (.wearHat, .hat, .spoon)
+        (.wearHat, .hat, .spoon),
+        (.brushTeeth, .toothpaste, .ball),
+        (.drinkWater, .bottle, .crayon),
+        (.tidyToys, .puzzle, .corn),
+        (.readBook, .notebook, .truck),
+        (.wearHat, .hat, .coat)
     ]
 
     private static let scenePracticePairs: [(scene: FriendScene, correct: FriendKind, wrong: FriendKind)] = [
