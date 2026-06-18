@@ -614,12 +614,18 @@ final class GameViewModelTests: XCTestCase {
     func testTextureRoundsHaveExplicitTextureTargets() {
         let textureRounds = GameContent.rounds.filter { $0.mode == .texture }
 
-        XCTAssertFalse(textureRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(textureRounds.count, FriendTexture.allCases.count * 3)
         XCTAssertEqual(Set(textureRounds.compactMap(\.targetTexture)), Set(FriendTexture.allCases))
+        for texture in FriendTexture.allCases {
+            XCTAssertGreaterThanOrEqual(textureRounds.filter { $0.targetTexture == texture }.count, 3)
+        }
         for round in textureRounds {
-            XCTAssertNotNil(round.targetTexture)
+            let texture = try! XCTUnwrap(round.targetTexture)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetTexture!.speechTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(texture.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("摸起来"))
         }
     }

@@ -549,7 +549,11 @@ enum GameContent {
         (.smooth, .ball, .pineapple),
         (.smooth, .cup, .tree),
         (.rough, .pineapple, .ball),
-        (.rough, .tree, .cup)
+        (.rough, .tree, .cup),
+        (.soft, .towel, .kettle),
+        (.hard, .kettle, .balloon),
+        (.smooth, .plate, .broccoli),
+        (.rough, .broccoli, .plate)
     ]
 
     private static let temperaturePracticePairs: [(temperature: FriendTemperature, correct: FriendKind, wrong: FriendKind)] = [
