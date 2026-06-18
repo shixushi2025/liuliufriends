@@ -936,13 +936,20 @@ final class GameViewModelTests: XCTestCase {
     func testSequenceRoundsHaveExplicitSequenceTargets() {
         let sequenceRounds = GameContent.rounds.filter { $0.mode == .sequence }
 
-        XCTAssertFalse(sequenceRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(sequenceRounds.count, FriendSequence.allCases.count * 2)
         XCTAssertEqual(Set(sequenceRounds.compactMap(\.targetSequence)), Set(FriendSequence.allCases))
+        for sequence in FriendSequence.allCases {
+            XCTAssertGreaterThanOrEqual(sequenceRounds.filter { $0.targetSequence == sequence }.count, 2)
+        }
         for round in sequenceRounds {
-            XCTAssertNotNil(round.targetSequence)
+            let target = try! XCTUnwrap(round.targetSequence)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertEqual(correct.sequence, target)
+            XCTAssertNotEqual(wrong.sequence, target)
             XCTAssertTrue(round.candidates.allSatisfy { $0.sequence != nil })
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetSequence!.speechTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(target.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))
         }
     }
