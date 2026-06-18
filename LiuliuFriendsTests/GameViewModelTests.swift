@@ -793,7 +793,7 @@ final class GameViewModelTests: XCTestCase {
     func testAnimalBabyRoundsHaveExplicitBabyTargets() {
         let animalBabyRounds = GameContent.rounds.filter { $0.mode == .animalBaby }
 
-        XCTAssertFalse(animalBabyRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(animalBabyRounds.count, 10)
         XCTAssertEqual(Set(animalBabyRounds.compactMap(\.targetAnimalBaby)), Set(FriendAnimalBaby.allCases))
         for round in animalBabyRounds {
             let animalBaby = try! XCTUnwrap(round.targetAnimalBaby)

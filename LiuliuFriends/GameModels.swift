@@ -1690,6 +1690,10 @@ enum FriendAnimalBaby: String, CaseIterable {
     case cowCalf
     case sheepLamb
     case horseFoal
+    case rabbitKit
+    case pigPiglet
+    case frogTadpole
+    case elephantCalf
 
     var babyKind: FriendKind {
         switch self {
@@ -1705,6 +1709,14 @@ enum FriendAnimalBaby: String, CaseIterable {
             return .sheep
         case .horseFoal:
             return .horse
+        case .rabbitKit:
+            return .rabbit
+        case .pigPiglet:
+            return .pig
+        case .frogTadpole:
+            return .frog
+        case .elephantCalf:
+            return .elephant
         }
     }
 
@@ -1722,6 +1734,14 @@ enum FriendAnimalBaby: String, CaseIterable {
             return .dog
         case .horseFoal:
             return .cow
+        case .rabbitKit:
+            return .frog
+        case .pigPiglet:
+            return .rabbit
+        case .frogTadpole:
+            return .pig
+        case .elephantCalf:
+            return .horse
         }
     }
 
@@ -1739,6 +1759,14 @@ enum FriendAnimalBaby: String, CaseIterable {
             return "羊妈妈"
         case .horseFoal:
             return "马妈妈"
+        case .rabbitKit:
+            return "兔妈妈"
+        case .pigPiglet:
+            return "猪妈妈"
+        case .frogTadpole:
+            return "青蛙妈妈"
+        case .elephantCalf:
+            return "象妈妈"
         }
     }
 
