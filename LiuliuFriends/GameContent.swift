@@ -850,13 +850,16 @@ enum GameContent {
             difference(pair.category, sameKind: pair.same, differentKind: pair.different, correctFirst: !index.isMultiple(of: 2))
         }
 
-        result += positionPracticeKinds.enumerated().flatMap { index, kind in
-            let firstTarget = cardinalPositions[index % cardinalPositions.count]
-            let secondTarget = cardinalPositions[(index + 2) % cardinalPositions.count]
-            return [
-                position(kind, color(for: kind), targetPosition: firstTarget, distractorPosition: distractorPosition(for: firstTarget), correctFirst: index.isMultiple(of: 2)),
-                position(kind, color(for: kind), targetPosition: secondTarget, distractorPosition: distractorPosition(for: secondTarget), correctFirst: !index.isMultiple(of: 2))
-            ]
+        result += positionPracticeKinds.enumerated().flatMap { kindIndex, kind in
+            cardinalPositions.enumerated().map { positionIndex, targetPosition in
+                position(
+                    kind,
+                    color(for: kind),
+                    targetPosition: targetPosition,
+                    distractorPosition: distractorPosition(for: targetPosition),
+                    correctFirst: (kindIndex + positionIndex).isMultiple(of: 2)
+                )
+            }
         }
 
         result += insideOutsidePracticeKinds.enumerated().flatMap { index, kind in

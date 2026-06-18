@@ -371,11 +371,16 @@ final class GameViewModelTests: XCTestCase {
         let positionRounds = GameContent.rounds.filter { $0.mode == .position }
         let cardinalPositions: Set<SpatialPosition> = [.top, .bottom, .left, .right]
 
-        XCTAssertFalse(positionRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(positionRounds.count, 24)
         XCTAssertEqual(Set(positionRounds.map(\.targetPosition)), cardinalPositions)
+        for position in cardinalPositions {
+            XCTAssertGreaterThanOrEqual(positionRounds.filter { $0.targetPosition == position }.count, 6)
+        }
         for round in positionRounds {
             XCTAssertTrue(cardinalPositions.contains(round.targetPosition))
             XCTAssertTrue(round.candidates.allSatisfy { cardinalPositions.contains($0.position) })
+            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.position, round.targetPosition)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
         }
     }
 
