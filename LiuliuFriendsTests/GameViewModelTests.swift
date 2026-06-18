@@ -676,11 +676,16 @@ final class GameViewModelTests: XCTestCase {
     func testBrightnessRoundsHaveExplicitBrightnessTargets() {
         let brightnessRounds = GameContent.rounds.filter { $0.mode == .brightness }
 
-        XCTAssertFalse(brightnessRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(brightnessRounds.count, FriendBrightness.allCases.count * 3)
         XCTAssertEqual(Set(brightnessRounds.compactMap(\.targetBrightness)), Set(FriendBrightness.allCases))
+        for brightness in FriendBrightness.allCases {
+            XCTAssertGreaterThanOrEqual(brightnessRounds.filter { $0.targetBrightness == brightness }.count, 3)
+        }
         for round in brightnessRounds {
             let brightness = try! XCTUnwrap(round.targetBrightness)
-            XCTAssertNotEqual(round.candidates.first { $0.isCorrect }?.kind, round.candidates.first { !$0.isCorrect }?.kind)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(brightness.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains(brightness.promptTitle))

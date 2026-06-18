@@ -590,12 +590,16 @@ enum GameContent {
     private static let brightnessPracticePairs: [(brightness: FriendBrightness, correct: FriendKind, wrong: FriendKind)] = [
         (.bright, .sun, .moon),
         (.bright, .lamp, .cloud),
+        (.bright, .star, .book),
         (.dark, .moon, .sun),
         (.dark, .cloud, .lamp),
+        (.dark, .bed, .sun),
         (.shiny, .star, .book),
         (.shiny, .lamp, .turtle),
+        (.shiny, .bell, .cloud),
         (.dim, .moon, .sun),
-        (.dim, .cloud, .star)
+        (.dim, .cloud, .star),
+        (.dim, .lamp, .sun)
     ]
 
     private static let weightPracticePairs: [(weight: FriendWeight, correct: FriendKind, wrong: FriendKind)] = [
