@@ -1786,6 +1786,10 @@ enum FriendAnimalFood: String, CaseIterable {
     case duckCorn
     case beeFlower
     case horseCarrot
+    case cowCorn
+    case pigTomato
+    case birdCorn
+    case elephantApple
 
     var animalKind: FriendKind {
         switch self {
@@ -1801,6 +1805,14 @@ enum FriendAnimalFood: String, CaseIterable {
             return .bee
         case .horseCarrot:
             return .horse
+        case .cowCorn:
+            return .cow
+        case .pigTomato:
+            return .pig
+        case .birdCorn:
+            return .bird
+        case .elephantApple:
+            return .elephant
         }
     }
 
@@ -1816,6 +1828,14 @@ enum FriendAnimalFood: String, CaseIterable {
             return .corn
         case .beeFlower:
             return .flower
+        case .cowCorn:
+            return .corn
+        case .pigTomato:
+            return .tomato
+        case .birdCorn:
+            return .corn
+        case .elephantApple:
+            return .apple
         }
     }
 
@@ -1833,6 +1853,14 @@ enum FriendAnimalFood: String, CaseIterable {
             return .bread
         case .horseCarrot:
             return .cookie
+        case .cowCorn:
+            return .banana
+        case .pigTomato:
+            return .milk
+        case .birdCorn:
+            return .lemon
+        case .elephantApple:
+            return .bread
         }
     }
 
