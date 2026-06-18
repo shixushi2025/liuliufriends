@@ -413,7 +413,15 @@ enum GameContent {
         (.ride, .bus, .apple),
         (.eat, .banana, .car),
         (.play, .ball, .cup),
-        (.plant, .tree, .train)
+        (.plant, .tree, .train),
+        (.drink, .bottle, .kite),
+        (.read, .notebook, .spoon),
+        (.rain, .coat, .sun),
+        (.fly, .bird, .chair),
+        (.ride, .car, .bread),
+        (.eat, .strawberry, .pencil),
+        (.play, .blocks, .toothbrush),
+        (.plant, .flower, .airplane)
     ]
 
     private static let safetyPracticePairs: [(safety: FriendSafety, correct: FriendKind, wrong: FriendKind)] = [

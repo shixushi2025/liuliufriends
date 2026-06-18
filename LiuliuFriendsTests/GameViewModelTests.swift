@@ -441,9 +441,15 @@ final class GameViewModelTests: XCTestCase {
     func testPurposeRoundsHaveExplicitPurposeTargets() {
         let purposeRounds = GameContent.rounds.filter { $0.mode == .purpose }
 
-        XCTAssertFalse(purposeRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(purposeRounds.count, FriendPurpose.allCases.count * 2)
         XCTAssertEqual(Set(purposeRounds.compactMap(\.targetPurpose)), Set(FriendPurpose.allCases))
+        for purpose in FriendPurpose.allCases {
+            XCTAssertGreaterThanOrEqual(purposeRounds.filter { $0.targetPurpose == purpose }.count, 2)
+        }
         for round in purposeRounds {
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertNotNil(round.targetPurpose)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(round.targetPurpose!.speechTitle))
