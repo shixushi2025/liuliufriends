@@ -1471,6 +1471,10 @@ enum FriendPairing: String, CaseIterable {
     case firefighterFireTruck
     case chefBowl
     case farmerTractor
+    case pencilNotebook
+    case toothbrushToothpaste
+    case bucketBeach
+    case guitarMicrophone
 
     var cueKind: FriendKind {
         switch self {
@@ -1498,6 +1502,14 @@ enum FriendPairing: String, CaseIterable {
             return .chef
         case .farmerTractor:
             return .farmer
+        case .pencilNotebook:
+            return .pencil
+        case .toothbrushToothpaste:
+            return .toothbrush
+        case .bucketBeach:
+            return .bucket
+        case .guitarMicrophone:
+            return .guitar
         }
     }
 
@@ -1525,6 +1537,14 @@ enum FriendPairing: String, CaseIterable {
             return .bowl
         case .farmerTractor:
             return .tractor
+        case .pencilNotebook:
+            return .notebook
+        case .toothbrushToothpaste:
+            return .toothpaste
+        case .bucketBeach:
+            return .beach
+        case .guitarMicrophone:
+            return .microphone
         }
     }
 
@@ -1554,6 +1574,14 @@ enum FriendPairing: String, CaseIterable {
             return .train
         case .farmerTractor:
             return .soap
+        case .pencilNotebook:
+            return .ball
+        case .toothbrushToothpaste:
+            return .banana
+        case .bucketBeach:
+            return .book
+        case .guitarMicrophone:
+            return .carrot
         }
     }
 

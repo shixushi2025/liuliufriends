@@ -760,7 +760,7 @@ final class GameViewModelTests: XCTestCase {
     func testPairingRoundsHaveExplicitPairingTargets() {
         let pairingRounds = GameContent.rounds.filter { $0.mode == .pairing }
 
-        XCTAssertFalse(pairingRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(pairingRounds.count, 16)
         XCTAssertEqual(Set(pairingRounds.compactMap(\.targetPairing)), Set(FriendPairing.allCases))
         for round in pairingRounds {
             let pairing = try! XCTUnwrap(round.targetPairing)
