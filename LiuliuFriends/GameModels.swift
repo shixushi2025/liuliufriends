@@ -836,6 +836,10 @@ enum FriendSamePlace: String, CaseIterable {
     case gardenButterfly
     case roadBus
     case bedroomBook
+    case parkBall
+    case doctorAmbulance
+    case farmerTractor
+    case chefBowl
 
     var cueKind: FriendKind {
         switch self {
@@ -855,6 +859,14 @@ enum FriendSamePlace: String, CaseIterable {
             return .car
         case .bedroomBook:
             return .bed
+        case .parkBall:
+            return .park
+        case .doctorAmbulance:
+            return .doctor
+        case .farmerTractor:
+            return .farmer
+        case .chefBowl:
+            return .chef
         }
     }
 
@@ -876,6 +888,14 @@ enum FriendSamePlace: String, CaseIterable {
             return .bus
         case .bedroomBook:
             return .book
+        case .parkBall:
+            return .ball
+        case .doctorAmbulance:
+            return .ambulance
+        case .farmerTractor:
+            return .tractor
+        case .chefBowl:
+            return .bowl
         }
     }
 
@@ -897,6 +917,14 @@ enum FriendSamePlace: String, CaseIterable {
             return .banana
         case .bedroomBook:
             return .tractor
+        case .parkBall:
+            return .fork
+        case .doctorAmbulance:
+            return .cherry
+        case .farmerTractor:
+            return .piano
+        case .chefBowl:
+            return .rocket
         }
     }
 

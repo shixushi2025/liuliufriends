@@ -517,12 +517,15 @@ final class GameViewModelTests: XCTestCase {
     func testSamePlaceRoundsHaveExplicitSamePlaceTargets() {
         let samePlaceRounds = GameContent.rounds.filter { $0.mode == .samePlace }
 
-        XCTAssertFalse(samePlaceRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(samePlaceRounds.count, 12)
         XCTAssertEqual(Set(samePlaceRounds.compactMap(\.targetSamePlace)), Set(FriendSamePlace.allCases))
         for round in samePlaceRounds {
             let samePlace = try! XCTUnwrap(round.targetSamePlace)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
             XCTAssertEqual(round.targetKind, samePlace.answerKind)
-            XCTAssertEqual(round.candidates.first { $0.isCorrect }?.kind, samePlace.answerKind)
+            XCTAssertEqual(correct.kind, samePlace.answerKind)
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.candidates.contains { $0.kind == samePlace.distractorKind })
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(samePlace.speechTitle))
