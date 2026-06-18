@@ -575,12 +575,16 @@ enum GameContent {
     private static let temperaturePracticePairs: [(temperature: FriendTemperature, correct: FriendKind, wrong: FriendKind)] = [
         (.hot, .sun, .moon),
         (.hot, .kettle, .coat),
+        (.hot, .lamp, .cloud),
         (.warm, .coat, .watermelon),
         (.warm, .lamp, .umbrella),
+        (.warm, .hat, .lemon),
         (.cool, .umbrella, .sun),
         (.cool, .watermelon, .coat),
+        (.cool, .cloud, .kettle),
         (.cold, .moon, .sun),
-        (.cold, .cloud, .lamp)
+        (.cold, .cloud, .lamp),
+        (.cold, .milk, .sun)
     ]
 
     private static let brightnessPracticePairs: [(brightness: FriendBrightness, correct: FriendKind, wrong: FriendKind)] = [

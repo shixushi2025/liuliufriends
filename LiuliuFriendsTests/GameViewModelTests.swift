@@ -657,11 +657,16 @@ final class GameViewModelTests: XCTestCase {
     func testTemperatureRoundsHaveExplicitTemperatureTargets() {
         let temperatureRounds = GameContent.rounds.filter { $0.mode == .temperature }
 
-        XCTAssertFalse(temperatureRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(temperatureRounds.count, FriendTemperature.allCases.count * 3)
         XCTAssertEqual(Set(temperatureRounds.compactMap(\.targetTemperature)), Set(FriendTemperature.allCases))
+        for temperature in FriendTemperature.allCases {
+            XCTAssertGreaterThanOrEqual(temperatureRounds.filter { $0.targetTemperature == temperature }.count, 3)
+        }
         for round in temperatureRounds {
             let temperature = try! XCTUnwrap(round.targetTemperature)
-            XCTAssertNotEqual(round.candidates.first { $0.isCorrect }?.kind, round.candidates.first { !$0.isCorrect }?.kind)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(temperature.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains(temperature.promptTitle))
