@@ -876,13 +876,21 @@ final class GameViewModelTests: XCTestCase {
     func testOppositeRoundsHaveExplicitOppositeTargets() {
         let oppositeRounds = GameContent.rounds.filter { $0.mode == .opposite }
 
-        XCTAssertFalse(oppositeRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(oppositeRounds.count, FriendOpposite.allCases.count * 2)
         XCTAssertEqual(Set(oppositeRounds.compactMap(\.targetOpposite)), Set(FriendOpposite.allCases))
+        for opposite in FriendOpposite.allCases {
+            XCTAssertGreaterThanOrEqual(oppositeRounds.filter { $0.targetOpposite == opposite }.count, 2)
+        }
         for round in oppositeRounds {
-            XCTAssertNotNil(round.targetOpposite)
+            let target = try! XCTUnwrap(round.targetOpposite)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertEqual(correct.opposite, target)
+            XCTAssertNotEqual(wrong.opposite, target)
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.candidates.allSatisfy { $0.opposite != nil })
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetOpposite!.speechTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(target.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))
         }
     }

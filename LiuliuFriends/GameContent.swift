@@ -617,7 +617,13 @@ enum GameContent {
         (.hotCold, .dayNight, .umbrella, .sun),
         (.fullEmpty, .fastSlow, .cup, .bus),
         (.openClosed, .upDown, .book, .cloud),
-        (.fastSlow, .fullEmpty, .turtle, .cup)
+        (.fastSlow, .fullEmpty, .turtle, .cup),
+        (.dayNight, .openClosed, .star, .sun),
+        (.upDown, .dayNight, .ball, .balloon),
+        (.hotCold, .fastSlow, .coat, .kettle),
+        (.fullEmpty, .hotCold, .bottle, .watermelon),
+        (.openClosed, .fullEmpty, .schoolbag, .cup),
+        (.fastSlow, .upDown, .turtle, .airplane)
     ]
 
     private static let rhythmPracticePairs: [(target: FriendRhythm, distractor: FriendRhythm)] = [
