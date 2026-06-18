@@ -451,7 +451,13 @@ enum GameContent {
         (.road, .bus, .watermelon),
         (.home, .book, .airplane),
         (.garden, .flower, .truck),
-        (.rainyDay, .umbrella, .sun)
+        (.rainyDay, .umbrella, .sun),
+        (.sea, .boat, .chair),
+        (.sky, .airplane, .bowl),
+        (.road, .car, .fish),
+        (.home, .bed, .boat),
+        (.garden, .butterfly, .train),
+        (.rainyDay, .coat, .beach)
     ]
 
     private static let weatherPracticePairs: [(weather: FriendWeather, correct: FriendKind, wrong: FriendKind)] = [

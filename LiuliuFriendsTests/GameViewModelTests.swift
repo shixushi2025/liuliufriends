@@ -486,9 +486,15 @@ final class GameViewModelTests: XCTestCase {
     func testSceneRoundsHaveExplicitSceneTargets() {
         let sceneRounds = GameContent.rounds.filter { $0.mode == .scene }
 
-        XCTAssertFalse(sceneRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(sceneRounds.count, FriendScene.allCases.count * 2)
         XCTAssertEqual(Set(sceneRounds.compactMap(\.targetScene)), Set(FriendScene.allCases))
+        for scene in FriendScene.allCases {
+            XCTAssertGreaterThanOrEqual(sceneRounds.filter { $0.targetScene == scene }.count, 2)
+        }
         for round in sceneRounds {
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertNotNil(round.targetScene)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(round.targetScene!.speechTitle))
