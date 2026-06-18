@@ -729,12 +729,18 @@ final class GameViewModelTests: XCTestCase {
     func testTasteRoundsHaveExplicitTasteTargets() {
         let tasteRounds = GameContent.rounds.filter { $0.mode == .taste }
 
-        XCTAssertFalse(tasteRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(tasteRounds.count, FriendTaste.allCases.count * 3)
         XCTAssertEqual(Set(tasteRounds.compactMap(\.targetTaste)), Set(FriendTaste.allCases))
+        for taste in FriendTaste.allCases {
+            XCTAssertGreaterThanOrEqual(tasteRounds.filter { $0.targetTaste == taste }.count, 3)
+        }
         for round in tasteRounds {
-            XCTAssertNotNil(round.targetTaste)
+            let taste = try! XCTUnwrap(round.targetTaste)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetTaste!.speechTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(taste.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("尝起来"))
         }
     }

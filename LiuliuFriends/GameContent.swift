@@ -635,12 +635,16 @@ enum GameContent {
     private static let tastePracticePairs: [(taste: FriendTaste, correct: FriendKind, wrong: FriendKind)] = [
         (.sweet, .strawberry, .lemon),
         (.sweet, .cherry, .pear),
+        (.sweet, .apple, .cucumber),
         (.sour, .lemon, .banana),
         (.sour, .orange, .watermelon),
+        (.sour, .pineapple, .bread),
         (.juicy, .watermelon, .book),
         (.juicy, .orange, .ball),
+        (.juicy, .peach, .pencil),
         (.bland, .pear, .pineapple),
-        (.bland, .cup, .strawberry)
+        (.bland, .rice, .strawberry),
+        (.bland, .bread, .lemon)
     ]
 
     private static let oppositePracticePairs: [(target: FriendOpposite, distractor: FriendOpposite, correct: FriendKind, wrong: FriendKind)] = [
