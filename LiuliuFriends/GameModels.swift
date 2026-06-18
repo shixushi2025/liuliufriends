@@ -1573,6 +1573,10 @@ enum FriendAnimalHome: String, CaseIterable {
     case rabbitBurrow
     case cowFarm
     case frogPond
+    case turtleBeach
+    case duckPond
+    case lionGrassland
+    case monkeyTree
 
     var animalKind: FriendKind {
         switch self {
@@ -1588,6 +1592,14 @@ enum FriendAnimalHome: String, CaseIterable {
             return .cow
         case .frogPond:
             return .frog
+        case .turtleBeach:
+            return .turtle
+        case .duckPond:
+            return .duck
+        case .lionGrassland:
+            return .lion
+        case .monkeyTree:
+            return .monkey
         }
     }
 
@@ -1605,6 +1617,14 @@ enum FriendAnimalHome: String, CaseIterable {
             return .bee
         case .frogPond:
             return .cow
+        case .turtleBeach:
+            return .bird
+        case .duckPond:
+            return .rabbit
+        case .lionGrassland:
+            return .fish
+        case .monkeyTree:
+            return .turtle
         }
     }
 
@@ -1622,6 +1642,14 @@ enum FriendAnimalHome: String, CaseIterable {
             return "农场"
         case .frogPond:
             return "池塘"
+        case .turtleBeach:
+            return "沙滩"
+        case .duckPond:
+            return "池塘"
+        case .lionGrassland:
+            return "草原"
+        case .monkeyTree:
+            return "树上"
         }
     }
 
@@ -1643,6 +1671,14 @@ enum FriendAnimalHome: String, CaseIterable {
             return "house.fill"
         case .frogPond:
             return "water.waves"
+        case .turtleBeach:
+            return "beach.umbrella.fill"
+        case .duckPond:
+            return "water.waves"
+        case .lionGrassland:
+            return "leaf.fill"
+        case .monkeyTree:
+            return "tree.fill"
         }
     }
 }

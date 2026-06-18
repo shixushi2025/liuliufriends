@@ -776,7 +776,7 @@ final class GameViewModelTests: XCTestCase {
     func testAnimalHomeRoundsHaveExplicitHomeTargets() {
         let animalHomeRounds = GameContent.rounds.filter { $0.mode == .animalHome }
 
-        XCTAssertFalse(animalHomeRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(animalHomeRounds.count, 10)
         XCTAssertEqual(Set(animalHomeRounds.compactMap(\.targetAnimalHome)), Set(FriendAnimalHome.allCases))
         for round in animalHomeRounds {
             let animalHome = try! XCTUnwrap(round.targetAnimalHome)
