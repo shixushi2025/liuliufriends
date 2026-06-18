@@ -322,6 +322,20 @@ private struct PlayPanel: View {
                 .zIndex(3)
             }
 
+            if let feedbackBanner = viewModel.roundFeedbackBanner {
+                RoundFeedbackStatusBar(
+                    banner: feedbackBanner,
+                    color: viewModel.round.mode.accentColor,
+                    isCompact: metrics.isCompact
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, metrics.isCompact ? 8 : 14)
+                .padding(.horizontal, metrics.isCompact ? 12 : 22)
+                .allowsHitTesting(false)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(3)
+            }
+
             if viewModel.showsManualNextRoundControl {
                 ManualNextRoundButton(isCompact: metrics.isCompact) {
                     viewModel.nextRound()
@@ -455,6 +469,65 @@ private struct EncouragementPill: View {
                 .stroke(color.opacity(0.18), lineWidth: 1)
         )
         .shadow(color: color.opacity(0.12), radius: 12, y: 6)
+    }
+}
+
+private struct RoundFeedbackStatusBar: View {
+    let banner: RoundFeedbackBanner
+    let color: Color
+    let isCompact: Bool
+
+    var body: some View {
+        HStack(spacing: isCompact ? 7 : 10) {
+            Image(systemName: banner.systemName)
+                .font(.system(size: isCompact ? 14 : 17, weight: .black))
+                .foregroundStyle(iconColor)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(banner.title)
+                    .font(.system(size: isCompact ? 14 : 17, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.28, green: 0.23, blue: 0.18))
+                    .lineLimit(1)
+
+                Text(banner.message)
+                    .font(.system(size: isCompact ? 11 : 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color(red: 0.42, green: 0.36, blue: 0.30).opacity(0.86))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.70)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, isCompact ? 12 : 16)
+        .padding(.vertical, isCompact ? 8 : 11)
+        .background(.white.opacity(0.90), in: Capsule())
+        .overlay(
+            Capsule()
+                .stroke(borderColor.opacity(0.24), lineWidth: 1)
+        )
+        .shadow(color: borderColor.opacity(0.14), radius: 14, y: 7)
+        .frame(maxWidth: isCompact ? 280 : 360)
+        .accessibilityElement(children: .combine)
+    }
+
+    private var iconColor: Color {
+        switch banner.kind {
+        case .success:
+            return Color(red: 0.20, green: 0.68, blue: 0.38)
+        case .hint:
+            return Color(red: 1.0, green: 0.66, blue: 0.18)
+        case .retry:
+            return Color(red: 0.96, green: 0.36, blue: 0.32)
+        }
+    }
+
+    private var borderColor: Color {
+        switch banner.kind {
+        case .success, .hint:
+            return color
+        case .retry:
+            return iconColor
+        }
     }
 }
 

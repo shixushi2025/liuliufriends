@@ -1082,6 +1082,27 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(feedback.retryCount, 1)
     }
 
+    func testRoundFeedbackBannerReflectsRetryHintAndSuccess() async throws {
+        let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
+        let wrong = viewModel.round.candidates.first { !$0.isCorrect }!
+        let correct = viewModel.round.candidates.first { $0.isCorrect }!
+
+        XCTAssertNil(viewModel.roundFeedbackBanner)
+
+        XCTAssertEqual(viewModel.choose(wrong), .retry)
+        XCTAssertEqual(viewModel.roundFeedbackBanner?.kind, .retry)
+        XCTAssertEqual(viewModel.roundFeedbackBanner?.title, "再试试")
+
+        try await Task.sleep(nanoseconds: 520_000_000)
+        XCTAssertEqual(viewModel.roundFeedbackBanner?.kind, .hint)
+        XCTAssertEqual(viewModel.roundFeedbackBanner?.title, "看这里")
+
+        try await Task.sleep(nanoseconds: 360_000_000)
+        XCTAssertEqual(viewModel.choose(correct), .correct)
+        XCTAssertEqual(viewModel.roundFeedbackBanner?.kind, .success)
+        XCTAssertEqual(viewModel.roundFeedbackBanner?.title, "找到了")
+    }
+
     func testSelectionIsIgnoredWhileWrongFeedbackIsVisible() {
         let viewModel = GameViewModel(feedbackPlayer: TestFeedbackPlayer())
         let wrong = viewModel.round.candidates.first { !$0.isCorrect }!

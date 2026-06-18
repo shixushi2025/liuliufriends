@@ -3949,6 +3949,19 @@ enum SelectionResult: Equatable {
     case ignored
 }
 
+struct RoundFeedbackBanner: Equatable {
+    enum Kind: Equatable {
+        case success
+        case hint
+        case retry
+    }
+
+    let kind: Kind
+    let title: String
+    let message: String
+    let systemName: String
+}
+
 enum BreakReminder: Equatable {
     case sessionLimit
     case dailyLimit

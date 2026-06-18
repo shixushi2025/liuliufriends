@@ -88,6 +88,37 @@ final class GameViewModel: ObservableObject {
         return "连续找到 \(consecutiveCorrectRounds) 个"
     }
 
+    var roundFeedbackBanner: RoundFeedbackBanner? {
+        if completedCandidateID != nil {
+            return RoundFeedbackBanner(
+                kind: .success,
+                title: "找到了",
+                message: successSpeechText(for: round),
+                systemName: "checkmark.circle.fill"
+            )
+        }
+
+        if hintCandidateID != nil {
+            return RoundFeedbackBanner(
+                kind: .hint,
+                title: "看这里",
+                message: "发光的卡片在提醒答案",
+                systemName: "sparkles"
+            )
+        }
+
+        if wrongCandidateID != nil {
+            return RoundFeedbackBanner(
+                kind: .retry,
+                title: "再试试",
+                message: "慢慢看，六六陪你找",
+                systemName: "arrow.counterclockwise.circle.fill"
+            )
+        }
+
+        return nil
+    }
+
     init(
         rounds: [GameRound] = GameContent.sessionRounds(),
         voiceStore: VoicePromptStore = .shared,
