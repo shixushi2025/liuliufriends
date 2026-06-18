@@ -486,6 +486,19 @@ enum GameContent {
         (.surprised, .sleepy)
     ]
 
+    private static let sensePracticePairs: [(sense: FriendSense, correct: FriendKind, wrong: FriendKind)] = [
+        (.see, .eye, .ear),
+        (.see, .eye, .hand),
+        (.hear, .ear, .eye),
+        (.hear, .ear, .mouth),
+        (.smell, .nose, .foot),
+        (.smell, .nose, .hand),
+        (.taste, .mouth, .ear),
+        (.taste, .mouth, .foot),
+        (.touch, .hand, .nose),
+        (.touch, .hand, .eye)
+    ]
+
     private static let actionPracticePairs: [(action: FriendAction, correct: FriendKind, wrong: FriendKind)] = [
         (.fly, .bird, .fish),
         (.fly, .airplane, .cup),
@@ -809,6 +822,10 @@ enum GameContent {
 
         result += emotionPracticePairs.enumerated().map { index, pair in
             emotion(pair.target, distractor: pair.distractor, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += sensePracticePairs.enumerated().map { index, pair in
+            sense(pair.sense, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
         result += actionPracticePairs.enumerated().map { index, pair in
@@ -1268,6 +1285,23 @@ enum GameContent {
             targetKind: .cat,
             targetColor: .coral,
             targetEmotion: target,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func sense(
+        _ sense: FriendSense,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .sense,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetSense: sense,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }

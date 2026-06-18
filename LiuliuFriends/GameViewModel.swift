@@ -564,6 +564,8 @@ final class GameViewModel: ObservableObject {
             return "找\(round.targetRoutine?.speechTitle ?? displayName(for: round.targetKind))"
         case .emotion:
             return "找\(round.targetEmotion?.speechTitle ?? displayName(for: round.targetKind))"
+        case .sense:
+            return "找\(round.targetSense?.speechTitle ?? displayName(for: round.targetKind))"
         case .action:
             return "找\(round.targetAction?.speechTitle ?? displayName(for: round.targetKind))"
         case .texture:
@@ -671,6 +673,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))，\(round.targetSeason?.promptTitle ?? "找到了")"
         case .emotion:
             return "\(round.targetEmotion?.promptTitle ?? displayName(for: round.targetKind))，找到了"
+        case .sense:
+            return "\(displayName(for: round.targetKind))，\(round.targetSense?.promptTitle ?? "找到了")"
         case .texture:
             return "\(displayName(for: round.targetKind))，摸起来\(round.targetTexture?.promptTitle ?? "找到了")"
         case .temperature:
