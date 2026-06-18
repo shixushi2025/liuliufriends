@@ -292,6 +292,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.texture.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.temperature.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.brightness.ageBand, .matcher30Months)
+        XCTAssertEqual(GameMode.weight.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.material.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.taste.ageBand, .matcher30Months)
         XCTAssertEqual(GameMode.pairing.ageBand, .matcher30Months)
@@ -326,7 +327,7 @@ final class GameViewModelTests: XCTestCase {
 
         XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
         XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .vehicle, .fruit, .sound, .color, .shape, .body, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession])
-        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .action, .texture, .temperature, .brightness, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite])
+        XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .action, .texture, .temperature, .brightness, .weight, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite])
         XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .distance, .difference])
         XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern])
     }
@@ -609,6 +610,20 @@ final class GameViewModelTests: XCTestCase {
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
             XCTAssertTrue(round.promptSpeechText.contains(brightness.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains(brightness.promptTitle))
+        }
+    }
+
+    func testWeightRoundsHaveExplicitWeightTargets() {
+        let weightRounds = GameContent.rounds.filter { $0.mode == .weight }
+
+        XCTAssertFalse(weightRounds.isEmpty)
+        XCTAssertEqual(Set(weightRounds.compactMap(\.targetWeight)), Set(FriendWeight.allCases))
+        for round in weightRounds {
+            let weight = try! XCTUnwrap(round.targetWeight)
+            XCTAssertNotEqual(round.candidates.first { $0.isCorrect }?.kind, round.candidates.first { !$0.isCorrect }?.kind)
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.promptSpeechText.contains(weight.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains(weight.promptTitle))
         }
     }
 

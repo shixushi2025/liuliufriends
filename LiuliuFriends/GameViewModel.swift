@@ -541,6 +541,8 @@ final class GameViewModel: ObservableObject {
             return "找\(round.targetTemperature?.speechTitle ?? displayName(for: round.targetKind))"
         case .brightness:
             return "找\(round.targetBrightness?.speechTitle ?? displayName(for: round.targetKind))"
+        case .weight:
+            return "找\(round.targetWeight?.speechTitle ?? displayName(for: round.targetKind))"
         case .material:
             return "找\(round.targetMaterial?.speechTitle ?? displayName(for: round.targetKind))"
         case .taste:
@@ -644,6 +646,8 @@ final class GameViewModel: ObservableObject {
             return "\(displayName(for: round.targetKind))，\(round.targetTemperature?.promptTitle ?? "找到了")"
         case .brightness:
             return "\(displayName(for: round.targetKind))，\(round.targetBrightness?.promptTitle ?? "找到了")"
+        case .weight:
+            return "\(displayName(for: round.targetKind))，\(round.targetWeight?.promptTitle ?? "找到了")"
         case .material:
             return "\(displayName(for: round.targetKind))，是\(round.targetMaterial?.promptTitle ?? "找到了")"
         case .taste:

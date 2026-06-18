@@ -530,6 +530,17 @@ enum GameContent {
         (.dim, .cloud, .star)
     ]
 
+    private static let weightPracticePairs: [(weight: FriendWeight, correct: FriendKind, wrong: FriendKind)] = [
+        (.heavy, .elephant, .balloon),
+        (.heavy, .truck, .butterfly),
+        (.heavy, .watermelon, .cloud),
+        (.heavy, .kettle, .kite),
+        (.light, .balloon, .elephant),
+        (.light, .butterfly, .truck),
+        (.light, .cloud, .watermelon),
+        (.light, .kite, .kettle)
+    ]
+
     private static let materialPracticePairs: [(material: FriendMaterial, correct: FriendKind, wrong: FriendKind)] = [
         (.wood, .chair, .spoon),
         (.wood, .table, .cup),
@@ -814,6 +825,10 @@ enum GameContent {
 
         result += brightnessPracticePairs.enumerated().map { index, pair in
             brightness(pair.brightness, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += weightPracticePairs.enumerated().map { index, pair in
+            weight(pair.weight, correctKind: pair.correct, wrongKind: pair.wrong, correctFirst: !index.isMultiple(of: 2))
         }
 
         result += materialPracticePairs.enumerated().map { index, pair in
@@ -1338,6 +1353,23 @@ enum GameContent {
             targetKind: correctKind,
             targetColor: color(for: correctKind),
             targetBrightness: brightness,
+            candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
+        )
+    }
+
+    private static func weight(
+        _ weight: FriendWeight,
+        correctKind: FriendKind,
+        wrongKind: FriendKind,
+        correctFirst: Bool
+    ) -> GameRound {
+        let correct = FriendCandidate(kind: correctKind, color: color(for: correctKind), isCorrect: true)
+        let wrong = FriendCandidate(kind: wrongKind, color: color(for: wrongKind), isCorrect: false)
+        return GameRound(
+            mode: .weight,
+            targetKind: correctKind,
+            targetColor: color(for: correctKind),
+            targetWeight: weight,
             candidates: ordered(correct: correct, wrong: wrong, correctFirst: correctFirst)
         )
     }
