@@ -598,14 +598,21 @@ final class GameViewModelTests: XCTestCase {
     func testEmotionRoundsHaveExplicitEmotionTargets() {
         let emotionRounds = GameContent.rounds.filter { $0.mode == .emotion }
 
-        XCTAssertFalse(emotionRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(emotionRounds.count, FriendEmotion.allCases.count * 3)
         XCTAssertGreaterThanOrEqual(FriendEmotion.allCases.count, 6)
         XCTAssertEqual(Set(emotionRounds.compactMap(\.targetEmotion)), Set(FriendEmotion.allCases))
+        for emotion in FriendEmotion.allCases {
+            XCTAssertGreaterThanOrEqual(emotionRounds.filter { $0.targetEmotion == emotion }.count, 3)
+        }
         for round in emotionRounds {
-            XCTAssertNotNil(round.targetEmotion)
+            let target = try! XCTUnwrap(round.targetEmotion)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            XCTAssertEqual(correct.emotion, target)
+            XCTAssertNotEqual(wrong.emotion, target)
             XCTAssertTrue(round.candidates.allSatisfy { $0.emotion != nil })
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetEmotion!.speechTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(target.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))
         }
     }

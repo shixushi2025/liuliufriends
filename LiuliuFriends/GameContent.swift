@@ -532,7 +532,13 @@ enum GameContent {
         (.surprised, .calm),
         (.sleepy, .happy),
         (.curious, .encouraged),
-        (.surprised, .sleepy)
+        (.surprised, .sleepy),
+        (.happy, .sleepy),
+        (.calm, .surprised),
+        (.encouraged, .curious),
+        (.sleepy, .calm),
+        (.curious, .happy),
+        (.surprised, .encouraged)
     ]
 
     private static let sensePracticePairs: [(sense: FriendSense, correct: FriendKind, wrong: FriendKind)] = [
