@@ -307,7 +307,15 @@ enum GameContent {
         (.flower, .more, 4, 1),
         (.book, .fewer, 1, 4),
         (.car, .more, 3, 2),
-        (.cup, .fewer, 2, 3)
+        (.cup, .fewer, 2, 3),
+        (.rabbit, .more, 4, 2),
+        (.duck, .fewer, 1, 3),
+        (.orange, .more, 3, 1),
+        (.strawberry, .fewer, 2, 4),
+        (.blocks, .more, 4, 3),
+        (.spoon, .fewer, 1, 2),
+        (.star, .more, 3, 2),
+        (.balloon, .fewer, 2, 4)
     ]
 
     private static let categoryPracticeGroups: [FriendCategory: [FriendKind]] = [

@@ -673,13 +673,18 @@ final class GameViewModelTests: XCTestCase {
     func testQuantityCompareRoundsCompareMoreAndFewer() {
         let compareRounds = GameContent.rounds.filter { $0.mode == .quantityCompare }
 
-        XCTAssertFalse(compareRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(compareRounds.count, 16)
         XCTAssertEqual(Set(compareRounds.compactMap(\.targetQuantityCompare)), Set(FriendQuantityCompare.allCases))
         for round in compareRounds {
             let target = try! XCTUnwrap(round.targetQuantityCompare)
-            let correctCount = try! XCTUnwrap(round.candidates.first { $0.isCorrect }?.count)
-            let wrongCount = try! XCTUnwrap(round.candidates.first { !$0.isCorrect }?.count)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            let correctCount = correct.count
+            let wrongCount = wrong.count
 
+            XCTAssertEqual(correct.kind, wrong.kind)
+            XCTAssertTrue((1...4).contains(correctCount))
+            XCTAssertTrue((1...4).contains(wrongCount))
             switch target {
             case .more:
                 XCTAssertGreaterThan(correctCount, wrongCount)
