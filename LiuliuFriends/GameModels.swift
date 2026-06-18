@@ -664,6 +664,8 @@ enum FriendPurpose: String, CaseIterable {
 enum FriendSafety: String, CaseIterable {
     case safeToTouch
     case askGrownup
+    case helper
+    case protectBody
 
     var promptTitle: String {
         switch self {
@@ -671,6 +673,10 @@ enum FriendSafety: String, CaseIterable {
             return "可以碰"
         case .askGrownup:
             return "找大人"
+        case .helper:
+            return "会帮忙"
+        case .protectBody:
+            return "保护身体"
         }
     }
 
@@ -680,6 +686,10 @@ enum FriendSafety: String, CaseIterable {
             return "可以碰的"
         case .askGrownup:
             return "要找大人的"
+        case .helper:
+            return "会帮忙的"
+        case .protectBody:
+            return "保护身体的"
         }
     }
 
@@ -689,6 +699,10 @@ enum FriendSafety: String, CaseIterable {
             return "hand.tap.fill"
         case .askGrownup:
             return "exclamationmark.triangle.fill"
+        case .helper:
+            return "person.2.fill"
+        case .protectBody:
+            return "shield.fill"
         }
     }
 }

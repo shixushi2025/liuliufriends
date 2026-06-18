@@ -460,13 +460,19 @@ final class GameViewModelTests: XCTestCase {
     func testSafetyRoundsHaveExplicitSafetyTargets() {
         let safetyRounds = GameContent.rounds.filter { $0.mode == .safety }
 
-        XCTAssertFalse(safetyRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(safetyRounds.count, FriendSafety.allCases.count * 3)
         XCTAssertEqual(Set(safetyRounds.compactMap(\.targetSafety)), Set(FriendSafety.allCases))
+        for safety in FriendSafety.allCases {
+            XCTAssertGreaterThanOrEqual(safetyRounds.filter { $0.targetSafety == safety }.count, 3)
+        }
         for round in safetyRounds {
-            XCTAssertNotNil(round.targetSafety)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            let safety = try! XCTUnwrap(round.targetSafety)
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetSafety!.speechTitle))
-            XCTAssertTrue(round.successSpeechText.contains(round.targetSafety!.promptTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(safety.speechTitle))
+            XCTAssertTrue(round.successSpeechText.contains(safety.promptTitle))
         }
     }
 

@@ -428,11 +428,15 @@ enum GameContent {
         (.safeToTouch, .ball, .knife),
         (.safeToTouch, .book, .kettle),
         (.safeToTouch, .blocks, .scissors),
-        (.safeToTouch, .doll, .socket),
         (.askGrownup, .knife, .ball),
         (.askGrownup, .kettle, .book),
-        (.askGrownup, .scissors, .blocks),
-        (.askGrownup, .socket, .doll)
+        (.askGrownup, .socket, .doll),
+        (.helper, .doctor, .ball),
+        (.helper, .policeOfficer, .banana),
+        (.helper, .firefighter, .book),
+        (.protectBody, .hat, .socket),
+        (.protectBody, .shoes, .knife),
+        (.protectBody, .coat, .scissors)
     ]
 
     private static let habitPracticePairs: [(habit: FriendHabit, correct: FriendKind, wrong: FriendKind)] = [
