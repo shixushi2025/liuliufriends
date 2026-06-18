@@ -756,6 +756,14 @@ struct FriendShape: View {
                 ShapeSymbol(kind: .oval, color: color, isShadow: isShadow)
             case .diamond:
                 ShapeSymbol(kind: .diamond, color: color, isShadow: isShadow)
+            case .pentagon:
+                ShapeSymbol(kind: .pentagon, color: color, isShadow: isShadow)
+            case .hexagon:
+                ShapeSymbol(kind: .hexagon, color: color, isShadow: isShadow)
+            case .semicircle:
+                ShapeSymbol(kind: .semicircle, color: color, isShadow: isShadow)
+            case .cross:
+                ShapeSymbol(kind: .cross, color: color, isShadow: isShadow)
             case .moon:
                 SymbolFriendShape(kind: kind, color: color, isShadow: isShadow)
             default:
@@ -1011,6 +1019,10 @@ private enum ShapeSymbolKind {
     case rectangle
     case oval
     case diamond
+    case pentagon
+    case hexagon
+    case semicircle
+    case cross
 }
 
 private struct ShapeSymbol: View {
@@ -1043,6 +1055,18 @@ private struct ShapeSymbol: View {
                     Rectangle()
                         .rotationEffect(.degrees(45))
                         .frame(width: length * 0.62, height: length * 0.62)
+                case .pentagon:
+                    RegularPolygon(sides: 5)
+                        .frame(width: length * 0.90, height: length * 0.90)
+                case .hexagon:
+                    RegularPolygon(sides: 6)
+                        .frame(width: length * 0.94, height: length * 0.82)
+                case .semicircle:
+                    SemiCircle()
+                        .frame(width: length * 0.98, height: length * 0.72)
+                case .cross:
+                    CrossShape()
+                        .frame(width: length * 0.88, height: length * 0.88)
                 }
             }
             .foregroundStyle(color)
@@ -1115,11 +1139,61 @@ private struct Triangle: Shape {
     }
 }
 
+private struct RegularPolygon: Shape {
+    let sides: Int
+
+    func path(in rect: CGRect) -> Path {
+        let sides = max(sides, 3)
+        let radius = min(rect.width, rect.height) / 2
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        var path = Path()
+
+        for index in 0..<sides {
+            let angle = (Double(index) / Double(sides)) * 2 * .pi - .pi / 2
+            let point = CGPoint(
+                x: center.x + CGFloat(cos(angle)) * radius,
+                y: center.y + CGFloat(sin(angle)) * radius
+            )
+            if index == 0 {
+                path.move(to: point)
+            } else {
+                path.addLine(to: point)
+            }
+        }
+        path.closeSubpath()
+        return path
+    }
+}
+
 private struct SemiCircle: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
         path.addQuadCurve(to: CGPoint(x: rect.maxX, y: rect.maxY), control: CGPoint(x: rect.midX, y: rect.minY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+private struct CrossShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let arm = min(rect.width, rect.height) * 0.30
+        let horizontalInset = (rect.width - arm) / 2
+        let verticalInset = (rect.height - arm) / 2
+        var path = Path()
+
+        path.move(to: CGPoint(x: horizontalInset, y: rect.minY))
+        path.addLine(to: CGPoint(x: horizontalInset + arm, y: rect.minY))
+        path.addLine(to: CGPoint(x: horizontalInset + arm, y: verticalInset))
+        path.addLine(to: CGPoint(x: rect.maxX, y: verticalInset))
+        path.addLine(to: CGPoint(x: rect.maxX, y: verticalInset + arm))
+        path.addLine(to: CGPoint(x: horizontalInset + arm, y: verticalInset + arm))
+        path.addLine(to: CGPoint(x: horizontalInset + arm, y: rect.maxY))
+        path.addLine(to: CGPoint(x: horizontalInset, y: rect.maxY))
+        path.addLine(to: CGPoint(x: horizontalInset, y: verticalInset + arm))
+        path.addLine(to: CGPoint(x: rect.minX, y: verticalInset + arm))
+        path.addLine(to: CGPoint(x: rect.minX, y: verticalInset))
+        path.addLine(to: CGPoint(x: horizontalInset, y: verticalInset))
         path.closeSubpath()
         return path
     }

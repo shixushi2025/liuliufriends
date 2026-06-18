@@ -56,7 +56,11 @@ enum GameContent {
         .heart,
         .rectangle,
         .oval,
-        .diamond
+        .diamond,
+        .pentagon,
+        .hexagon,
+        .semicircle,
+        .cross
     ]
 
     private static let baseColors: [FriendKind: Color] = [

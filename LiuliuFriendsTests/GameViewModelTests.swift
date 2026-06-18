@@ -800,8 +800,10 @@ final class GameViewModelTests: XCTestCase {
 
     func testShapeRoundsUseSingleNeutralPracticeColor() {
         let shapeRounds = GameContent.rounds.filter { $0.mode == .shape }
+        let shapeKinds = Set(FriendKind.allCases.filter { $0.category == .shape })
 
-        XCTAssertGreaterThanOrEqual(shapeRounds.count, 8)
+        XCTAssertGreaterThanOrEqual(shapeRounds.count, 12)
+        XCTAssertEqual(Set(shapeRounds.map(\.targetKind)), shapeKinds)
         XCTAssertEqual(Set(shapeRounds.map(\.targetKind.category)), [.shape])
         for round in shapeRounds {
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
@@ -815,8 +817,10 @@ final class GameViewModelTests: XCTestCase {
 
     func testColorShapeRoundsCombineTwoAttributes() {
         let colorShapeRounds = GameContent.rounds.filter { $0.mode == .colorShape }
+        let shapeKinds = Set(FriendKind.allCases.filter { $0.category == .shape })
 
-        XCTAssertGreaterThanOrEqual(colorShapeRounds.count, 8)
+        XCTAssertGreaterThanOrEqual(colorShapeRounds.count, 12)
+        XCTAssertEqual(Set(colorShapeRounds.map(\.targetKind)), shapeKinds)
         XCTAssertEqual(Set(colorShapeRounds.map(\.targetKind.category)), [.shape])
         for round in colorShapeRounds {
             let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
