@@ -503,9 +503,13 @@ enum GameContent {
         (.morning, .sun, .moon),
         (.morning, .sun, .book),
         (.drinkWater, .cup, .ball),
+        (.drinkWater, .bottle, .pencil),
         (.reading, .book, .banana),
+        (.reading, .notebook, .car),
         (.playing, .ball, .cup),
+        (.playing, .blocks, .toothbrush),
         (.goingOut, .car, .flower),
+        (.goingOut, .shoes, .bed),
         (.bedtime, .moon, .sun),
         (.bedtime, .moon, .bus)
     ]

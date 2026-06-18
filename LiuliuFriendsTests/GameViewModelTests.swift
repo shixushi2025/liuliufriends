@@ -571,12 +571,18 @@ final class GameViewModelTests: XCTestCase {
     func testRoutineRoundsHaveExplicitRoutineTargets() {
         let routineRounds = GameContent.rounds.filter { $0.mode == .routine }
 
-        XCTAssertFalse(routineRounds.isEmpty)
+        XCTAssertGreaterThanOrEqual(routineRounds.count, FriendRoutine.allCases.count * 2)
         XCTAssertEqual(Set(routineRounds.compactMap(\.targetRoutine)), Set(FriendRoutine.allCases))
+        for routine in FriendRoutine.allCases {
+            XCTAssertGreaterThanOrEqual(routineRounds.filter { $0.targetRoutine == routine }.count, 2)
+        }
         for round in routineRounds {
-            XCTAssertNotNil(round.targetRoutine)
+            let correct = try! XCTUnwrap(round.candidates.first { $0.isCorrect })
+            let wrong = try! XCTUnwrap(round.candidates.first { !$0.isCorrect })
+            let routine = try! XCTUnwrap(round.targetRoutine)
+            XCTAssertNotEqual(correct.kind, wrong.kind)
             XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
-            XCTAssertTrue(round.promptSpeechText.contains(round.targetRoutine!.speechTitle))
+            XCTAssertTrue(round.promptSpeechText.contains(routine.speechTitle))
             XCTAssertTrue(round.successSpeechText.contains("找到了"))
         }
     }
