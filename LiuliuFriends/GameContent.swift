@@ -710,11 +710,13 @@ enum GameContent {
 
     private static let sequencePracticePairs: [(target: FriendSequence, distractor: FriendSequence)] = [
         (.first, .second),
-        (.second, .last),
+        (.second, .third),
+        (.third, .last),
         (.last, .first),
         (.first, .last),
         (.second, .first),
-        (.last, .second)
+        (.third, .second),
+        (.last, .third)
     ]
 
     private static func makeRounds() -> [GameRound] {

@@ -1040,6 +1040,7 @@ final class GameViewModelTests: XCTestCase {
         let sequenceRounds = GameContent.rounds.filter { $0.mode == .sequence }
 
         XCTAssertGreaterThanOrEqual(sequenceRounds.count, FriendSequence.allCases.count * 2)
+        XCTAssertTrue(Set(FriendSequence.allCases).contains(.third))
         XCTAssertEqual(Set(sequenceRounds.compactMap(\.targetSequence)), Set(FriendSequence.allCases))
         for sequence in FriendSequence.allCases {
             XCTAssertGreaterThanOrEqual(sequenceRounds.filter { $0.targetSequence == sequence }.count, 2)

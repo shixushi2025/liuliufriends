@@ -2400,6 +2400,7 @@ enum FriendRhythm: String, CaseIterable {
 enum FriendSequence: String, CaseIterable {
     case first
     case second
+    case third
     case last
 
     var promptTitle: String {
@@ -2408,6 +2409,8 @@ enum FriendSequence: String, CaseIterable {
             return "第一个"
         case .second:
             return "第二个"
+        case .third:
+            return "第三个"
         case .last:
             return "最后一个"
         }
@@ -2419,6 +2422,8 @@ enum FriendSequence: String, CaseIterable {
             return "第一个"
         case .second:
             return "第二个"
+        case .third:
+            return "第三个"
         case .last:
             return "最后一个"
         }
@@ -2430,6 +2435,8 @@ enum FriendSequence: String, CaseIterable {
             return "1.circle.fill"
         case .second:
             return "2.circle.fill"
+        case .third:
+            return "3.circle.fill"
         case .last:
             return "3.circle.fill"
         }
@@ -2441,7 +2448,7 @@ enum FriendSequence: String, CaseIterable {
             return 0
         case .second:
             return 1
-        case .last:
+        case .third, .last:
             return 2
         }
     }
