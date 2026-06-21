@@ -2913,7 +2913,9 @@ struct VoicePromptTarget: Identifiable, Equatable {
             VoicePromptTarget(id: "color.orange", name: "橙色", group: .color, kind: nil, color: Color(red: 1.0, green: 0.60, blue: 0.02)),
             VoicePromptTarget(id: "color.brown", name: "棕色", group: .color, kind: nil, color: Color(red: 0.70, green: 0.48, blue: 0.30)),
             VoicePromptTarget(id: "color.aqua", name: "蓝绿色", group: .color, kind: nil, color: Color(red: 0.20, green: 0.72, blue: 0.78)),
-            VoicePromptTarget(id: "color.gray", name: "灰色", group: .color, kind: nil, color: Color(red: 0.72, green: 0.75, blue: 0.78))
+            VoicePromptTarget(id: "color.gray", name: "灰色", group: .color, kind: nil, color: Color(red: 0.72, green: 0.75, blue: 0.78)),
+            VoicePromptTarget(id: "color.black", name: "黑色", group: .color, kind: nil, color: Color(red: 0.16, green: 0.15, blue: 0.14)),
+            VoicePromptTarget(id: "color.white", name: "白色", group: .color, kind: nil, color: Color(red: 0.96, green: 0.94, blue: 0.90))
         ]
     }
 }

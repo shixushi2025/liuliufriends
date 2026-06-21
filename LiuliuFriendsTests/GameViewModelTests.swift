@@ -37,6 +37,8 @@ final class GameViewModelTests: XCTestCase {
         let colorRounds = GameContent.rounds.filter { $0.mode == .color }
         let colorPromptIDs = colorRounds.map(\.voicePromptID)
 
+        XCTAssertGreaterThanOrEqual(VoicePromptTarget.colorTargets.count, 12)
+        XCTAssertTrue(Set(VoicePromptTarget.colorTargets.map(\.id)).isSuperset(of: ["color.black", "color.white"]))
         XCTAssertEqual(colorRounds.count, VoicePromptTarget.colorTargets.count)
         XCTAssertEqual(Set(colorPromptIDs), Set(VoicePromptTarget.colorTargets.map(\.id)))
         XCTAssertEqual(Set(colorPromptIDs).count, colorPromptIDs.count)
