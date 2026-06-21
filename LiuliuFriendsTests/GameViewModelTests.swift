@@ -1102,6 +1102,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .samePlace), 5)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .pairing), 5)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .opposite), 5)
+        XCTAssertEqual(GameContent.sessionRoundLimit(for: .object), 7)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .count), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .quantityCompare), 4)
         XCTAssertEqual(GameContent.sessionRoundLimit(for: .colorShape), 4)
@@ -1111,9 +1112,9 @@ final class GameViewModelTests: XCTestCase {
     }
 
     func testSessionStartsWithBasicWarmupModes() {
-        let warmupModes = GameContent.sessionRounds().prefix(6).map(\.mode)
+        let warmupModes = GameContent.sessionRounds().prefix(7).map(\.mode)
 
-        XCTAssertEqual(Array(warmupModes), [.animal, .vehicle, .fruit, .sound, .color, .shape])
+        XCTAssertEqual(Array(warmupModes), [.animal, .vehicle, .fruit, .sound, .color, .shape, .object])
     }
 
     func testAdaptiveWarmupKeepsEarlyRoundsSimple() {

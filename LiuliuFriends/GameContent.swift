@@ -3,7 +3,7 @@ import SwiftUI
 enum GameContent {
     static let rounds: [GameRound] = makeRounds()
     static var sessionRoundTotalLimit: Int { GameMode.allCases.count }
-    private static let warmupModes: [GameMode] = [.animal, .vehicle, .fruit, .sound, .color, .shape]
+    private static let warmupModes: [GameMode] = [.animal, .vehicle, .fruit, .sound, .color, .shape, .object]
 
     static func sessionRounds() -> [GameRound] {
         warmupFirst(balancedShuffled(limitedForSession(rounds)))
