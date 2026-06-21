@@ -773,6 +773,7 @@ final class GameViewModelTests: XCTestCase {
         let tasteRounds = GameContent.rounds.filter { $0.mode == .taste }
 
         XCTAssertGreaterThanOrEqual(tasteRounds.count, FriendTaste.allCases.count * 3)
+        XCTAssertTrue(Set(FriendTaste.allCases).contains(.fragrant))
         XCTAssertEqual(Set(tasteRounds.compactMap(\.targetTaste)), Set(FriendTaste.allCases))
         for taste in FriendTaste.allCases {
             XCTAssertGreaterThanOrEqual(tasteRounds.filter { $0.targetTaste == taste }.count, 3)

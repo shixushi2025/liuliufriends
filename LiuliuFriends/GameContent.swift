@@ -675,7 +675,10 @@ enum GameContent {
         (.juicy, .peach, .pencil),
         (.bland, .pear, .pineapple),
         (.bland, .rice, .strawberry),
-        (.bland, .bread, .lemon)
+        (.bland, .bread, .lemon),
+        (.fragrant, .cookie, .cucumber),
+        (.fragrant, .bread, .lemon),
+        (.fragrant, .noodles, .watermelon)
     ]
 
     private static let oppositePracticePairs: [(target: FriendOpposite, distractor: FriendOpposite, correct: FriendKind, wrong: FriendKind)] = [

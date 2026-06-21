@@ -1475,6 +1475,7 @@ enum FriendTaste: String, CaseIterable {
     case sour
     case juicy
     case bland
+    case fragrant
 
     var promptTitle: String {
         switch self {
@@ -1486,6 +1487,8 @@ enum FriendTaste: String, CaseIterable {
             return "多汁的"
         case .bland:
             return "淡淡的"
+        case .fragrant:
+            return "香香的"
         }
     }
 
@@ -1503,6 +1506,8 @@ enum FriendTaste: String, CaseIterable {
             return "drop.fill"
         case .bland:
             return "circle.dotted"
+        case .fragrant:
+            return "sparkles"
         }
     }
 }
