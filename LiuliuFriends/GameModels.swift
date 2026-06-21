@@ -3144,6 +3144,12 @@ enum FriendKind: String, CaseIterable, Identifiable {
     case kettle
     case scissors
     case socket
+    case key
+    case phone
+    case remote
+    case mirror
+    case tissue
+    case pillow
 
     var id: String { rawValue }
 
@@ -3431,6 +3437,18 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "剪刀"
         case .socket:
             return "插座"
+        case .key:
+            return "钥匙"
+        case .phone:
+            return "手机"
+        case .remote:
+            return "遥控器"
+        case .mirror:
+            return "镜子"
+        case .tissue:
+            return "纸巾"
+        case .pillow:
+            return "枕头"
         }
     }
 
@@ -3474,7 +3492,7 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return .place
         case .doctor, .teacher, .policeOfficer, .firefighter, .chef, .farmer:
             return .profession
-        case .balloon, .umbrella, .ball, .book, .cup, .knife, .kettle, .scissors, .socket:
+        case .balloon, .umbrella, .ball, .book, .cup, .knife, .kettle, .scissors, .socket, .key, .phone, .remote, .mirror, .tissue, .pillow:
             return .object
         }
     }
@@ -3768,6 +3786,18 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "scissors"
         case .socket:
             return "bolt.fill"
+        case .key:
+            return "key.fill"
+        case .phone:
+            return "iphone"
+        case .remote:
+            return "rectangle.fill"
+        case .mirror:
+            return "circle.fill"
+        case .tissue:
+            return "square.fill"
+        case .pillow:
+            return "rectangle.fill"
         default:
             return "circle.fill"
         }
@@ -3793,7 +3823,7 @@ enum FriendKind: String, CaseIterable, Identifiable {
             return "ObjectAppleArt"
         case .fish:
             return "AnimalFishArt"
-        case .circle, .square, .triangle, .star, .heart, .rectangle, .oval, .diamond, .pentagon, .hexagon, .semicircle, .cross, .rice, .noodles, .bread, .egg, .milk, .cookie, .eye, .ear, .mouth, .hand, .foot, .nose, .hat, .shirt, .pants, .shoes, .socks, .coat, .carrot, .corn, .tomato, .cucumber, .mushroom, .broccoli, .bowl, .spoon, .plate, .fork, .chopsticks, .bottle, .toothbrush, .toothpaste, .towel, .soap, .bathtub, .comb, .chair, .table, .bed, .sofa, .lamp, .clock, .pencil, .crayon, .eraser, .ruler, .notebook, .schoolbag, .drum, .piano, .guitar, .trumpet, .bell, .microphone, .blocks, .doll, .kite, .puzzle, .rattle, .bucket, .rainbow, .house, .school, .park, .beach, .store, .playground, .doctor, .teacher, .policeOfficer, .firefighter, .chef, .farmer, .knife, .kettle, .scissors, .socket:
+        case .circle, .square, .triangle, .star, .heart, .rectangle, .oval, .diamond, .pentagon, .hexagon, .semicircle, .cross, .rice, .noodles, .bread, .egg, .milk, .cookie, .eye, .ear, .mouth, .hand, .foot, .nose, .hat, .shirt, .pants, .shoes, .socks, .coat, .carrot, .corn, .tomato, .cucumber, .mushroom, .broccoli, .bowl, .spoon, .plate, .fork, .chopsticks, .bottle, .toothbrush, .toothpaste, .towel, .soap, .bathtub, .comb, .chair, .table, .bed, .sofa, .lamp, .clock, .pencil, .crayon, .eraser, .ruler, .notebook, .schoolbag, .drum, .piano, .guitar, .trumpet, .bell, .microphone, .blocks, .doll, .kite, .puzzle, .rattle, .bucket, .rainbow, .house, .school, .park, .beach, .store, .playground, .doctor, .teacher, .policeOfficer, .firefighter, .chef, .farmer, .knife, .kettle, .scissors, .socket, .key, .phone, .remote, .mirror, .tissue, .pillow:
             return nil
         case .bird:
             return "AnimalBirdArt"

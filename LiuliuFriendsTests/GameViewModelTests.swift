@@ -247,6 +247,8 @@ final class GameViewModelTests: XCTestCase {
         let objectRounds = GameContent.rounds.filter { $0.mode == .object }
         let objectKinds = FriendKind.allCases.filter { $0.category == .object }
 
+        XCTAssertGreaterThanOrEqual(objectKinds.count, 15)
+        XCTAssertTrue(Set(objectKinds).isSuperset(of: [.key, .phone, .remote, .mirror, .tissue, .pillow]))
         XCTAssertEqual(objectRounds.count, objectKinds.count)
         XCTAssertEqual(Set(objectRounds.map(\.targetKind)), Set(objectKinds))
         for round in objectRounds {
