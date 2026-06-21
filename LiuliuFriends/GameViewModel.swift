@@ -520,6 +520,8 @@ final class GameViewModel: ObservableObject {
             return "找\(displayName(for: round.targetKind))"
         case .profession:
             return "找\(displayName(for: round.targetKind))"
+        case .object:
+            return "找\(displayName(for: round.targetKind))"
         case .size:
             return "找一样大的\(displayName(for: round.targetKind))"
         case .length:
@@ -638,6 +640,8 @@ final class GameViewModel: ObservableObject {
         case .place:
             return "\(displayName(for: round.targetKind))，找到了"
         case .profession:
+            return "\(displayName(for: round.targetKind))，找到了"
+        case .object:
             return "\(displayName(for: round.targetKind))，找到了"
         case .length:
             return round.targetSizeScale > 1 ? "长长的，找到了" : "短短的，找到了"

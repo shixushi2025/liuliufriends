@@ -263,6 +263,10 @@ enum GameContent {
         FriendKind.allCases.filter { $0.category == .profession }
     }
 
+    private static var objectItems: [FriendKind] {
+        FriendKind.allCases.filter { $0.category == .object }
+    }
+
     private static var vehicleItems: [FriendKind] {
         FriendKind.allCases.filter { $0.category == .vehicle }
     }
@@ -794,6 +798,10 @@ enum GameContent {
 
         result += professionItems.enumerated().map { index, kind in
             matchingRound(.profession, kind, color(for: kind), distractor(for: kind, in: professionItems, offset: 2), color(for: distractor(for: kind, in: professionItems, offset: 2)), correctFirst: index.isMultiple(of: 2))
+        }
+
+        result += objectItems.enumerated().map { index, kind in
+            matchingRound(.object, kind, color(for: kind), distractor(for: kind, in: objectItems, offset: 2), color(for: distractor(for: kind, in: objectItems, offset: 2)), correctFirst: !index.isMultiple(of: 2))
         }
 
         result += vehicleItems.enumerated().map { index, kind in

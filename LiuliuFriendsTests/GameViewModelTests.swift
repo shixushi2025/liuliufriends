@@ -243,6 +243,18 @@ final class GameViewModelTests: XCTestCase {
         }
     }
 
+    func testObjectRoundsCoverCommonLifeItems() {
+        let objectRounds = GameContent.rounds.filter { $0.mode == .object }
+        let objectKinds = FriendKind.allCases.filter { $0.category == .object }
+
+        XCTAssertEqual(objectRounds.count, objectKinds.count)
+        XCTAssertEqual(Set(objectRounds.map(\.targetKind)), Set(objectKinds))
+        for round in objectRounds {
+            XCTAssertTrue(round.promptSpeechText.hasPrefix("找"))
+            XCTAssertTrue(round.candidates.allSatisfy { $0.kind.category == .object })
+        }
+    }
+
     func testContentCoversCoreFriendCategories() {
         let categories = Set(FriendKind.allCases.map(\.category))
 
@@ -271,6 +283,7 @@ final class GameViewModelTests: XCTestCase {
         XCTAssertEqual(GameMode.nature.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.place.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.profession.ageBand, .explorer24Months)
+        XCTAssertEqual(GameMode.object.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.category.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.position.ageBand, .explorer24Months)
         XCTAssertEqual(GameMode.insideOutside.ageBand, .explorer24Months)
@@ -327,7 +340,7 @@ final class GameViewModelTests: XCTestCase {
         let groupedModes = Dictionary(grouping: GameMode.allCases, by: \.settingsGroupTitle)
 
         XCTAssertEqual(Set(groupedModes.keys), Set(GameMode.settingsGroupOrder))
-        XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .vehicle, .fruit, .sound, .color, .shape, .body, .sense, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession])
+        XCTAssertEqual(Set(groupedModes["基础识物", default: []]), [.animal, .vehicle, .fruit, .sound, .color, .shape, .body, .sense, .clothing, .vegetable, .food, .tableware, .hygiene, .home, .stationery, .instrument, .toy, .nature, .place, .profession, .object])
         XCTAssertEqual(Set(groupedModes["生活关系", default: []]), [.category, .routine, .emotion, .purpose, .safety, .habit, .scene, .samePlace, .weather, .season, .action, .texture, .temperature, .brightness, .weight, .material, .taste, .pairing, .animalHome, .animalBaby, .animalFood, .itemHome, .origin, .opposite])
         XCTAssertEqual(Set(groupedModes["观察匹配", default: []]), [.size, .length, .height, .shadow, .position, .insideOutside, .frontBack, .distance, .difference])
         XCTAssertEqual(Set(groupedModes["进阶思维", default: []]), [.number, .count, .quantityCompare, .colorShape, .rhythm, .sequence, .pattern])
