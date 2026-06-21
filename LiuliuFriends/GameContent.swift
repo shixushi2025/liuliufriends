@@ -701,7 +701,11 @@ enum GameContent {
         (.clap, .shake),
         (.step, .tap),
         (.shake, .clap),
-        (.tap, .step)
+        (.tap, .step),
+        (.stomp, .spin),
+        (.spin, .clap),
+        (.stomp, .tap),
+        (.spin, .shake)
     ]
 
     private static let sequencePracticePairs: [(target: FriendSequence, distractor: FriendSequence)] = [

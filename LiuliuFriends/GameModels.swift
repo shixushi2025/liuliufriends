@@ -2342,6 +2342,8 @@ enum FriendRhythm: String, CaseIterable {
     case step
     case shake
     case tap
+    case stomp
+    case spin
 
     var promptTitle: String {
         switch self {
@@ -2353,6 +2355,10 @@ enum FriendRhythm: String, CaseIterable {
             return "摇一摇"
         case .tap:
             return "敲一敲"
+        case .stomp:
+            return "跺跺脚"
+        case .spin:
+            return "转一圈"
         }
     }
 
@@ -2366,6 +2372,10 @@ enum FriendRhythm: String, CaseIterable {
             return "摇一摇"
         case .tap:
             return "敲一敲"
+        case .stomp:
+            return "跺跺脚"
+        case .spin:
+            return "转一圈"
         }
     }
 
@@ -2379,6 +2389,10 @@ enum FriendRhythm: String, CaseIterable {
             return "speaker.wave.2.fill"
         case .tap:
             return "music.note"
+        case .stomp:
+            return "shoeprints.fill"
+        case .spin:
+            return "arrow.triangle.2.circlepath"
         }
     }
 }

@@ -1018,6 +1018,7 @@ final class GameViewModelTests: XCTestCase {
         let rhythmRounds = GameContent.rounds.filter { $0.mode == .rhythm }
 
         XCTAssertGreaterThanOrEqual(rhythmRounds.count, FriendRhythm.allCases.count * 2)
+        XCTAssertTrue(Set(FriendRhythm.allCases).isSuperset(of: [.stomp, .spin]))
         XCTAssertEqual(Set(rhythmRounds.compactMap(\.targetRhythm)), Set(FriendRhythm.allCases))
         for rhythm in FriendRhythm.allCases {
             XCTAssertGreaterThanOrEqual(rhythmRounds.filter { $0.targetRhythm == rhythm }.count, 2)
